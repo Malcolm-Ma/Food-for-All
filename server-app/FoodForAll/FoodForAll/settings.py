@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,13 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'DataBase',
+    'Login',
+    'Mail',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -55,7 +60,7 @@ ROOT_URLCONF = 'FoodForAll.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,11 +82,11 @@ WSGI_APPLICATION = 'FoodForAll.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "FoodForAllDB",
-        "USER": "apex",
-        "PASSWORD": "apex08",
-        "HOST": "127.0.0.1",
-        "PORT": "0808"
+        'NAME': 'foodforall',
+        'USER': 'root',
+        'PASSWORD': 'apex',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 
@@ -126,3 +131,42 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'team08.apex@gmail.com'
+EMAIL_HOST_PASSWORD = 'foodforall'
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+CORS_ALLOW_METHODS = [
+     "DELETE",
+     "GET",
+     "OPTIONS",
+     "PATCH",
+     "POST",
+     "PUT",
+     "VIEW",
+]
+CORS_ALLOW_HEADERS = [
+     "accept",
+     "accept-encoding",
+     "authorization",
+     "content-type",
+     "dnt",
+     "origin",
+     "user-agent",
+     "x-csrftoken",
+     "x-requested-with",
+]
+
+COOKIE_EXPIRES = 7 * 24 * 60 * 60
+COOKIE_PATH = "/"
+COOKIE_SALT = "apex"
+
+REGIS_CODE_EXPIRES = 30 * 60
+
+MAIN_PATH = "/"
