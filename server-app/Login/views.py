@@ -7,6 +7,10 @@ import time
 from hashlib import md5
 import json
 
+login_status = {"success": 0,
+          "wrong_username": 1,
+          "wrong_password": 2,
+          "already_login": 3}
 # Create your views here.
 def gen_regis_code(mail, expires=REGIS_CODE_EXPIRES, if_check=False):
     dynamic_num = int(time.time()) // expires
@@ -48,29 +52,26 @@ def create_user(mail, password, type, region):
     return user_info
 
 def login(request):
-    response_data = {"status": "",
-                     "username": "",
-                     }
+    response_data = {"status": 1}
     if check_login(request):
-        response_data["status"] = "is login"
+        response_data["status"] = login_status["already_login"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif request.method == "GET":
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif request.method == "POST":
         data = json.loads(request.body)
         mail = data["username"]
-        response_data["username"] = mail
         password = data["password"]
         user_info = models.User.objects.filter(mail=mail).first()
         if not user_info:
-            response_data["status"] = "wrong username"
+            response_data["status"] = login_status["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif user_info.passwd != password:
-            response_data["status"] = "wrong password"
+            response_data["status"] = login_status["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
             models.User.objects.filter(mail="ty_liang@foxmail.com").update(last_login_time=int(time.time()))
-            response_data["status"] = "success"
+            response_data["status"] = login_status["success"]
             return HttpResponse(json.dumps(response_data), content_type="application/json").\
                 set_signed_cookie("uid", user_info.uid, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
 
