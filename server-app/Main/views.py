@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from FoodForAll.settings import EXCHANGE_RATE
+from django.db.models import F
+from django.http import HttpResponse
 from Login.views import check_login
 from DataBase import models
 import json
+import math
+import time
 
 # Create your views here.
 def projects_query2dict(project_query, currency_type="GBP"):
@@ -27,6 +31,16 @@ def projects_query2dict(project_query, currency_type="GBP"):
                             }}
     return projects
 
+def get_current_projects_dict(valid_projects, current_page, project_num, order, currency_type):
+    current_projects = valid_projects.order_by(order)[(current_page - 1) * project_num: current_page * project_num]
+    current_projects_dict = projects_query2dict(current_projects, currency_type)
+    return current_projects_dict
+
+def get_valid_projects():
+    conditions = {"current_num__lt": F("total_num"), "end_time__lt": int(time.time())}
+    valid_projects = models.Project.objects.filter(**conditions)
+    return valid_projects
+
 def main(request):
     response_data = {"user_info": {"username":"",
                                    "name": "",
@@ -49,5 +63,13 @@ def main(request):
     data = json.loads(request.body)
     project_num = data["page_info"]["page_size"]
     response_data["page_info"]["page_size"] = project_num
+    valid_projects = get_valid_projects()
+    response_data["page_info"]["total_page"] = math.ceil(valid_projects.count() / project_num)
     if request.method == "GET":
-        pass
+        order = "-start_time"
+        current_page = 1
+        response_data["page_info"]["page"] = current_page
+        currency_type = "GBP"
+        current_projects = get_current_projects_dict(valid_projects, current_page, project_num, order, currency_type)
+        response_data["project_info"] = current_projects
+        return HttpResponse(json.dumps(response_data), content_type="application/json")

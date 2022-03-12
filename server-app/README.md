@@ -1,7 +1,7 @@
 # Server-app
 Drived by django(python) and mysql
 
-# Pre-installed software requirements
+# Pre-installed Software Requirements
 MYSQL\
 Anaconda
 
@@ -36,7 +36,7 @@ default-storage-engine=INNODB
 
 # Server Start
 ## Under the environment of the tsp
-\$ cd {project path}/server-app
+\$ cd {project path}/server-app\
 \$ python manage.py runserver
 
 # Learn More
