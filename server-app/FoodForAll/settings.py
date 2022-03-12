@@ -162,6 +162,8 @@ CORS_ALLOW_HEADERS = [
      "x-requested-with",
 ]
 
+APPEND_SLASH=False
+
 COOKIE_EXPIRES = 7 * 24 * 60 * 60
 COOKIE_PATH = "/"
 COOKIE_SALT = "apex"
