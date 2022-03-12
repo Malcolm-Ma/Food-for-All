@@ -20,6 +20,10 @@ regis_status = {"mail_registed": 0,
                 "code_verify_fail": 5,
                 "set_password_success": 6}
 
+regis_action = {"send_code": 0,
+                "verify_code": 1,
+                "set_password": 2}
+
 logout_status = {"success": 0,
                  "not_logged_in": 1}
 
@@ -78,14 +82,15 @@ def login(request):
         if not user_info:
             response_data["status"] = login_status["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        elif user_info.passwd != password:
+        elif user_info.password != password:
             response_data["status"] = login_status["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
             models.User.objects.filter(mail="ty_liang@foxmail.com").update(last_login_time=int(time.time()))
             response_data["status"] = login_status["success"]
-            return HttpResponse(json.dumps(response_data), content_type="application/json").\
-                set_signed_cookie("uid", user_info.uid, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
+            rep = HttpResponse(json.dumps(response_data), content_type="application/json")
+            rep.set_signed_cookie("uid", user_info.uid, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
+            return rep
 
 def regis(request):
     response_data = {"status": "",
@@ -101,7 +106,7 @@ def regis(request):
         mail = data["username"]
         action = data["action"]
         response_data["action"] = action
-        if action == "send_code":
+        if action == regis_action["send_code"]:
             if models.User.objects.filter(mail=mail).first():
                 response_data["status"] = regis_status["mail_registed"]
                 return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -112,14 +117,14 @@ def regis(request):
             except:
                 response_data["status"] = regis_status["mail_send_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        elif action == "verify_code":
+        elif action == regis_action["verify_code"]:
             code = data["code"]
             if check_regis_code(mail, code):
                 response_data["status"] = regis_status["code_verify_success"]
             else:
                 response_data["status"] = regis_status["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        elif action == "set_password":
+        elif action == regis_action["set_password"]:
             password = data["passwod"]
             type = data["type"]
             region = data["region"]
@@ -133,4 +138,6 @@ def logout(request):
         response_data["status"] = logout_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     response_data["status"] = logout_status["success"]
-    return HttpResponse(json.dumps(response_data), content_type="application/json").delete_cookie("uid")
+    rep = HttpResponse(json.dumps(response_data), content_type="application/json")
+    rep.delete_cookie("uid")
+    return rep
