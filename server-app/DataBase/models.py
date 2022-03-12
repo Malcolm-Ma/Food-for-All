@@ -9,6 +9,7 @@ class User(models.Model):
     avatar = models.FilePathField(max_length=256)
     type = models.IntegerField()
     region = models.CharField(max_length=256)
+    currency_type = models.CharField(max_length=256)
     project = models.TextField()
     regis_time = models.IntegerField()
     last_login_time = models.IntegerField()

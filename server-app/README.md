@@ -10,7 +10,7 @@ Anaconda
 ## Install Conda Environment
 ### In Command Line with Anaconda
 \$ cd server-app\
-\$ conda env create -f freeze.yml
+\$ conda env create -f environment_{systemtype}.yml
 
 ## Set MYSQL
 ### In MYSQL

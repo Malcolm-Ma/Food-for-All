@@ -50,7 +50,8 @@ def main(request):
                      "project_info": {},
                      "page_info": {"page": 1,
                                    "page_size": 1,
-                                   "total_page": 1}
+                                   "total_page": 1},
+                     "currency_type": "GBP"
                      }
     uid = check_login(request)
     if uid:
@@ -68,8 +69,18 @@ def main(request):
     if request.method == "GET":
         order = "-start_time"
         current_page = 1
-        response_data["page_info"]["page"] = current_page
-        currency_type = "GBP"
-        current_projects = get_current_projects_dict(valid_projects, current_page, project_num, order, currency_type)
-        response_data["project_info"] = current_projects
+        if uid:
+            currency_type = user_info.currency_type
+        else:
+            currency_type = "GBP"
+    elif request.method == "POST":
+        order = data["order"]
+        current_page = data["page_info"]["page"]
+        currency_type = data["currency_type"]
+    else:
         return HttpResponse(json.dumps(response_data), content_type="application/json")
+    response_data["currency_type"] = currency_type
+    response_data["page_info"]["page"] = current_page
+    current_projects = get_current_projects_dict(valid_projects, current_page, project_num, order, currency_type)
+    response_data["project_info"] = current_projects
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
