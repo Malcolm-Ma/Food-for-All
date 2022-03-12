@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -83,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'foodforall',
-        'USER': 'root',
-        'PASSWORD': 'apex',
+        'USER': 'apex',
+        'PASSWORD': 'apex08',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -169,4 +169,9 @@ COOKIE_SALT = "apex"
 
 REGIS_CODE_EXPIRES = 30 * 60
 
-MAIN_PATH = "/"
+PIC_PATH = os.path.join(BASE_DIR, "Pics")
+DOC_PATH = os.path.join(BASE_DIR, "Docs")
+
+DEFAULT_AVATAR = os.path.join(PIC_PATH, "default.jpg")
+
+EXCHANGE_RATE = {"GBP": 1}
