@@ -8,9 +8,21 @@ from hashlib import md5
 import json
 
 login_status = {"success": 0,
-          "wrong_username": 1,
-          "wrong_password": 2,
-          "already_login": 3}
+                "already_login": 1,
+                "wrong_username": 2,
+                "wrong_password": 3,}
+
+regis_status = {"mail_registed": 0,
+                "already_login": 1,
+                "mail_send_success": 2,
+                "mail_send_fail": 3,
+                "code_verify_success": 4,
+                "code_verify_fail": 5,
+                "set_password_success": 6}
+
+logout_status = {"success": 0,
+                 "not_logged_in": 1}
+
 # Create your views here.
 def gen_regis_code(mail, expires=REGIS_CODE_EXPIRES, if_check=False):
     dynamic_num = int(time.time()) // expires
@@ -52,7 +64,7 @@ def create_user(mail, password, type, region):
     return user_info
 
 def login(request):
-    response_data = {"status": 1}
+    response_data = {"status": login_status["wrong_username"]}
     if check_login(request):
         response_data["status"] = login_status["already_login"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -80,7 +92,7 @@ def regis(request):
                      "action": "",
                      }
     if check_login(request):
-        response_data["status"] = "is login"
+        response_data["status"] = regis_status["already_login"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif request.method == "GET":
         return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -91,34 +103,34 @@ def regis(request):
         response_data["action"] = action
         if action == "send_code":
             if models.User.objects.filter(mail=mail).first():
-                response_data["status"] = "mail has registed before"
+                response_data["status"] = regis_status["mail_registed"]
                 return HttpResponse(json.dumps(response_data), content_type="application/json")
             code = gen_regis_code(mail)
             try:
                 Mail.regis_verify(mail, code)
-                response_data["status"] = "mail sended"
+                response_data["status"] = regis_status["mail_send_success"]
             except:
-                response_data["status"] = "mail wrong"
+                response_data["status"] = regis_status["mail_send_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif action == "verify_code":
             code = data["code"]
             if check_regis_code(mail, code):
-                response_data["status"] = "code verified"
+                response_data["status"] = regis_status["code_verify_success"]
             else:
-                response_data["status"] = "code wrong"
+                response_data["status"] = regis_status["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif action == "set_password":
             password = data["passwod"]
             type = data["type"]
             region = data["region"]
             user_info = create_user(mail, password, type, region)
-            response_data["status"] = True
+            response_data["status"] = regis_status["set_password_success"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def logout(request):
-    response_data = {"status": ""}
+    response_data = {"status": logout_status["not_logged_in"]}
     if not check_login(request):
-        response_data["status"] = "not login"
+        response_data["status"] = logout_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    response_data["status"] = "success"
+    response_data["status"] = logout_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json").delete_cookie("uid")
