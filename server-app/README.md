@@ -1,0 +1,44 @@
+# Server-app
+Drived by django(python) and mysql
+
+# Pre-installed software requirements
+MYSQL\
+Anaconda
+
+# Environment Setup
+
+## Install Conda Environment
+### In Command Line with Anaconda
+\$ cd server-app\
+\$ conda env create -f freeze.yml
+
+## Set MYSQL
+### In MYSQL
+\$ create user 'apex'@'%' identified by 'apex08';\
+\$ grant all privileges on *.* to 'apex'@'%';\
+\$ flush privileges;
+
+### Then set your mysql ini with:
+[client]\
+default-character-set=utf8mb4\
+[mysql]\
+default-character-set=utf8\
+[mysqld]\
+port = 3306\
+character-set-server=utf8\
+default-storage-engine=INNODB
+
+# Startup Environment
+## In Command Line with Anaconda
+\$ cd {your mysql bin path}\
+\$ net start mysql\
+\$ conda activate tsp
+
+# Server Start
+## Under the environment of the tsp
+\$ cd {project path}/server-app
+\$ python manage.py runserver
+
+# Learn More
+
+To learn django, check out the [Django Documentation](https://docs.djangoproject.com/en/4.0/).
