@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-e3$s&q1uqps%61usf(-a^++wajh8!w(_%(zp6ea9r*=1!jl^mo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://127.0.0.1:3000"]
-
+ALLOWED_HOSTS = ["127.0.0.1:3000", "127.0.0.1"]
 
 # Application definition
 
@@ -141,7 +140,7 @@ EMAIL_HOST_USER = 'team08.apex@gmail.com'
 EMAIL_HOST_PASSWORD = 'foodforall'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 CORS_ALLOW_METHODS = [
      "DELETE",
      "GET",
