@@ -69,9 +69,57 @@
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
-    "extends": [
-      "eslint:recommended"
-    ]
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 11,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "react",
+      "react-hooks"
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "import/no-unresolved": "off",
+      "import/order": "off",
+      "max-params": [
+        "warn",
+        8
+      ],
+      "no-use-before-define": [
+        "error",
+        {
+          "functions": false,
+          "variables": false
+        }
+      ],
+      "max-nested-callbacks": [
+        "warn",
+        4
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 120,
+          "ignoreStrings": true,
+          "ignoreUrls": true,
+          "ignoreRegExpLiterals": true,
+          "ignoreTemplateLiterals": true
+        }
+      ],
+      "operator-linebreak": [
+        "error",
+        "before"
+      ],
+      "no-mixed-operators": [
+        "error",
+        {
+          "allowSamePrecedence": false
+        }
+      ]
+    }
   },
   "browserslist": {
     "production": [

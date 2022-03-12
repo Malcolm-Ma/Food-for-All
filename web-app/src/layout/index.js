@@ -11,10 +11,11 @@ const Layout = (props) => {
   const {} = props;
 
   return (
-    <AntdLayout className="ffa-main">
+    <AntdLayout className="ffa-frame">
       <Header />
       <AntdLayout>
         <Sidebar />
+        {/*<Content />*/}
       </AntdLayout>
     </AntdLayout>
   );

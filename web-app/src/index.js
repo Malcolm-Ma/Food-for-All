@@ -7,9 +7,7 @@ import 'antd/dist/antd.less';
 
 const App = () => {
   return (
-    <div className="ffa-app">
-      <Layout />
-    </div>
+    <Layout />
   );
 }
 
