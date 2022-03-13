@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'DataBase',
     'Login',
     'Mail',
+    'Payment',
+    'Project',
+    'Upload',
+    'User',
     'corsheaders',
 ]
 
@@ -124,7 +128,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+PIC_PATH = os.path.join(BASE_DIR, "Pics")
+DOC_PATH = os.path.join(BASE_DIR, "Docs")
+
+STATIC_URL = 'resources/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "Static")
+
+STATICFILES_DIRS = [
+    PIC_PATH,
+    DOC_PATH,
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -170,9 +184,6 @@ COOKIE_SALT = "apex"
 
 REGIS_CODE_EXPIRES = 30 * 60
 
-PIC_PATH = os.path.join(BASE_DIR, "Pics")
-DOC_PATH = os.path.join(BASE_DIR, "Docs")
-
-DEFAULT_AVATAR = os.path.join(PIC_PATH, "default.jpg")
+DEFAULT_AVATAR = os.path.join(STATIC_URL, "default.jpg")
 
 EXCHANGE_RATE = {"GBP": 1}
