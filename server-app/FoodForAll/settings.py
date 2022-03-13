@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'Upload',
     'User',
     'corsheaders',
+    'drf_yasg',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -128,15 +130,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-PIC_PATH = os.path.join(BASE_DIR, "Pics")
-DOC_PATH = os.path.join(BASE_DIR, "Docs")
+IMG_PATH = os.path.join(BASE_DIR, "IMG")
+DOC_PATH = os.path.join(BASE_DIR, "DOC")
 
 STATIC_URL = 'resources/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "Static")
 
 STATICFILES_DIRS = [
-    PIC_PATH,
+    IMG_PATH,
     DOC_PATH,
 ]
 
@@ -175,6 +177,32 @@ CORS_ALLOW_HEADERS = [
      "x-csrftoken",
      "x-requested-with",
 ]
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout',
+    'PERSIST_AUTH': True,
+    'REFETCH_SCHEMA_WITH_AUTH': True,
+    'REFETCH_SCHEMA_ON_LOGOUT': True,
+
+    'DEFAULT_INFO': "FoodForAll.urls.swagger_info",
+
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'authorization',
+            'in': 'header'
+        },
+        'Query': {
+            'type': 'apiKey',
+            'name': 'auth',
+            'in': 'query'
+        }
+    }
+}
 
 APPEND_SLASH=False
 

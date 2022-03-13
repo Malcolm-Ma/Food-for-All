@@ -1,5 +1,5 @@
 from django.shortcuts import render
 
 # Create your views here.
-def pic_upload(pic):
+def img_upload(pic):
     pass

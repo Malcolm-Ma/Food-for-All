@@ -4,7 +4,7 @@ from FoodForAll.settings import COOKIE_EXPIRES, COOKIE_PATH, COOKIE_SALT, DEFAUL
 from Mail.views import Mail
 import time
 import json
-from Upload.views import pic_upload
+from Upload.views import img_upload
 from User.functions import create_user
 from .functions import *
 
@@ -75,7 +75,7 @@ def regis(request):
             if avatar == "":
                 avatar = DEFAULT_AVATAR
             else:
-                avatar = pic_upload(avatar)
+                avatar = img_upload(avatar)
             user_info = create_user(mail, password, type, region, name=name, avatar=avatar)
             Mail.welcome(mail)
             response_data["status"] = regis_status["set_password_success"]
