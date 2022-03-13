@@ -26,7 +26,7 @@ def projects_query2dict(projects_query, currency_type="GBP"):
     return projects
 
 def get_valid_projects():
-    conditions = {"current_num__lt": F("total_num"), "end_time__lt": int(time.time())}
+    conditions = {"current_num__lt": F("total_num"), "end_time__gt": int(time.time()), "start_time__lt": int(time.time())}
     valid_projects = models.Project.objects.filter(**conditions)
     return valid_projects
 

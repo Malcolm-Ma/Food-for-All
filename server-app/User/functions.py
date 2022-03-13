@@ -9,7 +9,7 @@ def gen_uid(seq=""):
         id = gen_uid(seq=seq)
     return id
 
-def create_user(mail, password, type, region, name="", avatar=DEFAULT_AVATAR):
+def create_user(mail, password, type, region, currency_type, name="", avatar=DEFAULT_AVATAR):
     id = gen_uid(seq=mail)
     if name == "":
         name = mail
@@ -20,6 +20,7 @@ def create_user(mail, password, type, region, name="", avatar=DEFAULT_AVATAR):
     "avatar": avatar,
     "type": type,
     "region": region,
+    "currency_type": currency_type,
     "project": "",
     "regis_time": int(time.time()),
     "last_login_time": int(time.time()),

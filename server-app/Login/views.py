@@ -70,13 +70,14 @@ def regis(request):
             password = data["password"]
             type = data["type"]
             region = data["region"]
+            currency_type = data["currency_type"]
             name = data["name"]
             avatar = data["avatar"]
             if avatar == "":
                 avatar = DEFAULT_AVATAR
             else:
                 avatar = img_upload(avatar)
-            user_info = create_user(mail, password, type, region, name=name, avatar=avatar)
+            user_info = create_user(mail, password, type, region, currency_type, name=name, avatar=avatar)
             Mail.welcome(mail)
             response_data["status"] = regis_status["set_password_success"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")

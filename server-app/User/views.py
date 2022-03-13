@@ -9,6 +9,7 @@ def get_user_info(request):
                      "avatar": "",
                      "type": "",
                      "region": "",
+                     "currency_type": "GBP",
                      "project": "",
                      "regis_time": 0,
                      "last_login_time": 0,
