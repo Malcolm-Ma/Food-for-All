@@ -44,6 +44,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('region_list/', common_views.get_region),
+    path('currency_list/', common_views.get_currency),
     path('login/', login_views.login),
     path('regis/', login_views.regis),
     path('logout/', login_views.logout),

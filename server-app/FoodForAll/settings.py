@@ -222,4 +222,14 @@ with open(REGION_CSV) as f:
 REGION2RID = dict([i[:2][::-1] for i in region_list])
 RID2REGION = dict([i[:2] for i in region_list])
 
-EXCHANGE_RATE = {"GBP": 1}
+CURRENCY_CSV = os.path.join(BASE_DIR, "currency_list.csv")
+with open(CURRENCY_CSV) as f:
+    currency_list = list(csv.reader(f))
+CURRENCY2CID = dict([i[:2][::-1] for i in currency_list])
+CID2CURRENCY = dict([i[:2] for i in currency_list])
+
+EXCHANGE_RATE_CSV = os.path.join(BASE_DIR, "exchange_rate.csv")
+with open(EXCHANGE_RATE_CSV) as f:
+    exchange_rate_list = list(csv.reader(f))
+    exchange_rate_list = [[i[0], float(i[1])] for i in exchange_rate_list]
+EXCHANGE_RATE = dict([i[:2] for i in exchange_rate_list])

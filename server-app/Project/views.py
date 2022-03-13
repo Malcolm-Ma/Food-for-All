@@ -3,6 +3,7 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
+from FoodForAll.settings import EXCHANGE_RATE, CURRENCY2CID, CID2CURRENCY
 
 # Create your views here.
 def get_projects(request):
@@ -19,7 +20,7 @@ def get_projects(request):
         if user_info:
             currency_type = user_info.currency_type
         else:
-            currency_type = "GBP"
+            currency_type = CID2CURRENCY["GBP"]
     elif request.method == "POST":
         data = json.loads(request.body)
         page_size = data["page_info"]["page_size"]

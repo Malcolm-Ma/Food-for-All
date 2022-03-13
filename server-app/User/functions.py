@@ -1,7 +1,11 @@
 from hashlib import md5
 from DataBase import models
 import time
-from FoodForAll.settings import DEFAULT_AVATAR, REGION2RID
+from FoodForAll.settings import DEFAULT_AVATAR, REGION2RID, CURRENCY2CID
+
+user_type = {"admin": 0,
+             "charity": 1,
+             "guest": 2}
 
 def gen_uid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
@@ -15,6 +19,10 @@ def create_user(mail, password, type, region, currency_type, name="", avatar=DEF
         region = "GB"
     else:
         region = REGION2RID[region]
+    if currency_type not in CURRENCY2CID:
+        currency_type = "GBP"
+    else:
+        currency_type = CURRENCY2CID[currency_type]
     if name == "":
         name = mail
     user_info = {"uid": id,
@@ -25,10 +33,10 @@ def create_user(mail, password, type, region, currency_type, name="", avatar=DEF
     "type": type,
     "region": region,
     "currency_type": currency_type,
-    "project": "",
+    "project": "{}",
     "regis_time": int(time.time()),
     "last_login_time": int(time.time()),
-    "donate_history": "",
-    "share_mail_history": ""}
+    "donate_history": "{}",
+    "share_mail_history": ","}
     models.User.objects.create(**user_info)
     return user_info
