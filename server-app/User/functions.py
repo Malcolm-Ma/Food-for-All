@@ -1,7 +1,7 @@
 from hashlib import md5
 from DataBase import models
 import time
-from FoodForAll.settings import DEFAULT_AVATAR
+from FoodForAll.settings import DEFAULT_AVATAR, REGION2RID
 
 def gen_uid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
@@ -11,6 +11,10 @@ def gen_uid(seq=""):
 
 def create_user(mail, password, type, region, currency_type, name="", avatar=DEFAULT_AVATAR):
     id = gen_uid(seq=mail)
+    if region not in REGION2RID:
+        region = "GB"
+    else:
+        region = REGION2RID[region]
     if name == "":
         name = mail
     user_info = {"uid": id,

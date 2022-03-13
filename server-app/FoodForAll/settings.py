@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'Common',
     'DataBase',
     'Login',
     'Mail',
@@ -213,5 +214,12 @@ COOKIE_SALT = "apex"
 REGIS_CODE_EXPIRES = 30 * 60
 
 DEFAULT_AVATAR = os.path.join(STATIC_URL, "default.jpg")
+
+import csv
+REGION_CSV = os.path.join(BASE_DIR, "region_list.csv")
+with open(REGION_CSV) as f:
+    region_list = list(csv.reader(f))
+REGION2RID = dict([i[:2][::-1] for i in region_list])
+RID2REGION = dict([i[:2] for i in region_list])
 
 EXCHANGE_RATE = {"GBP": 1}

@@ -1,6 +1,7 @@
 from Login.functions import check_login
 import json
 from django.http import HttpResponse
+from FoodForAll.settings import RID2REGION
 
 def get_user_info(request):
     response_data = {"uid": "",
@@ -19,4 +20,5 @@ def get_user_info(request):
     if user_info:
         for i in response_data:
             response_data[i] = user_info.__getattribute__(i)
+        response_data["region"] = RID2REGION[response_data["region"]]
     return HttpResponse(json.dumps(response_data), content_type="application/json")

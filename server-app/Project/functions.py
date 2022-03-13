@@ -1,7 +1,7 @@
 from DataBase import models
 import time
 from django.db.models import F
-from FoodForAll.settings import EXCHANGE_RATE
+from FoodForAll.settings import EXCHANGE_RATE, RID2REGION
 
 def projects_query2dict(projects_query, currency_type="GBP"):
     projects = {}
@@ -11,7 +11,7 @@ def projects_query2dict(projects_query, currency_type="GBP"):
                             "title": projects_query[i].title,
                             "charity": projects_query[i].charity,
                             "intro": projects_query[i].intro,
-                            "region": projects_query[i].region,
+                            "region": RID2REGION[projects_query[i].region],
                             "charity_avatar": projects_query[i].charity_avatar,
                             "background_image": projects_query[i].background_image,
                             "price": projects_query[i].price * EXCHANGE_RATE[currency_type],

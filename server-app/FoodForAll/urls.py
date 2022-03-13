@@ -18,6 +18,7 @@ from django.urls import path, re_path
 from Login import views as login_views
 from User import views as user_views
 from Project import views as project_views
+from Common import views as common_views
 
 from rest_framework import permissions
 from rest_framework.decorators import api_view
@@ -42,6 +43,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('region_list/', common_views.get_region),
     path('login/', login_views.login),
     path('regis/', login_views.regis),
     path('logout/', login_views.logout),
