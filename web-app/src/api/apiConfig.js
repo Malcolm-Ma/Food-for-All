@@ -4,5 +4,5 @@
  */
 
 export default {
-  login: '/login'
+  login: '/login/'
 };
