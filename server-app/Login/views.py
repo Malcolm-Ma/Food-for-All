@@ -68,8 +68,8 @@ def regis(request):
             currency_type = data["currency_type"]
             name = data["name"]
             avatar = data["avatar"]
-            if avatar == "" or not os.path.isfile(os.path.join(BASE_DIR, avatar)):
-                avatar = DEFAULT_AVATAR
+            if avatar != "" and not os.path.isfile(os.path.join(IMG_PATH, os.path.basename(avatar))):
+                avatar = ""
             user_info = create_user(mail, password, type, region, currency_type, name=name, avatar=avatar)
             Mail.welcome(mail)
             response_data["status"] = regis_status["set_password_success"]
