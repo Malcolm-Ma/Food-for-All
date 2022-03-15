@@ -8,8 +8,6 @@ import { Routes ,Route } from 'react-router-dom';
 import _ from "lodash";
 import { Form, Input, Button, Checkbox } from 'antd';
 
-import Home from "src/modules/home";
-
 import actions from "src/actions";
 import routesConfig from "src/configure/routes";
 
