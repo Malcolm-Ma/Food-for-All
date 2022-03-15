@@ -1,5 +1,7 @@
 import React from 'react';
 import { Layout } from 'antd';
+import Button from '@mui/material/Button';
+import {Link} from "@mui/material";
 
 const { Header: AntdHeader } = Layout;
 
@@ -9,8 +11,19 @@ const Header = (props) => {
   return (
     <AntdHeader className="ffa-nav">
       <div className="nav-logo">
-        Food For All
+          <Link
+              variant="button"
+              color="inherit"
+              href="/"
+              sx={{ my: 1, mx: 1.5 }}
+              style={{textDecoration:'none'}}
+          >
+              Food For All
+          </Link>
       </div>
+        <Button className='login-btn' href="/login" variant="outlined" sx={{ my: 1, mx: 1.5 }}>
+            Login
+        </Button>
     </AntdHeader>
   );
 };
