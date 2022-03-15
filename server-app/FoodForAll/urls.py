@@ -20,6 +20,7 @@ from User import views as user_views
 from Project import views as project_views
 from Common import views as common_views
 from Upload import views as upload_views
+from DataBase import views as database_views
 
 from rest_framework import permissions
 from rest_framework.decorators import api_view
@@ -55,6 +56,7 @@ urlpatterns = [
     path('projects_list/', project_views.get_projects),
     path('upload_img/', upload_views.upload_img),
     path('upload_doc/', upload_views.upload_doc),
+    path('init_database/', database_views.init_database),
     re_path(r'^swagger(?P<format>.json|.yaml)$', schema_view.without_ui(cache_timeout=None),
             name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=None), name='cschema-swagger'),

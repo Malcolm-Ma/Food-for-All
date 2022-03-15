@@ -9,7 +9,6 @@ def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     if currency_type in CURRENCY2CID:
         for i in range(projects_query.count()):
             projects[str(i)] = {"pid": projects_query[i].pid,
-                                "uid": projects_query[i].uid,
                                 "title": projects_query[i].title,
                                 "charity": projects_query[i].charity,
                                 "intro": projects_query[i].intro,
