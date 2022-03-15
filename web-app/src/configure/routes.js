@@ -33,4 +33,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/project/create',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
