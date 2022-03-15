@@ -1,7 +1,5 @@
 from .functions import *
 
-DEFAULT_AVATAR = os.path.join(STATIC_URL, "default_avatar.jpg")
-
 COOKIE_EXPIRES = 7 * 24 * 60 * 60
 COOKIE_PATH = "/"
 COOKIE_SALT = "apex"

@@ -29,7 +29,7 @@ def gen_uid(seq=""):
         id = gen_uid(seq=seq)
     return id
 
-def create_user(mail, password, type, region, currency_type, name="", avatar=DEFAULT_AVATAR):
+def create_user(mail, password, type, region, currency_type, name="", avatar=""):
     id = gen_uid(seq=mail)
     if region not in REGION2RID:
         region = "GB"
