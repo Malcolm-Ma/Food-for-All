@@ -45,6 +45,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('region_list/', common_views.get_region_list),
     path('currency_list/', common_views.get_currency_list),
+    path('region2currency/', common_views.get_region2currency),
     path('login/', login_views.login),
     path('regis/', login_views.regis),
     path('logout/', login_views.logout),
