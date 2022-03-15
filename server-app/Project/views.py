@@ -3,7 +3,6 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
-from FoodForAll.settings import EXCHANGE_RATE, CURRENCY2CID, CID2CURRENCY
 
 # Create your views here.
 def get_projects(request):
