@@ -37,7 +37,7 @@ default-storage-engine=INNODB
 # Server Start
 ## Under the environment of the tsp
 \$ cd {project path}/server-app\
-\$ python manage.py runserver
+\$ python manage.py runserver 8000
 
 # Learn More
 

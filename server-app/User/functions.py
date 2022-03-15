@@ -1,7 +1,7 @@
 from hashlib import md5
 from DataBase import models
 import time
-from FoodForAll.settings import DEFAULT_AVATAR, REGION2RID, CURRENCY2CID
+from Common.common import *
 
 user_type = {"admin": 0,
              "charity": 1,
@@ -40,3 +40,6 @@ def create_user(mail, password, type, region, currency_type, name="", avatar=DEF
     "share_mail_history": ","}
     models.User.objects.create(**user_info)
     return user_info
+
+def filter_user_info(filter_dict):
+    return models.User.objects.filter(**filter_dict)

@@ -1,7 +1,7 @@
 from DataBase import models
 import time
 from django.db.models import F
-from FoodForAll.settings import EXCHANGE_RATE, RID2REGION, CID2CURRENCY, CURRENCY2CID
+from Common.common import *
 
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     projects = {}

@@ -1,9 +1,6 @@
 from django.http import HttpResponse
-from DataBase import models
-from FoodForAll.settings import COOKIE_EXPIRES, COOKIE_PATH, COOKIE_SALT, DEFAULT_AVATAR
-from Mail.views import Mail
-import time
 import json
+from Mail.views import Mail
 from Upload.views import img_upload
 from User.functions import create_user
 from .functions import *
@@ -19,7 +16,7 @@ def login(request):
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
-        user_info = models.User.objects.filter(mail=mail).first()
+        user_info = filter_user_info({"mail": mail}).first()
         if not user_info:
             response_data["status"] = login_status["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -27,7 +24,7 @@ def login(request):
             response_data["status"] = login_status["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
-            models.User.objects.filter(mail="ty_liang@foxmail.com").update(last_login_time=int(time.time()))
+            filter_user_info({"mail": mail}).update(last_login_time=int(time.time()))
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
             cookie = encode_cookie(request, user_info.uid)
@@ -49,7 +46,7 @@ def regis(request):
         action = data["action"]
         response_data["action"] = action
         if action == regis_action["send_code"]:
-            if models.User.objects.filter(mail=mail).first():
+            if filter_user_info({"mail": mail}).first():
                 response_data["status"] = regis_status["mail_registed"]
                 return HttpResponse(json.dumps(response_data), content_type="application/json")
             code = gen_regis_code(mail)

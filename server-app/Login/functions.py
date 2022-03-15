@@ -1,7 +1,7 @@
-from DataBase import models
-from FoodForAll.settings import COOKIE_EXPIRES, COOKIE_SALT, REGIS_CODE_EXPIRES
 import time
 from hashlib import md5
+from Common.common import *
+from User.functions import filter_user_info
 
 login_status = {"success": 0,
                 "already_login": 1,
@@ -45,7 +45,7 @@ def check_login(request):
     cookie_time = int(time.time()) - t
     url = get_request_url(request)
     if s and cookie_time > 0 and cookie_time < COOKIE_EXPIRES and u == url:
-        return models.User.objects.filter(uid=s).first()
+        return filter_user_info({"uid": s}).first()
     return ""
 
 def get_request_url(request):

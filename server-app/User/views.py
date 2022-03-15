@@ -1,7 +1,7 @@
-from Login.functions import check_login
-import json
 from django.http import HttpResponse
-from FoodForAll.settings import RID2REGION
+import json
+from Login.functions import check_login
+from .functions import *
 
 def get_user_info(request):
     response_data = {"uid": "",
