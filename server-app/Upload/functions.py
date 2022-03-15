@@ -1,6 +1,4 @@
-import os
 import time
-
 from Common.common import *
 
 def write_file(file_path, file_obj, mode='wb'):
