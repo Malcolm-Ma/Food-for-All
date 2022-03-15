@@ -205,6 +205,6 @@ SWAGGER_SETTINGS = {
     }
 }
 
-RESOURCE_DIR = os.path.join(BASE_DIR, "Resource")
+RESOURCE_PATH = os.path.join(BASE_DIR, "Resource")
 
 APPEND_SLASH=False

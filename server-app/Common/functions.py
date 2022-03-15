@@ -1,11 +1,11 @@
 import csv
 import os
-from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL
+from FoodForAll.settings import RESOURCE_PATH, BASE_DIR, STATIC_URL, IMG_PATH, DOC_PATH
 
-region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
-currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")
-region_currency_list_file = os.path.join(RESOURCE_DIR, "region_currency.csv")
-exchange_rate_file = os.path.join(RESOURCE_DIR, "exchange_rate.csv")
+region_list_file = os.path.join(RESOURCE_PATH, "region_list.csv")
+currency_list_file = os.path.join(RESOURCE_PATH, "currency_list.csv")
+region_currency_list_file = os.path.join(RESOURCE_PATH, "region_currency.csv")
+exchange_rate_file = os.path.join(RESOURCE_PATH, "exchange_rate.csv")
 
 def create_region_list():
     with open(region_list_file, "r", encoding="GBK") as f:
