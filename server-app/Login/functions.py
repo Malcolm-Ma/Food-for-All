@@ -1,7 +1,7 @@
 import time
 from hashlib import md5
 from Common.common import *
-from User.functions import filter_user_info
+from User.functions import *
 
 login_status = {"success": 0,
                 "already_login": 1,

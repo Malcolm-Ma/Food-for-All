@@ -6,7 +6,7 @@ from Project.functions import *
 from User.functions import *
 from Common.common import *
 
-userinfo = [{"uid": "1",
+userinfo = [{"uid": gen_uid("a"),
     "mail": "ty_liang@foxmail.com",
     "password": "123456",
     "name": "tyl",
@@ -19,7 +19,7 @@ userinfo = [{"uid": "1",
     "last_login_time": int(time.time() - 100),
     "donate_history": "",
     "share_mail_history": ""},
-    {"uid": "2",
+    {"uid": gen_uid("a"),
     "mail": "531273646@qq.com",
     "password": "123456",
     "name": "tyl",
@@ -82,7 +82,7 @@ class Test(TestCase):
 def init_database():
     models.User.objects.all().delete()
     models.Project.objects.all().delete()
-    userinfo = [{"uid": "1",
+    userinfo = [{"uid": gen_uid("a"),
                  "mail": "ty_liang@foxmail.com",
                  "password": "123456",
                  "name": "tyl",
@@ -95,7 +95,7 @@ def init_database():
                  "last_login_time": int(time.time() - 100),
                  "donate_history": "",
                  "share_mail_history": ""},
-                {"uid": "2",
+                {"uid": gen_uid("a"),
                  "mail": "531273646@qq.com",
                  "password": "123456",
                  "name": "tyl",

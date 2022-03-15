@@ -24,7 +24,7 @@ def login(request):
             response_data["status"] = login_status["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
-            filter_user_info({"mail": mail}).update(last_login_time=int(time.time()))
+            update_user_info(filter_user_info({"mail": mail}), {"last_login_time": int(time.time())})
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
             cookie = encode_cookie(request, user_info.uid)

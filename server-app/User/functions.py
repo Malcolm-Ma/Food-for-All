@@ -43,3 +43,6 @@ def create_user(mail, password, type, region, currency_type, name="", avatar=DEF
 
 def filter_user_info(filter_dict):
     return models.User.objects.filter(**filter_dict)
+
+def update_user_info(user_query, update_dict):
+    return user_query.update(**update_dict)
