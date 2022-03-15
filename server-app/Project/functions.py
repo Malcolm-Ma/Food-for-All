@@ -2,6 +2,7 @@ from DataBase import models
 import time
 from django.db.models import F
 from Common.common import *
+from hashlib import md5
 
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     projects = {}
@@ -39,3 +40,9 @@ def get_current_projects_dict(valid_projects, current_page, project_num, order, 
     current_projects = current_projects[(current_page - 1) * project_num: min(current_page * project_num, current_projects.count())]
     current_projects_dict = projects_query2dict(current_projects, currency_type)
     return current_projects_dict
+
+def gen_pid(seq=""):
+    id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
+    if models.Project.objects.filter(pid=id):
+        id = gen_pid(seq=seq)
+    return id
