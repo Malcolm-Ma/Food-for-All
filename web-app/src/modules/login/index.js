@@ -9,12 +9,16 @@ import actions from "../../actions";
 export default (props) => {
   const {} = props;
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log('Success:', values);
-    actions.login({
-      username: values.username,
-      password: values.password,
-    });
+    try {
+      const res = await actions.login({
+        username: values.username,
+        password: values.password,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const onFinishFailed = (errorInfo) => {

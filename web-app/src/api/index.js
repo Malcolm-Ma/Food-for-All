@@ -12,6 +12,18 @@ export class Api {
     this.axiosInstance = axios.create({
       baseURL: BASE_URL,
     });
+
+    this.axiosInstance.interceptors.response.use((response) => {
+      if (response.status === 200) {
+        const { data } = response;
+        return data;
+      } else {
+        message.error('Fall to request：' + response.status);
+      }
+    }, (error) => {
+      message.error('Network Error, please try again');
+      return Promise.reject(error);
+    });
   }
 
   get(url, data, options) {
@@ -23,7 +35,7 @@ export class Api {
   }
 
   post(url, data, options) {
-    this.axiosInstance(url, {
+    return this.axiosInstance(url, {
       method: 'post',
       data,
       ...options,
