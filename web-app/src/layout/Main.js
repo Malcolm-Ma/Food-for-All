@@ -4,62 +4,36 @@
  */
 
 import React from "react";
+import { Routes ,Route } from 'react-router-dom';
+import _ from "lodash";
 import { Form, Input, Button, Checkbox } from 'antd';
 
-import api from "../api";
+import Home from "src/modules/home";
+
+import actions from "src/actions";
+import routesConfig from "src/configure/routes";
 
 export default (props) => {
   const {} = props;
 
-  const onFinish = async (values) => {
-    console.log('Success:', values);
-    api.post('/login/', {
-      username: values.username,
-      password: values.password,
-    });
-  };
-
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
-
   return (
     <div className="ffa-main">
-      <Form
-        name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        autoComplete="off"
-      >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: 'Please input your username!' }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
-
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+    <Routes>
+        {
+          _.map(routesConfig, (route) => {
+            console.log('--path--\n', route);
+            const { path, component: Component, ...otherProps } = route;
+            return (
+              <Route
+                key={path}
+                path={path}
+                element={<Component />}
+                {...otherProps}
+              />
+            );
+          })
+        }
+      </Routes>
     </div>
   );
 };

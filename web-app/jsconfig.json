@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": false,
+    "experimentalDecorators": true,
+    "paths": {
+      "utils/*": ["src/utils/*"],
+      "src/*": ["src/*"],
+      "root/*": ["./*"]
+    }
+  },
+  "include": [
+    "./src/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "bower_components",
+    "jspm_packages",
+    "tmp",
+    "temp"
+  ]
+}

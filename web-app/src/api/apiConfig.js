@@ -3,3 +3,6 @@
  * @author Mingze Ma
  */
 
+export default {
+  login: '/login'
+};

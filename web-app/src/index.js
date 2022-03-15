@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 
 import Layout from "./layout";
@@ -7,13 +8,10 @@ import 'antd/dist/antd.less';
 
 const App = () => {
   return (
-    <Layout />
+    <BrowserRouter basename="/">
+      <Layout/>
+    </BrowserRouter>
   );
 }
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App/>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+ReactDOM.render(<App />, document.getElementById('root'));
