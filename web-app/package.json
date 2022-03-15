@@ -122,6 +122,17 @@
         {
           "allowSamePrecedence": false
         }
+      ],
+      "react/jsx-no-undef": "error",
+      "react/jsx-uses-vars": "error",
+      "react/jsx-uses-react": 2,
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+      "react/jsx-no-bind": [
+        "warn",
+        {
+          "allowArrowFunctions": true
+        }
       ]
     }
   },
