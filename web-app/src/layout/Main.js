@@ -19,7 +19,6 @@ export default (props) => {
     <Routes>
         {
           _.map(routesConfig, (route) => {
-            console.log('--path--\n', route);
             const { path, component: Component, ...otherProps } = route;
             return (
               <Route
