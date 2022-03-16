@@ -58,18 +58,32 @@ def create_user(create_info):
     user_info["uid"] = gen_uid(seq=user_info["mail"])
     return models.User.objects.create(**user_info)
 
-def filter_user_info(filter_dict):
-    return models.User.objects.filter(**filter_dict)
+def get_user(filter_dict):
+    if len(filter_dict) != 1 or ("uid" not in filter_dict and "mail" not in filter_dict):
+        return ""
+    try:
+        r = models.User.objects.get(**filter_dict)
+        return r
+    except:
+        return ""
 
-def update_user_info(user_query, update_dict):
+def update_user(user, update_dict):
+    update_keys_list = ["mail", "password", "name", "avatar", "region", "currency_type", "last_login_time", "share_mail_history"]
+    for key in update_dict.keys():
+        if key not in update_keys_list:
+            return False
     if "region" in update_dict:
-        if update_dict["region"] in REGION2RID:
-            update_dict["region"] = REGION2RID[update_dict["region"]]
-        elif update_dict["region"] not in RID2REGION:
+        update_dict["region"] = region2rid(update_dict["region"])
+        if not update_dict["region"]:
             return False
     if "currency_type" in update_dict:
-        if update_dict["currency_type"] in CURRENCY2CID:
-            update_dict["currency_type"] = CURRENCY2CID[update_dict["currency_type"]]
-        elif update_dict["currency_type"] not in CID2CURRENCY:
+        update_dict["currency_type"] = currency2cid(update_dict["currency_type"])
+        if not update_dict["currency_type"]:
             return False
-    return user_query.update(**update_dict)
+    try:
+        for i in update_dict:
+            user.__setattr__(i, update_dict[i])
+        user.save()
+        return True
+    except:
+        return False

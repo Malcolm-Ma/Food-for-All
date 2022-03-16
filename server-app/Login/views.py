@@ -14,18 +14,18 @@ def login(request):
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
-        user_info = filter_user_info({"mail": mail}).first()
-        if not user_info:
+        user = get_user({"mail": mail})
+        if not user:
             response_data["status"] = login_status["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        elif user_info.password != password:
+        elif user.password != password:
             response_data["status"] = login_status["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
-            update_user_info(filter_user_info({"mail": mail}), {"last_login_time": int(time.time())})
+            update_user(user, {"last_login_time": int(time.time())})
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
-            cookie = encode_cookie(request, user_info.uid)
+            cookie = encode_cookie(request, user.uid)
             rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
@@ -44,10 +44,10 @@ def regis(request):
         action = data["action"]
         response_data["action"] = action
         if action == regis_action["send_code"]:
-            if filter_user_info({"mail": mail}).first():
+            if get_user({"mail": mail}):
                 response_data["status"] = regis_status["mail_registed"]
                 return HttpResponse(json.dumps(response_data), content_type="application/json")
-            code = gen_regis_code(mail)
+            code = gen_verify_code(mail, "regist")
             try:
                 Mail.regis_verify(mail, code, False)
                 response_data["status"] = regis_status["mail_send_success"]
@@ -56,7 +56,7 @@ def regis(request):
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif action == regis_action["verify_code"]:
             code = data["code"]
-            if check_regis_code(mail, code):
+            if check_verify_code(mail, "regist", code):
                 response_data["status"] = regis_status["code_verify_success"]
             else:
                 response_data["status"] = regis_status["code_verify_fail"]

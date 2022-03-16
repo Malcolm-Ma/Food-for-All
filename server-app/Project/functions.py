@@ -1,6 +1,6 @@
 from DataBase import models
 import time
-from django.db.models import F
+from django.db.models import F, Q
 from Common.common import *
 from hashlib import md5
 
@@ -47,13 +47,27 @@ def get_ordered_projects(projects, order):
         order = -F('current_num') / F('total_num')
     return projects.order_by(order)
 
-def get_current_projects_dict(valid_projects, current_page, project_num, order, currency_type):
-    current_projects = get_ordered_projects(valid_projects, order)
-    if not current_projects:
-        return {}
-    current_projects = current_projects[(current_page - 1) * project_num: min(current_page * project_num, current_projects.count())]
+def get_searched_projects(projects, search):
+    if search == "":
+        return projects
+    q=Q()
+    for w in search.split():
+        q = q | Q(title__contains = w) | Q(intro__contains = w) | Q(charity__contains = w)# | Q(details__contains = w)
+    searched_projects = projects.filter(q)
+    return searched_projects
+
+def get_current_projects_dict(valid_projects, current_page, project_num, order, search, currency_type):
+    ordered_projects = get_ordered_projects(valid_projects, order)
+    if search != "":
+        searched_projects = get_searched_projects(ordered_projects, search)
+    else:
+        searched_projects = ordered_projects
+    if not searched_projects:
+        return {}, 0
+    filter_projects_num = len(searched_projects)
+    current_projects = searched_projects[(current_page - 1) * project_num: min(current_page * project_num, filter_projects_num)]
     current_projects_dict = projects_query2dict(current_projects, currency_type)
-    return current_projects_dict
+    return current_projects_dict, filter_projects_num
 
 def gen_pid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()

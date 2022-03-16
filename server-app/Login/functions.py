@@ -1,6 +1,3 @@
-import time
-from hashlib import md5
-from Common.common import *
 from User.functions import *
 
 login_status = {"success": 0,
@@ -24,19 +21,6 @@ regis_action = {"send_code": 0,
 logout_status = {"success": 0,
                  "not_logged_in": 1}
 
-def gen_regis_code(mail, expires=REGIS_CODE_EXPIRES, if_check=False):
-    dynamic_num = int(time.time()) // expires
-    code1 = md5((str(dynamic_num) + mail).encode("utf-8")).hexdigest()[:6]
-    if not if_check:
-        return code1
-    code2 = md5((str(dynamic_num - 1) + mail).encode("utf-8")).hexdigest()[:6]
-    return code1, code2
-
-def check_regis_code(mail, code, expires=REGIS_CODE_EXPIRES):
-    if code in gen_regis_code(mail, expires=expires, if_check=True):
-        return True
-    return False
-
 def check_login(request):
     s, t, u = decode_cookie(request)
     try:
@@ -46,14 +30,8 @@ def check_login(request):
     cookie_time = int(time.time()) - t
     url = get_request_url(request)
     if s and cookie_time > 0 and cookie_time < COOKIE_EXPIRES and u == url:
-        return filter_user_info({"uid": s}).first()
+        return get_user({"uid": s})
     return ""
-
-def get_request_url(request):
-    url = request.META.get('HTTP_X_FORWARDED_FOR')
-    if not url:
-        url = request.META.get('REMOTE_ADDR')
-    return url
 
 def encode_cookie(request, uid):
     t = str(int(time.time())).ljust(len(uid), "#")

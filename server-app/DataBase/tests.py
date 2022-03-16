@@ -34,7 +34,7 @@ userinfo = [{"uid": gen_uid("a"),
     "share_mail_history": ""}]
 
 projectinfo = [{"pid": gen_pid("as"),
-    "uid": filter_user_info({"mail": "ty_liang@foxmail.com"})[0].uid,
+    "uid": get_user({"mail": "ty_liang@foxmail.com"}).uid,
     "title": str(i),
     "intro": str(i),
     "region": "CN",
@@ -111,7 +111,7 @@ def init_database():
     for i in userinfo:
         models.User.objects.create(**i)
     projectinfo = [{"pid": gen_pid("as"),
-                    "uid": filter_user_info({"mail": "ty_liang@foxmail.com"})[0].uid,
+                    "uid": get_user({"mail": "ty_liang@foxmail.com"}).uid,
                     "title": str(i),
                     "intro": str(i),
                     "region": "CN",
