@@ -2,7 +2,7 @@
 **by *Apex (Team 8)***
 
 ## Important!
-**Please run ```git config core.hooksPath .githooks``` when you firstly clone the repo. **
+**Please run ```git config core.hooksPath .githooks``` when you firstly clone the repo.**
 
 ## Team division
 
@@ -46,3 +46,11 @@ Less
 lodash
 
 ## Back End
+
+### Technique Routes
+
+Coding: Python
+
+Structure: Django
+
+Database: Mysql

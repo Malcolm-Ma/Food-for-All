@@ -14,7 +14,8 @@ regis_status = {"mail_registed": 0,
                 "mail_send_fail": 3,
                 "code_verify_success": 4,
                 "code_verify_fail": 5,
-                "set_password_success": 6}
+                "set_password_success": 6,
+                "set_password_fail": 7}
 
 regis_action = {"send_code": 0,
                 "verify_code": 1,

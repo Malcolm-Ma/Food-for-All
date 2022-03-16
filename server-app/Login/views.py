@@ -1,16 +1,16 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 import json
-from Mail.views import Mail
+from Mail.functions import Mail
 from .functions import *
 
 def login(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
     response_data = {"status": login_status["wrong_username"]}
     if check_login(request):
         response_data["status"] = login_status["already_login"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif request.method == "GET":
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif request.method == "POST":
+    else:
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
@@ -26,19 +26,19 @@ def login(request):
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
             cookie = encode_cookie(request, user_info.uid)
-            rep.set_signed_cookie("apex", cookie, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
+            rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
 def regis(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
     response_data = {"status": "",
                      "action": "",
                      }
     if check_login(request):
         response_data["status"] = regis_status["already_login"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif request.method == "GET":
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif request.method == "POST":
+    else:
         data = json.loads(request.body)
         mail = data["username"]
         action = data["action"]
@@ -49,7 +49,7 @@ def regis(request):
                 return HttpResponse(json.dumps(response_data), content_type="application/json")
             code = gen_regis_code(mail)
             try:
-                Mail.regis_verify(mail, code)
+                Mail.regis_verify(mail, code, False)
                 response_data["status"] = regis_status["mail_send_success"]
             except:
                 response_data["status"] = regis_status["mail_send_fail"]
@@ -62,15 +62,12 @@ def regis(request):
                 response_data["status"] = regis_status["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif action == regis_action["set_password"]:
-            password = data["password"]
-            type = data["type"]
-            region = data["region"]
-            currency_type = data["currency_type"]
-            name = data["name"]
-            avatar = data["avatar"]
-            if avatar != "" and not os.path.isfile(os.path.join(IMG_PATH, os.path.basename(avatar))):
-                avatar = ""
-            user_info = create_user(mail, password, type, region, currency_type, name=name, avatar=avatar)
+            create_info = {"mail": mail}
+            for i in ("password", "type", "region", "currency_type", "name", "avatar"):
+                create_info[i] = data[i]
+            if not create_user(create_info):
+                response_data["status"] = regis_status["set_password_fail"]
+                return HttpResponse(json.dumps(response_data), content_type="application/json")
             Mail.welcome(mail)
             response_data["status"] = regis_status["set_password_success"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -82,5 +79,5 @@ def logout(request):
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     response_data["status"] = logout_status["success"]
     rep = HttpResponse(json.dumps(response_data), content_type="application/json")
-    rep.delete_cookie("apex")
+    rep.delete_cookie(COOKIE_KEY)
     return rep

@@ -17,8 +17,8 @@ def init_database(request):
                  "project": "",
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
-                 "donate_history": "",
-                 "share_mail_history": ""},
+                 "donate_history": "{}",
+                 "share_mail_history": ","},
                 {"uid": gen_uid("a"),
                  "mail": "531273646@qq.com",
                  "password": "123456",
@@ -30,8 +30,8 @@ def init_database(request):
                  "project": "",
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
-                 "donate_history": "",
-                 "share_mail_history": ""}]
+                 "donate_history": "{}",
+                 "share_mail_history": ","}]
     for i in userinfo:
         models.User.objects.create(**i)
     projectinfo = [{"pid": gen_pid("as"),
@@ -39,13 +39,13 @@ def init_database(request):
                     "title": str(i),
                     "intro": str(i),
                     "region": "CN",
-                    "charity": "a",
+                    "charity": str(i),
                     "charity_avatar": "",
                     "background_image": "",
                     "total_num": 100,
-                    "current_num": 0,
-                    "start_time": int(time.time() - 100),
-                    "end_time": int(time.time() + 365 * 24 * 60 * 60),
+                    "current_num": i,
+                    "start_time": int(time.time() - 100 + i),
+                    "end_time": int(time.time() + 365 * 24 * 60 * 60 + i),
                     "details": str(i),
                     "price": i,
                     "donate_history": ""} for i in range(1, 50)]
