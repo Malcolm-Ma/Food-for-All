@@ -15,7 +15,7 @@ Anaconda
 ## Set MYSQL
 ### In MYSQL
 \$ create user 'apex'@'%' identified by 'apex08';\
-\$ grant all privileges on *.* to 'apex'@'%';\
+\$ grant all privileges on \*.\* to 'apex'@'%';\
 \$ flush privileges;
 
 ### Then set your mysql ini with:
