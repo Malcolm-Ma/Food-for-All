@@ -11,7 +11,8 @@ user_type = {"admin": 0,
              "charity": 1,
              "guest": 2}
 
-user_info_dict = {"mail": "",
+user_info_dict = {"uid": "",
+                  "mail": "",
                   "name": "",
                   "avatar": "",
                   "type": "",

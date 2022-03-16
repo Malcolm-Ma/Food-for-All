@@ -50,8 +50,10 @@ def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
                                             currency_type=currency_type)
     return projects
 
-def get_valid_projects():
+def get_valid_projects(uid=""):
     conditions = {"current_num__lt": F("total_num"), "end_time__gt": int(time.time()), "start_time__lt": int(time.time())}
+    if uid:
+        conditions["uid"] = uid
     valid_projects = models.Project.objects.filter(**conditions)
     return valid_projects
 

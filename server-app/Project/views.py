@@ -20,6 +20,7 @@ def get_projects(request):
         order = "-start_time"
         current_page = 1
         search = ""
+        uid = ""
         if user:
             currency_type = user.currency_type
         else:
@@ -32,9 +33,10 @@ def get_projects(request):
         page_size = data["page_info"]["page_size"]
         current_page = data["page_info"]["page"]
         currency_type = data["currency_type"]
+        uid = data["uid"]
     else:
         return HttpResponseBadRequest()
-    valid_projects = get_valid_projects()
+    valid_projects = get_valid_projects(uid=uid)
     current_projects, filter_projects_num = get_current_projects_dict(valid_projects, current_page, page_size, order, search, currency_type)
     response_data["search"] = search
     response_data["currency_type"] = currency_type
