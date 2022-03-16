@@ -83,7 +83,7 @@ def update_user(user, update_dict):
     try:
         for i in update_dict:
             user.__setattr__(i, update_dict[i])
-        user.save()
+        user.save(update_fields=list(update_dict.keys()))
         return True
     except:
         return False

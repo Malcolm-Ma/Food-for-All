@@ -4,33 +4,50 @@ from django.db.models import F, Q
 from Common.common import *
 from hashlib import md5
 
+project_info_dict = {"pid": "",
+                     "uid": "",
+                     "title": "",
+                     "intro": "",
+                     "region": "",
+                     "charity": "",
+                     "charity_avatar": "",
+                     "background_image": "",
+                     "details": "",
+                     "price": 0,
+                     "donate_history": {},
+                     "current_num": 0,
+                     "total_num": 0,
+                     "start_time": 0,
+                     "end_time": 0}
+
 projects_orders = ["title", "charity", "price", "start_time", "end_time", "progress",
                    "-title", "-charity", "-price", "-start_time", "-end_time", "-progress"]
 
 def get_projects_orders(sep = "#"):
     return sep.join(projects_orders), sep
 
+def Project2dict(project, fields=(), currency_type=""):
+    project_dict = {}
+    for i in project_info_dict:
+        if i in fields or len(fields) == 0:
+            project_dict[i] = project.__getattribute__(i)
+    if "price" in fields or len(fields) == 0:
+        cid = currency2cid(currency_type)
+        if cid:
+            project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
+        else:
+            return {}
+    return project_dict
+
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     projects = {}
     cid = currency2cid(currency_type)
     if cid:
         for i in range(len(projects_query)):
-            projects[str(i)] = {"pid": projects_query[i].pid,
-                                "title": projects_query[i].title,
-                                "charity": projects_query[i].charity,
-                                "intro": projects_query[i].intro,
-                                "region": RID2REGION[projects_query[i].region],
-                                "charity_avatar": projects_query[i].charity_avatar,
-                                "background_image": projects_query[i].background_image,
-                                "price": projects_query[i].price * EXCHANGE_RATE[cid],
-                                "donation_num": {
-                                    "current": projects_query[i].current_num,
-                                    "total": projects_query[i].total_num,
-                                },
-                                "time": {
-                                    "start_time": projects_query[i].start_time,
-                                    "end_time": projects_query[i].end_time
-                                }}
+            projects[str(i)] = Project2dict(projects_query[i], fields=["pid", "title", "intro", "region",
+                                            "charity", "charity_avatar", "background_image", "price",
+                                            "current_num", "total_num", "start_time", "end_time"],
+                                            currency_type=currency_type)
     return projects
 
 def get_valid_projects():
@@ -74,3 +91,12 @@ def gen_pid(seq=""):
     if models.Project.objects.filter(pid=id):
         id = gen_pid(seq=seq)
     return id
+
+def get_project(filter_dict):
+    if len(filter_dict) != 1 or "pid" not in filter_dict:
+        return ""
+    try:
+        r = models.Project.objects.get(**filter_dict)
+        return r
+    except:
+        return ""

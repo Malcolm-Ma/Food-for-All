@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Login.functions import check_login
 from .functions import *
@@ -13,6 +13,8 @@ def get_user_info(request):
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def edit_user_info(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
     response_data = {"status": edit_user_info_status["fail"]}
     user = check_login(request)
     if not user:

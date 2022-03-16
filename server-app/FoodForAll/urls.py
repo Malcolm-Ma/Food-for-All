@@ -53,6 +53,7 @@ urlpatterns = [
     path('logout/', login_views.logout),
     path('get_user_info/', user_views.get_user_info),
     path('edit_user_info/', user_views.edit_user_info),
+    path('get_project_info/', project_views.get_project_info),
     path('projects_list/', project_views.get_projects),
     path('upload_img/', upload_views.upload_img),
     path('upload_doc/', upload_views.upload_doc),
