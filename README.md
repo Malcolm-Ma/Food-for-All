@@ -46,3 +46,11 @@ Less
 lodash
 
 ## Back End
+
+### Technique Routes
+
+Coding: Python
+
+Structure: Django
+
+Database: Mysql
