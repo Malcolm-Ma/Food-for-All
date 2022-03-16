@@ -1,6 +1,9 @@
 # Food For All
 **by *Apex (Team 8)***
 
+## Important!
+**Please run ```git config core.hooksPath .githooks``` when you firstly clone the repo. **
+
 ## Team division
 
 ### Front End
