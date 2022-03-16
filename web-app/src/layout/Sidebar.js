@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Layout, Menu } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 
 import sidebarConfig from 'src/configure/sidebar';
@@ -13,7 +13,14 @@ const DEFAULT_SELECTED_KEYS = sidebarConfig[2].child[0].title;
 const Sidebar = (props) => {
   const {} = props;
 
+  const location = useLocation();
+  const { pathname } = location;
+
   const [selectedKey, setSelectKey] = useState(DEFAULT_SELECTED_KEYS);
+
+  useEffect(() => {
+    setSelectKey(pathname);
+  }, [pathname]);
 
   const handleClick = useCallback((e) => {
     setSelectKey(e.key);
@@ -41,7 +48,7 @@ const Sidebar = (props) => {
               >
                 {
                   _.map(child, (childItem) => (
-                    <Menu.Item key={childItem.title}>
+                    <Menu.Item key={childItem.url}>
                       <Link to={childItem.url} replace={true}>
                         <span>{childItem.title}</span>
                       </Link>
