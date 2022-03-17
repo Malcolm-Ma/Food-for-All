@@ -26,20 +26,11 @@ const Layout = (props) => {
 
   return (
     <AntdLayout className="ffa-frame">
-      <Header/>
+      <Header />
       <AntdLayout>
         {!sidebarHidingStatus && <Sidebar/>}
-        <AntdLayout style={{ padding: '24px' }}>
-          <AntdLayout.Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              background: '#ffffff',
-            }}
-          >
-            <Main/>
-          </AntdLayout.Content>
+        <AntdLayout className="frame-content">
+          <Main/>
         </AntdLayout>
       </AntdLayout>
     </AntdLayout>

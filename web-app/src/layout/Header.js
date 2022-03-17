@@ -9,7 +9,7 @@ const Header = (props) => {
   const {} = props;
 
   return (
-    <AntdHeader className="ffa-nav">
+    <AntdHeader className="frame-nav">
       <div className="nav-logo">
           <Link
               variant="button"
