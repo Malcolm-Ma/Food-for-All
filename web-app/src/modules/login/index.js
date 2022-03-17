@@ -5,20 +5,20 @@
 
 import { Button, Checkbox, Form, Input } from "antd";
 import actions from "../../actions";
+import { useDispatch } from "react-redux";
 
 export default (props) => {
   const {} = props;
 
+  const dispatch = useDispatch();
+
   const onFinish = async (values) => {
     console.log('Success:', values);
-    try {
-      const res = await actions.login({
-        username: values.username,
-        password: values.password,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    const res = await dispatch(actions.login({
+      username: values.username,
+      password: values.password,
+    }));
+    console.log('--res--\n', res);
   };
 
   const onFinishFailed = (errorInfo) => {

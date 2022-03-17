@@ -6,7 +6,7 @@
 import React from "react";
 import { Routes ,Route } from 'react-router-dom';
 import _ from "lodash";
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Layout } from 'antd';
 
 import actions from "src/actions";
 import routesConfig from "src/configure/routes";
@@ -15,7 +15,7 @@ export default (props) => {
   const {} = props;
 
   return (
-    <div className="ffa-main">
+    <Layout.Content className="ffa-main">
     <Routes>
         {
           _.map(routesConfig, (route) => {
@@ -31,6 +31,6 @@ export default (props) => {
           })
         }
       </Routes>
-    </div>
+    </Layout.Content>
   );
 };

@@ -4,5 +4,6 @@
  */
 
 export default {
-  login: '/login/'
+  login: '/login/',
+  userInfo: '/get_user_info/',
 };
