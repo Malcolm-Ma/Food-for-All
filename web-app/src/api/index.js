@@ -13,6 +13,8 @@ export class Api {
       baseURL: BASE_URL,
     });
 
+    this.axiosInstance.defaults.withCredentials = true;
+
     this.axiosInstance.interceptors.response.use((response) => {
       if (response.status === 200) {
         const { data } = response;
