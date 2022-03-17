@@ -6,8 +6,6 @@
     "allowSyntheticDefaultImports": false,
     "experimentalDecorators": true,
     "paths": {
-      "utils/*": ["src/utils/*"],
-      "src/*": ["src/*"],
       "root/*": ["./*"]
     }
   },
