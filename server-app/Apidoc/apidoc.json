@@ -1,5 +1,6 @@
 {
     "name": "FoodForAll-Backend by APEX(Team08)",
+    "version": "1.0.0",
     "description": "API documentation for FoodForAll-Backend by APEX(Team08)",
     "title": "API documentation for FoodForAll-Backend by APEX(Team08)",
     "url": "http://127.0.0.1:8000",
