@@ -44,7 +44,7 @@ def create_user(create_info):
                  "regis_time": int(time.time()),
                  "last_login_time": int(time.time()),
                  "donate_history": "{}",
-                 "share_mail_history": ","}
+                 "share_mail_history": "[]"}
     user_info.update(create_info)
     user_info["region"] = region2rid(user_info["region"])
     if not user_info["region"]:

@@ -34,7 +34,7 @@ urlpatterns = [
     path('edit_user_info/', user_views.edit_user_info),
     path('get_project_info/', project_views.get_project_info),
     path('edit_project_info/', project_views.edit_project_info),
-    path('projects_list/', project_views.get_projects),
+    path('get_projects_list/', project_views.get_projects_list),
     path('create_project/', project_views.create_project),
     path('delete_project/', project_views.delete_project),
     path('upload_img/', upload_views.upload_img),

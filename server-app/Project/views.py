@@ -5,7 +5,7 @@ from .functions import *
 import math
 from User.functions import update_user, user_type, add_project, remove_project
 
-def get_projects(request):
+def get_projects_list(request):
     response_data = {"project_info": {},
                      "page_info": {"page": 1,
                                    "page_size": 1,
@@ -68,6 +68,22 @@ def get_project_info(request):
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def create_project(request):
+    """
+    @api {GET} /create_project/ create project
+    @apiVersion 1.0.0
+    @apiName create_project
+    @apiGroup Project
+    @apiDescription api for creating project by charity user
+
+    @apiSuccess (200) {int} status Create status (0: success, 1: not_logged_in, 2: not_charity_user, 3: create_fail)
+    @apiSuccess (200) {string} pid Pid of the project just created.
+
+    @apiSuccessExample {Json} Response-Success
+    {
+        "status": 0,
+        "pid": "fa00cb5f2e648afa9a39d99098c4fc84"
+    }
+    """
     response_data = {"status": "",
                      "pid": ""}
     user = check_login(request)

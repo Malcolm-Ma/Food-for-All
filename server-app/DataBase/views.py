@@ -18,7 +18,7 @@ def init_database(request):
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
                  "donate_history": "{}",
-                 "share_mail_history": ","},
+                 "share_mail_history": "[]"},
                 {"uid": gen_uid("a"),
                  "mail": "531273646@qq.com",
                  "password": "123456",
@@ -31,7 +31,7 @@ def init_database(request):
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
                  "donate_history": "{}",
-                 "share_mail_history": ","}]
+                 "share_mail_history": "[]"}]
     for i in userinfo:
         models.User.objects.create(**i)
     projectinfo = [{"pid": gen_pid("as"),

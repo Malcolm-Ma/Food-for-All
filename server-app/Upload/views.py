@@ -5,7 +5,7 @@ from .functions import *
 def upload_img(request):
     """
     @api {POST} /upload_img/ upload image
-    @apiVersion 0.0.1
+    @apiVersion 1.0.0
     @apiName upload_img
     @apiGroup Upload
     @apiDescription api to upload image file
@@ -32,7 +32,7 @@ def upload_img(request):
 def upload_doc(request):
     """
     @api {POST} /upload_doc/ upload document
-    @apiVersion 0.0.1
+    @apiVersion 1.0.0
     @apiName upload_doc
     @apiGroup Upload
     @apiDescription api to upload document file
