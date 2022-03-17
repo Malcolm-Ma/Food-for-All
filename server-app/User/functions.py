@@ -5,23 +5,24 @@ from Common.common import *
 
 edit_user_info_status = {"success": 0,
                          "not_logged_in": 1,
-                         "fail": 2}
+                         "edit_fail": 2}
 
 user_type = {"admin": 0,
              "charity": 1,
              "guest": 2}
 
-user_info_dict = {"mail": "",
+user_info_dict = {"uid": "",
+                  "mail": "",
                   "name": "",
                   "avatar": "",
                   "type": "",
                   "region": "",
                   "currency_type": "",
-                  "project": "",
+                  "project": "[]",
                   "regis_time": 0,
                   "last_login_time": 0,
-                  "donate_history": "",
-                  "share_mail_history": ""}
+                  "donate_history": "{}",
+                  "share_mail_history": ","}
 
 def gen_uid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
@@ -39,7 +40,7 @@ def create_user(create_info):
     if create_info["type"] not in user_type.values():
         return False
     user_info = {"uid": "",
-                 "project": "{}",
+                 "project": "[]",
                  "regis_time": int(time.time()),
                  "last_login_time": int(time.time()),
                  "donate_history": "{}",
@@ -87,3 +88,18 @@ def update_user(user, update_dict):
         return True
     except:
         return False
+
+def add_project(user, pid):
+    project = eval(user.project)
+    project.append(pid)
+    user.project = str(project)
+    user.save(update_fields=["project"])
+    return True
+
+def remove_project(user, pid):
+    project = eval(user.project)
+    if pid in project:
+        project.remove(pid)
+        user.project = str(project)
+        user.save(update_fields=["project"])
+    return True

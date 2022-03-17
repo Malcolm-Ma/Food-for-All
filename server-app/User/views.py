@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Login.functions import check_login
 from .functions import *
+from Project.functions import get_project, get_all_projects
 
 def get_user_info(request):
     response_data = user_info_dict
@@ -22,11 +23,22 @@ def edit_user_info(request):
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
     edit_dict = {}
-    for i in ("name", "region", "currency_type"):
+    for i in ("name", "region", "currency_type", "avatar"):
         if i in data["edit"]:
             edit_dict[i] = data["edit"][i]
-    if not update_user(get_user({"uid": user.uid}), edit_dict):
-        response_data["status"] = edit_user_info_status["fail"]
+    if not update_user(user, edit_dict):
+        response_data["status"] = edit_user_info_status["edit_fail"]
     else:
+        if user.type == user_type["charity"]:
+            edit_dict = {}
+            if "name" in data["edit"]:
+                edit_dict["charity"] = data["edit"]["name"]
+            if "avatar" in data["edit"]:
+                edit_dict["charity_avatar"] = data["edit"]["avatar"]
+            if "region" in data["edit"]:
+                edit_dict["region"] = data["edit"]["region"]
+            if edit_dict:
+                projects = get_all_projects(user.uid)
+                projects.update(**edit_dict)
         response_data["status"] = edit_user_info_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")

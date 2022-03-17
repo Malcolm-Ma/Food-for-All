@@ -4,6 +4,24 @@ from django.db.models import F, Q
 from Common.common import *
 from hashlib import md5
 
+create_project_status = {"success": 0,
+                         "not_logged_in": 1,
+                         "not_charity_user": 2,
+                         "create_fail": 3}
+
+delete_project_status = {"success": 0,
+                         "not_logged_in": 1,
+                         "not_charity_user": 2,
+                         "project_not_exists": 3,
+                         "not_project_owner": 4}
+
+edit_project_info_status = {"success": 0,
+                            "not_logged_in": 1,
+                            "wrong_currency_type": 2,
+                            "project_not_exists": 3,
+                            "not_project_owner": 4,
+                            "edit_fail": 5}
+
 project_info_dict = {"pid": "",
                      "uid": "",
                      "title": "",
@@ -50,8 +68,17 @@ def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
                                             currency_type=currency_type)
     return projects
 
-def get_valid_projects():
+def get_all_projects(uid=""):
+    if uid:
+        projects = models.Project.objects.filter(uid=uid)
+    else:
+        projects = models.Project.objects.all()
+    return projects
+
+def get_valid_projects(uid=""):
     conditions = {"current_num__lt": F("total_num"), "end_time__gt": int(time.time()), "start_time__lt": int(time.time())}
+    if uid:
+        conditions["uid"] = uid
     valid_projects = models.Project.objects.filter(**conditions)
     return valid_projects
 
@@ -100,3 +127,16 @@ def get_project(filter_dict):
         return r
     except:
         return ""
+
+def update_project(project, update_dict):
+    update_keys_list = ["title", "intro", "background_image", "total_num", "start_time", "end_time", "details", "price"]
+    for key in update_dict.keys():
+        if key not in update_keys_list:
+            return False
+    try:
+        for i in update_dict:
+            project.__setattr__(i, update_dict[i])
+        project.save(update_fields=list(update_dict.keys()))
+        return True
+    except:
+        return False

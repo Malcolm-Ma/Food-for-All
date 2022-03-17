@@ -22,27 +22,6 @@ from Common import views as common_views
 from Upload import views as upload_views
 from DataBase import views as database_views
 
-from rest_framework import permissions
-from rest_framework.decorators import api_view
-
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-
-swagger_info = openapi.Info(
-    title="APEX FoodForAll Server API",
-    default_version='v1',
-    description="""This is a demo project for the FoodForAll""",
-    terms_of_service="",
-    contact=openapi.Contact(email="ty_liang@foxmail.com"),
-    license=openapi.License(name="BSD License"),
-)
-
-schema_view = get_schema_view(
-    validators=['ssv', 'flex'],
-    public=True,
-    permission_classes=[permissions.AllowAny],
-)
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('region_list/', common_views.get_region_list),
@@ -54,12 +33,11 @@ urlpatterns = [
     path('get_user_info/', user_views.get_user_info),
     path('edit_user_info/', user_views.edit_user_info),
     path('get_project_info/', project_views.get_project_info),
+    path('edit_project_info/', project_views.edit_project_info),
     path('projects_list/', project_views.get_projects),
+    path('create_project/', project_views.create_project),
+    path('delete_project/', project_views.delete_project),
     path('upload_img/', upload_views.upload_img),
     path('upload_doc/', upload_views.upload_doc),
     path('init_database/', database_views.init_database),
-    re_path(r'^swagger(?P<format>.json|.yaml)$', schema_view.without_ui(cache_timeout=None),
-            name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=None), name='cschema-swagger'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=None), name='cschema-redoc'),
 ]

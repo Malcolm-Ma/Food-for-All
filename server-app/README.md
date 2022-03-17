@@ -2,42 +2,49 @@
 Drived by django(python) and mysql
 
 # Pre-installed Software Requirements
-MYSQL\
+MYSQL
+
 Anaconda
+
+apidoc
 
 # Environment Setup
 
 ## Install Conda Environment
 ### In Command Line with Anaconda
-\$ cd server-app\
-\$ conda env create -f environment_{systemtype}.yml
+    cd server-app
+    conda env create -f environment_{systemtype}.yml
 
 ## Set MYSQL
 ### In MYSQL
-\$ create user 'apex'@'%' identified by 'apex08';\
-\$ grant all privileges on \*.\* to 'apex'@'%';\
-\$ flush privileges;
+    create user 'apex'@'%' identified by 'apex08';
+    grant all privileges on \*.\* to 'apex'@'%';
+    flush privileges;
 
 ### Then set your mysql ini with:
-[client]\
-default-character-set=utf8mb4\
-[mysql]\
-default-character-set=utf8\
-[mysqld]\
-port = 3306\
-character-set-server=utf8\
-default-storage-engine=INNODB
+    [client]
+    default-character-set=utf8mb4
+    [mysql]
+    default-character-set=utf8
+    [mysqld]
+    port = 3306
+    character-set-server=utf8
+    default-storage-engine=INNODB
 
 # Startup Environment
 ## In Command Line with Anaconda
-\$ cd {your mysql bin path}\
-\$ net start mysql\
-\$ conda activate tsp
+    cd {your mysql bin path}
+    net start mysql
+    conda activate tsp
 
 # Server Start
 ## Under the environment of the tsp
-\$ cd {project path}/server-app\
-\$ python manage.py runserver 8000
+    cd {project path}/server-app
+    python manage.py runserver 8000
+
+# Generate API doc
+    cd {project path}/server-app
+    python Apidoc/generate_apidoc.py
 
 # Learn More
 
