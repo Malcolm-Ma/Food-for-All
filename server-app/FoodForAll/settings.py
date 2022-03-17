@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     'Upload',
     'User',
     'corsheaders',
-    'drf_yasg',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -178,32 +176,6 @@ CORS_ALLOW_HEADERS = [
      "x-csrftoken",
      "x-requested-with",
 ]
-
-SWAGGER_SETTINGS = {
-    'LOGIN_URL': '/admin/login',
-    'LOGOUT_URL': '/admin/logout',
-    'PERSIST_AUTH': True,
-    'REFETCH_SCHEMA_WITH_AUTH': True,
-    'REFETCH_SCHEMA_ON_LOGOUT': True,
-
-    'DEFAULT_INFO': "FoodForAll.urls.swagger_info",
-
-    'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        },
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'authorization',
-            'in': 'header'
-        },
-        'Query': {
-            'type': 'apiKey',
-            'name': 'auth',
-            'in': 'query'
-        }
-    }
-}
 
 RESOURCE_PATH = os.path.join(BASE_DIR, "Resource")
 
