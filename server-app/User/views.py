@@ -46,7 +46,7 @@ def get_user_info(request):
         "share_mail_history": ["531273646@qq.com"]
     }
     """
-    response_data = user_info_dict
+    response_data = copy.deepcopy(user_info_dict)
     user = check_login(request)
     if user:
         for i in response_data:
