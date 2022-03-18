@@ -4,6 +4,28 @@ from Mail.functions import Mail
 from .functions import *
 
 def login(request):
+    """
+    @api {POST} /login/ user login
+    @apiVersion 1.0.0
+    @apiName login
+    @apiGroup User
+    @apiDescription api for user login
+
+    @apiParam {String} username Username (mail address)
+    @apiParam {String} password Password
+
+    @apiSuccess (Success 200 return) {Int} status Login status (0: success, 1: already_login, 2: wrong_username, 3: wrong_password)
+
+    @apiParamExample {Json} Sample Request
+    {
+      "username": "531273646@qq.com",
+      "password": "123456"
+    }
+    @apiSuccessExample {Json} Response-Success
+    {
+        'status': 0
+    }
+    """
     if request.method != "POST":
         return HttpResponseBadRequest()
     response_data = {"status": login_status["wrong_username"]}
@@ -30,6 +52,66 @@ def login(request):
             return rep
 
 def regis(request):
+    """
+    @api {POST} /regis/ user registration
+    @apiVersion 1.0.0
+    @apiName regis
+    @apiGroup User
+    @apiDescription api for user registration
+
+    @apiParam {String} username Username (mail address)
+    @apiParam {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
+    @apiParam {String} code (Optional) Registration code received by user mail. Only requested if action = 1.
+    @apiParam {String} password (Optional) Password. Only requested if action = 2.
+    @apiParam {Int} type (Optional) User type (1: charity, 2: guest). Only requested if action = 2.
+    @apiParam {String} region (Optional) Country or region. It should be included in the list provided by "region_list/" interface. Only requested if action = 2.
+    @apiParam {String} currency_type (Optional) Currency type. It should be included in the list provided by "currency_list/" interface. Only requested if action = 2.
+    @apiParam {String} name (Optional) User name. Only requested if action = 2.
+    @apiParam {String} avatar (Optional) Static avatar url. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter. Only requested if action = 2.
+
+    @apiSuccess (Success 200 return) {Int} status Registration status (0: mail_registed, 1: already_login, 2: mail_send_success, 3: mail_send_fail， 4: code_verify_success, 5: code_verify_fail, 6: set_password_success, 7: set_password_fail)
+    @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
+
+    @apiParamExample {Json} Sample Request (action=0)
+    {
+      "username": "531273646@qq.com",
+      "action": 0
+    }
+    @apiSuccessExample {Json} Response-Success (action=0)
+    {
+        'status': 2
+        'action': 0
+    }
+
+    @apiParamExample {Json} Sample Request (action=1)
+    {
+      "username": "531273646@qq.com",
+      "action": 1
+      "code": "qwe123"
+    }
+    @apiSuccessExample {Json} Response-Success (action=1)
+    {
+        'status': 4
+        'action': 1
+    }
+
+    @apiParamExample {Json} Sample Request (action=2)
+    {
+      "username": "531273646@qq.com",
+      "action": 2
+      "password": "123456",
+      "region": "CN",
+      "currency_type": "GBP",
+      "name": "tyl",
+      "avatar": "",
+      "type": 2
+    }
+    @apiSuccessExample {Json} Response-Success (action=2)
+    {
+        'status': 6
+        'action': 2
+    }
+    """
     if request.method != "POST":
         return HttpResponseBadRequest()
     response_data = {"status": "",
@@ -73,6 +155,20 @@ def regis(request):
             return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def logout(request):
+    """
+    @api {GET} /logout/ user logout
+    @apiVersion 1.0.0
+    @apiName logout
+    @apiGroup User
+    @apiDescription api for user logout
+
+    @apiSuccess (Success 200 return) {Int} Status login status (0: success, 1: not_logged_in)
+
+    @apiSuccessExample {Json} Response-Success
+    {
+        'status': 0
+    }
+    """
     response_data = {"status": logout_status["not_logged_in"]}
     if not check_login(request):
         response_data["status"] = logout_status["not_logged_in"]

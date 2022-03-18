@@ -29,7 +29,7 @@ def check_login(request):
         return ""
     cookie_time = int(time.time()) - t
     url = get_request_url(request)
-    if s and cookie_time > 0 and cookie_time < COOKIE_EXPIRES and u == url:
+    if s and cookie_time >= 0 and cookie_time < COOKIE_EXPIRES and u == url:
         return get_user({"uid": s})
     return ""
 
