@@ -38,13 +38,10 @@ project_info_dict = {"pid": "",
                      "start_time": 0,
                      "end_time": 0}
 
-projects_orders = ["title", "charity", "price", "start_time", "end_time", "progress",
-                   "-title", "-charity", "-price", "-start_time", "-end_time", "-progress"]
+projects_orders = ["title", "-title", "charity", "-charity", "price", "-price",
+                   "start_time", "-start_time", "end_time", "-end_time", "progress", "-progress"]
 
-def get_projects_orders(sep = "#"):
-    return sep.join(projects_orders), sep
-
-def Project2dict(project, fields=(), currency_type=""):
+def project2dict(project, fields=(), currency_type=""):
     project_dict = {}
     for i in project_info_dict:
         if i in fields or len(fields) == 0:
@@ -55,6 +52,8 @@ def Project2dict(project, fields=(), currency_type=""):
             project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
         else:
             return {}
+    if "donate_history" in fields or len(fields) == 0:
+        project_dict["donate_history"] = eval(project_dict["donate_history"])
     return project_dict
 
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
@@ -62,7 +61,7 @@ def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     cid = currency2cid(currency_type)
     if cid:
         for i in range(len(projects_query)):
-            projects[str(i)] = Project2dict(projects_query[i], fields=["pid", "title", "intro", "region",
+            projects[str(i)] = project2dict(projects_query[i], fields=["pid", "title", "intro", "region",
                                             "charity", "charity_avatar", "background_image", "price",
                                             "current_num", "total_num", "start_time", "end_time"],
                                             currency_type=currency_type)

@@ -42,9 +42,8 @@ apidoc
     cd {project path}/server-app
     python manage.py runserver 8000
 
-# Generate API doc
-    cd {project path}/server-app
-    python Apidoc/generate_apidoc.py
+# API Document
+Visit http://127.0.0.1:8000/static/apidoc/index.html after startup the server.
 
 # Learn More
 

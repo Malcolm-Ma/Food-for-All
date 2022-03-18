@@ -6,15 +6,15 @@ from .functions import *
 def login(request):
     """
     @api {POST} /login/ user login
-    @apiVersion 0.0.1
+    @apiVersion 1.0.0
     @apiName login
     @apiGroup User
     @apiDescription api for user login
 
-    @apiParam {String} Username username (mail address)
-    @apiParam {String} Password password
+    @apiParam {String} username Username (mail address)
+    @apiParam {String} password Password
 
-    @apiSuccess (200) {int} Status login status (0: success, 1: already_login, 2: wrong_username, 3: wrong_password)
+    @apiSuccess (Success 200 return) {Int} status Login status (0: success, 1: already_login, 2: wrong_username, 3: wrong_password)
 
     @apiParamExample {Json} Sample Request
     {
@@ -54,23 +54,23 @@ def login(request):
 def regis(request):
     """
     @api {POST} /regis/ user registration
-    @apiVersion 0.0.1
+    @apiVersion 1.0.0
     @apiName regis
     @apiGroup User
     @apiDescription api for user registration
 
     @apiParam {String} username Username (mail address)
-    @apiParam {int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
+    @apiParam {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
     @apiParam {String} code (Optional) Registration code received by user mail. Only requested if action = 1.
     @apiParam {String} password (Optional) Password. Only requested if action = 2.
-    @apiParam {int} type (Optional) User type (1: charity, 2: guest). Only requested if action = 2.
+    @apiParam {Int} type (Optional) User type (1: charity, 2: guest). Only requested if action = 2.
     @apiParam {String} region (Optional) Country or region. It should be included in the list provided by "region_list/" interface. Only requested if action = 2.
     @apiParam {String} currency_type (Optional) Currency type. It should be included in the list provided by "currency_list/" interface. Only requested if action = 2.
     @apiParam {String} name (Optional) User name. Only requested if action = 2.
-    @apiParam {String} avatar (Optional) User's avatar file name. This should be preceded by a call to the uploda_img/ interface to upload an avatar image file, with the name of the file returned by the uploda_img/ interface as this parameter. Only requested if action = 2.
+    @apiParam {String} avatar (Optional) Static avatar url. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter. Only requested if action = 2.
 
-    @apiSuccess (200) {int} status Registration status (0: mail_registed, 1: already_login, 2: mail_send_success, 3: mail_send_fail， 4: code_verify_success, 5: code_verify_fail, 6: set_password_success, 7: set_password_fail)
-    @apiSuccess (200) {int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
+    @apiSuccess (Success 200 return) {Int} status Registration status (0: mail_registed, 1: already_login, 2: mail_send_success, 3: mail_send_fail， 4: code_verify_success, 5: code_verify_fail, 6: set_password_success, 7: set_password_fail)
+    @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
 
     @apiParamExample {Json} Sample Request (action=0)
     {
@@ -157,12 +157,12 @@ def regis(request):
 def logout(request):
     """
     @api {GET} /logout/ user logout
-    @apiVersion 0.0.1
+    @apiVersion 1.0.0
     @apiName logout
     @apiGroup User
     @apiDescription api for user logout
 
-    @apiSuccess (200) {int} Status login status (0: success, 1: not_logged_in)
+    @apiSuccess (Success 200 return) {Int} Status login status (0: success, 1: not_logged_in)
 
     @apiSuccessExample {Json} Response-Success
     {

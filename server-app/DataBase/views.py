@@ -18,7 +18,7 @@ def init_database(request):
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
                  "donate_history": "{}",
-                 "share_mail_history": ","},
+                 "share_mail_history": "[]"},
                 {"uid": gen_uid("a"),
                  "mail": "531273646@qq.com",
                  "password": "123456",
@@ -31,7 +31,7 @@ def init_database(request):
                  "regis_time": int(time.time() - 100),
                  "last_login_time": int(time.time() - 100),
                  "donate_history": "{}",
-                 "share_mail_history": ","}]
+                 "share_mail_history": "[]"}]
     for i in userinfo:
         models.User.objects.create(**i)
     projectinfo = [{"pid": gen_pid("as"),
@@ -48,7 +48,7 @@ def init_database(request):
                     "end_time": int(time.time() + 365 * 24 * 60 * 60 + i),
                     "details": str(i),
                     "price": i,
-                    "donate_history": ""} for i in range(1, 50)]
+                    "donate_history": "{}"} for i in range(1, 50)]
     for i in projectinfo:
         models.Project.objects.create(**i)
     models.User.objects.filter(mail="ty_liang@foxmail.com").update(
