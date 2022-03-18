@@ -48,7 +48,7 @@ def init_database(request):
                     "end_time": int(time.time() + 365 * 24 * 60 * 60 + i),
                     "details": str(i),
                     "price": i,
-                    "donate_history": ""} for i in range(1, 50)]
+                    "donate_history": "{}"} for i in range(1, 50)]
     for i in projectinfo:
         models.Project.objects.create(**i)
     models.User.objects.filter(mail="ty_liang@foxmail.com").update(

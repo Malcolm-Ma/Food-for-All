@@ -10,7 +10,7 @@ def get_region_list(request):
     @apiGroup Common
     @apiDescription api to get country or region list
 
-    @apiSuccess (200) {list(string)} region_list Region list.
+    @apiSuccess (Success 200 return) {List(String)} region_list Region list.
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -43,7 +43,7 @@ def get_currency_list(request):
     @apiGroup Common
     @apiDescription api to get currency type list
 
-    @apiSuccess (200) {list(string)} currency_list Currency type list.
+    @apiSuccess (Success 200 return) {List(String)} currency_list Currency type list.
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -76,7 +76,7 @@ def get_region2currency(request):
     @apiGroup Common
     @apiDescription api to get dict region: default currency type
 
-    @apiSuccess (200) {dict} region2currency Matching regions and their default currency type with format{string: string}, i.e.{region: default_currency_type}.
+    @apiSuccess (Success 200 return) {Dict} region2currency Matching regions and their default currency type with format{string: string}, i.e.{region: default_currency_type}.
 
     @apiSuccessExample {Json} Response-Success
     {

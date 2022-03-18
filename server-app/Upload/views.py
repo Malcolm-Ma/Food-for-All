@@ -12,7 +12,7 @@ def upload_img(request):
 
     @apiParam {form-data} img Image file object
 
-    @apiSuccess (200) {string} url Static url of image file just uploaded.
+    @apiSuccess (Success 200 return) {String} url Static url of image file just uploaded.
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -39,7 +39,7 @@ def upload_doc(request):
 
     @apiParam {form-data} doc Document file object
 
-    @apiSuccess (200) {string} url Static url of document file just uploaded.
+    @apiSuccess (Success 200 return) {String} url Static url of document file just uploaded.
 
     @apiSuccessExample {Json} Response-Success
     {

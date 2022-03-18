@@ -12,18 +12,18 @@ def get_user_info(request):
     @apiGroup User
     @apiDescription api to get infomation of user that already logged in
 
-    @apiSuccess (200) {string} uid Userid
-    @apiSuccess (200) {string} mail Mail address of user (username)
-    @apiSuccess (200) {string} name Name of user
-    @apiSuccess (200) {string} avatar Static avatar url of user
-    @apiSuccess (200) {int} type User type (0: administrator, 1: charity, 2: guest)
-    @apiSuccess (200) {string} region Country or region. It should be included in the list provided by "region_list/" interface
-    @apiSuccess (200) {string} currency_type Currency type. It should be included in the list provided by "currency_list/" interface
-    @apiSuccess (200) {list(string)} project List of projects' pid. If user_type=1 then the list represents projects owned by the user. If user_type=2 then the list represents projects donated by the user.
-    @apiSuccess (200) {int} regis_time Timestamp of when the user was created. It is the number of seconds that have elapsed since 0:0:0 on 1 January 1970.
-    @apiSuccess (200) {int} last_login_time Timestamp of the last time the user logged in. It is the number of seconds that have elapsed since 0:0:0 on 1 January 1970.
-    @apiSuccess (200) {dict} donate_history Donate history. If user_type=1, this data format is represented as {string: {string: {string: int}}}, i.e. {pid: {uid: {timestamp: num}}}. This means that user "uid" has donated "num" times to project "pid" at time "timestamp". If user_type=2, then the data format is {string: {string: int}}, i.e. {pid: {timestamp: num}}. This means that the user donated "num" times to project "pid" at time "timestamp"..
-    @apiSuccess (200) {list(string)} share_mail_history The mails that the user has previously shared the projects to.
+    @apiSuccess (Success 200 return) {String} uid Userid
+    @apiSuccess (Success 200 return) {String} mail Mail address of user (username)
+    @apiSuccess (Success 200 return) {String} name Name of user
+    @apiSuccess (Success 200 return) {String} avatar Static avatar url of user
+    @apiSuccess (Success 200 return) {Int} type User type (0: administrator, 1: charity, 2: guest)
+    @apiSuccess (Success 200 return) {String} region Country or region. It should be included in the list provided by "region_list/" interface
+    @apiSuccess (Success 200 return) {String} currency_type Currency type. It should be included in the list provided by "currency_list/" interface
+    @apiSuccess (Success 200 return) {List(String)} project List of projects' pid. If user_type=1 then the list represents projects owned by the user. If user_type=2 then the list represents projects donated by the user.
+    @apiSuccess (Success 200 return) {Int} regis_time Timestamp of when the user was created. It is the number of seconds that have elapsed since 0:0:0 on 1 January 1970.
+    @apiSuccess (Success 200 return) {Int} last_login_time Timestamp of the last time the user logged in. It is the number of seconds that have elapsed since 0:0:0 on 1 January 1970.
+    @apiSuccess (Success 200 return) {Dict} donate_history Donate history. If user_type=1, this data format is represented as {string: {string: {string: int}}}, i.e. {pid: {uid: {timestamp: num}}}. This means that user "uid" has donated "num" times to project "pid" at time "timestamp". If user_type=2, then the data format is {string: {string: int}}, i.e. {pid: {timestamp: num}}. This means that the user donated "num" times to project "pid" at time "timestamp".
+    @apiSuccess (Success 200 return) {List(String)} share_mail_history The mails that the user has previously shared the projects to.
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -68,9 +68,9 @@ def edit_user_info(request):
     @apiParam {String} name Name of user.
     @apiParam {String} region Country or region of user.
     @apiParam {String} currency_type Default currency type of user.
-    @apiParam {String} avatar Static avatar url of user. This should be preceded by a call to the uploda_img/ interface to upload an avatar image file, with the url of the file returned by the uploda_img/ interface as this parameter.
+    @apiParam {String} avatar Static avatar url of user. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter.
 
-    @apiSuccess (200) {int} status Edit status (0: success, 1: not_logged_in, 2: edit_fail)
+    @apiSuccess (Success 200 return) {Int} status Edit status (0: success, 1: not_logged_in, 2: edit_fail)
 
     @apiParamExample {Json} Sample Request
     {
