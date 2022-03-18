@@ -6,11 +6,11 @@ from Project.functions import get_project, get_all_projects
 
 def get_user_info(request):
     """
-    @api {GET} /get_user_info/ get user infomation
+    @api {GET} /get_user_info/ get user information
     @apiVersion 1.0.0
     @apiName get_user_info
     @apiGroup User
-    @apiDescription api to get infomation of user that already logged in
+    @apiDescription api to get information of user that already logged in
 
     @apiSuccess (Success 200 return) {String} uid Userid
     @apiSuccess (Success 200 return) {String} mail Mail address of user (username)
@@ -59,11 +59,11 @@ def get_user_info(request):
 
 def edit_user_info(request):
     """
-    @api {POST} /edit_user_info/ edit user info
+    @api {POST} /edit_user_info/ edit user information
     @apiVersion 1.0.0
     @apiName edit_user_info
     @apiGroup User
-    @apiDescription api for editing user info by user already login
+    @apiDescription api for editing user information by user already login
 
     @apiParam {String} name Name of user.
     @apiParam {String} region Country or region of user.
