@@ -3,6 +3,7 @@ import os
 from FoodForAll.settings import RESOURCE_PATH, BASE_DIR, STATIC_URL, IMG_PATH, DOC_PATH
 import time
 from hashlib import md5
+import copy
 
 region_list_file = os.path.join(RESOURCE_PATH, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_PATH, "currency_list.csv")
