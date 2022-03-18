@@ -209,7 +209,7 @@ def get_projects_list(request):
 
 def get_project_info(request):
     """
-    @api {POST} /get_project_info/ get project info
+    @api {POST} /get_project_info/ get project information
     @apiVersion 1.0.0
     @apiName get_project_info
     @apiGroup Project
@@ -358,11 +358,11 @@ def delete_project(request):
 
 def edit_project_info(request):
     """
-    @api {POST} /edit_project_info/ edit project info
+    @api {POST} /edit_project_info/ edit project information
     @apiVersion 1.0.0
     @apiName edit_project_info
     @apiGroup Project
-    @apiDescription api for editing user info by user already login
+    @apiDescription api for editing project information by its owner
 
     @apiParam {String} pid Pid of the project.
     @apiParam {String} currency_type Currency type. It should be included in the list provided by "currency_list/" interface.
