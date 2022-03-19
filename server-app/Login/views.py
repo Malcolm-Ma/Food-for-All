@@ -47,7 +47,7 @@ def login(request):
             update_user(user, {"last_login_time": int(time.time())})
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
-            cookie = encode_cookie(request, user.uid)
+            cookie = encode_cookie(request, user.uid, COOKIE_ENCODE_KEY)
             rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
@@ -61,7 +61,7 @@ def regis(request):
 
     @apiParam {String} username Username (mail address)
     @apiParam {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
-    @apiParam {String} code (Optional) Registration code received by user mail. Only requested if action = 1.
+    @apiParam {String} code (Optional) Registration code received by user mail. Only requested if action = 1 or 2.
     @apiParam {String} password (Optional) Password. Only requested if action = 2.
     @apiParam {Int} type (Optional) User type (1: charity, 2: guest). Only requested if action = 2.
     @apiParam {String} region (Optional) Country or region. It should be included in the list provided by "region_list/" interface. Only requested if action = 2.
@@ -105,6 +105,7 @@ def regis(request):
       "name": "tyl",
       "avatar": "",
       "type": 2
+      "code": "qwe123"
     }
     @apiSuccessExample {Json} Response-Success (action=2)
     {
@@ -144,6 +145,10 @@ def regis(request):
                 response_data["status"] = regis_status["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         elif action == regis_action["set_password"]:
+            code = data["code"]
+            if not check_verify_code(mail, "regist", code):
+                response_data["status"] = regis_status["code_verify_fail"]
+                return HttpResponse(json.dumps(response_data), content_type="application/json")
             create_info = {"mail": mail}
             for i in ("password", "type", "region", "currency_type", "name", "avatar"):
                 create_info[i] = data[i]
