@@ -7,6 +7,8 @@ COOKIE_SALT = "apex"
 COOKIE_ENCODE_KEY = 80
 
 VERIFY_CODE_EXPIRES = 30 * 60
+VERIFY_CODE_KEY_REGIS = "regis"
+VERIFY_CODE_KEY_RESET_PASSWORD = "reset_password"
 
 REGION2RID, RID2REGION = create_region_list()
 CURRENCY2CID, CID2CURRENCY = create_currency_list()
