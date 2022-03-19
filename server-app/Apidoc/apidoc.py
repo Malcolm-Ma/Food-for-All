@@ -1,5 +1,8 @@
 import os
-from FoodForAll.settings import DOC_PATH
+if __name__ != "__main__":
+    from FoodForAll.settings import DOC_PATH
+else:
+    DOC_PATH = "./DOC/"
 from pathlib import Path
 
 api_path = ["Common", "Login", "Payment", "Project", "Upload", "User"]
