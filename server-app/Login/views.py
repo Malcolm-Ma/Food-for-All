@@ -48,7 +48,7 @@ def login(request):
             response_data["status"] = login_status["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
             cookie = encode_cookie(request, user.uid, COOKIE_ENCODE_KEY)
-            rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT, max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
+            rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT + get_request_url(request), max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
 def regis(request):
