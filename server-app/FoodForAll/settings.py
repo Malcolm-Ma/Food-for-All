@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'Apidoc',
     'Common',
     'DataBase',
     'Login',
@@ -155,7 +156,7 @@ EMAIL_HOST_USER = 'team08.apex@gmail.com'
 EMAIL_HOST_PASSWORD = 'foodforall'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "http://localhost:8000"]
+CORS_ORIGIN_WHITELIST = ["http://localhost", "http://127.0.0.1", "http://*"]
 CORS_ALLOW_METHODS = [
      "DELETE",
      "GET",
