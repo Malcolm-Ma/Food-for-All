@@ -5,6 +5,7 @@ from .functions import *
 import math
 from User.functions import update_user, add_project, remove_project
 
+@api_logger(logger=logger_standard)
 def get_projects_list(request):
     """
     @api {GET, POST} /get_projects_list/ get projects list
@@ -207,6 +208,7 @@ def get_projects_list(request):
     response_data["project_info"] = current_projects
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def get_project_info(request):
     """
     @api {POST} /get_project_info/ get project information
@@ -269,6 +271,7 @@ def get_project_info(request):
         response_data = project2dict(project, currency_type=currency_type)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def create_project(request):
     """
     @api {GET} /create_project/ create project
@@ -313,6 +316,7 @@ def create_project(request):
         response_data["status"] = create_project_status["create_fail"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def delete_project(request):
     """
     @api {POST} /delete_project/ delete project
@@ -358,6 +362,7 @@ def delete_project(request):
     response_data["status"] = delete_project_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def edit_project_info(request):
     """
     @api {POST} /edit_project_info/ edit project information
