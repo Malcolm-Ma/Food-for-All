@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import apiConfig from "src/api/apiConfig";
 import api from "src/api";
-import log from "tailwindcss/lib/util/log";
+import actions from 'src/actions';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -55,27 +55,36 @@ const rangeConfig = {
 
 
 export default () => {
-  const { createResult } = useSelector(state => state.project);
+  // const { createResult } = useSelector(state => state.project);
 
   // useEffect(() => {
   //   console.log('--userInfo--\n', userInfo);
   // }, [userInfo]);
 
-
-
-  api.get(apiConfig.createProject).then(
-    res => console.log(res)
-  );
-
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log(values);
+    try {
+      const createProjectResult = await actions.createProject();
+      // createProjectResult = { status: 0, pid: 'xxxxx' }
+      console.log('--createProjectResult--\n', createProjectResult);
+      if (createProjectResult.status === 0) {
+        const editProjectResponse = await actions.editProject({
+          ...values
+        });
+
+      }
+    } catch (e) {
+
+    }
+
   };
 
   return (
     <Form {...layout} name="nest-messages" onFinish={onFinish} validateMessages={validateMessages}>
 
       <Form.Item
-        name="donation"
+        // name="donation"
+        name={['user', 'donation']}
         label="Donation"
         rules={[{ required: true, message: 'Please input donation amount!' }]}
       >
