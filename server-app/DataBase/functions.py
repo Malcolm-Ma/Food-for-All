@@ -10,21 +10,22 @@ import copy
 import shutil
 import hashlib
 
+random.seed(int(time.time()))
 Faker.seed(int(time.time()))
 fk = Faker(locale = 'en')
 
-resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_PATH, "avatar")) if i.endswith(".jpg")],
-                 "background_image": [i for i in os.listdir(os.path.join(RESOURCE_PATH, "background_image")) if i.endswith(".jpg")]}
+resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "avatar")) if i.endswith(".jpg")],
+                 "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")]}
 
 def clear_database():
     models.User.objects.all().delete()
     models.Project.objects.all().delete()
-    img_path_list = os.listdir(IMG_PATH)
+    img_path_list = os.listdir(IMG_DIR)
     for i in img_path_list:
-        if os.path.isfile(os.path.join(IMG_PATH, i)) and i.endswith(".jpg"):
-            os.remove(os.path.join(IMG_PATH, i))
+        if os.path.isfile(os.path.join(IMG_DIR, i)) and i.endswith(".jpg"):
+            os.remove(os.path.join(IMG_DIR, i))
 
-def get_random_avatar(num=100, size=256, path=os.path.join(RESOURCE_PATH, "avatar")):
+def get_random_avatar(num=100, size=256, path=os.path.join(RESOURCE_DIR, "avatar")):
     styles = ['identicon', 'monsterid', 'wavatar']
     for i in range(num):
         random_str = ''.join([chr(random.randint(0x0000, 0x9fbf)) for i in range(random.randint(1, 25))])
@@ -34,7 +35,7 @@ def get_random_avatar(num=100, size=256, path=os.path.join(RESOURCE_PATH, "avata
         with open(os.path.join(path, str(i) + '.jpg'), 'wb') as f:
             f.write(res.content)
 
-def download_random_img(shape=(160, 160), path=IMG_PATH):
+def download_random_img(shape=(160, 160), path=IMG_DIR):
     if type(shape) == int:
         shape = (shape, shape)
     img_url = "https://placeimg.com/{s0}/{s1}/any".format(s0=str(shape[0]), s1=str(shape[1]))
@@ -48,12 +49,12 @@ def download_random_img(shape=(160, 160), path=IMG_PATH):
             f.write(r.content)
     return os.path.join(STATIC_URL, name)
 
-def copy_random_img(img_type, path=IMG_PATH):
+def copy_random_img(img_type, path=IMG_DIR):
     name = "".join(fk.random_letters(8)) + ".jpg"
     while os.path.isfile(os.path.join(path, name)):
         name = "".join(fk.random_letters(8)) + ".jpg"
     if img_type in ("avatar", "background_image"):
-        shutil.copyfile(os.path.join(RESOURCE_PATH, img_type, random.choice(resource_file[img_type])), os.path.join(path, name))
+        shutil.copyfile(os.path.join(RESOURCE_DIR, img_type, random.choice(resource_file[img_type])), os.path.join(path, name))
     else:
         return ""
     return os.path.join(STATIC_URL, name)
@@ -63,7 +64,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
                  "mail": fk.safe_email(),
                  "password": fk.password(),
                  "name": "",
-                 "avatar": copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
+                 "avatar": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
                  "type": random.choice(user_type_list),
                  "region": random.choice(list(RID2REGION.keys())),
                  "currency_type": random.choice(list(CID2CURRENCY.keys())),
@@ -90,7 +91,7 @@ def create_fake_project(uid, donate_history):
                     "region": user.region,
                     "charity": user.name,
                     "charity_avatar": user.avatar,
-                    "background_image": "",
+                    "background_image": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("background_image"),#download_random_img((img_width, img_height))
                     "total_num": random.randint(10, 30) * 10,
                     "current_num": "",
                     "start_time": "",
@@ -102,9 +103,8 @@ def create_fake_project(uid, donate_history):
     fake_project["title"] = content[0][:random.randint(30, 50)]
     fake_project["intro"] = content[0]
     fake_project["details"] = "\n".join(content)
-    img_height = random.randint(300, 600)
-    img_width = int(img_height * (random.random() + 1.5))
-    fake_project["background_image"] = copy_random_img("background_image")#download_random_img((img_width, img_height))
+    #img_height = random.randint(300, 600)
+    #img_width = int(img_height * (random.random() + 1.5))
     project_status_list = ["prepare", "ongoing", "finish"]
     project_status = random.choices(project_status_list, weights=[1, 3, 1], k=1)[0]
     project_donate_dict = {}

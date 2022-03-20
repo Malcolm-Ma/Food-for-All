@@ -2,6 +2,7 @@ import json
 from django.http import HttpResponse, HttpResponseBadRequest
 from .common import *
 
+@api_logger(logger=logger_standard)
 def get_region_list(request):
     """
     @api {GET} /region_list/ region list
@@ -37,6 +38,7 @@ def get_region_list(request):
     response_data = {"region_list": sorted(list(REGION2RID.keys()))}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def get_currency_list(request):
     """
     @api {GET} /currency_list/ currency list
@@ -72,6 +74,7 @@ def get_currency_list(request):
     response_data = {"currency_list": sorted(list(CURRENCY2CID.keys()))}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def get_region2currency(request):
     """
     @api {GET} /region2currency/ region to currency
