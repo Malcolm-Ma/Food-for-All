@@ -63,7 +63,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
                  "mail": fk.safe_email(),
                  "password": fk.password(),
                  "name": "",
-                 "avatar": copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
+                 "avatar": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
                  "type": random.choice(user_type_list),
                  "region": random.choice(list(RID2REGION.keys())),
                  "currency_type": random.choice(list(CID2CURRENCY.keys())),
@@ -90,7 +90,7 @@ def create_fake_project(uid, donate_history):
                     "region": user.region,
                     "charity": user.name,
                     "charity_avatar": user.avatar,
-                    "background_image": "",
+                    "background_image": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("background_image"),#download_random_img((img_width, img_height))
                     "total_num": random.randint(10, 30) * 10,
                     "current_num": "",
                     "start_time": "",
@@ -102,9 +102,8 @@ def create_fake_project(uid, donate_history):
     fake_project["title"] = content[0][:random.randint(30, 50)]
     fake_project["intro"] = content[0]
     fake_project["details"] = "\n".join(content)
-    img_height = random.randint(300, 600)
-    img_width = int(img_height * (random.random() + 1.5))
-    fake_project["background_image"] = copy_random_img("background_image")#download_random_img((img_width, img_height))
+    #img_height = random.randint(300, 600)
+    #img_width = int(img_height * (random.random() + 1.5))
     project_status_list = ["prepare", "ongoing", "finish"]
     project_status = random.choices(project_status_list, weights=[1, 3, 1], k=1)[0]
     project_donate_dict = {}
