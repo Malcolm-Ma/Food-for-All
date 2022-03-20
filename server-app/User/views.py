@@ -46,7 +46,20 @@ def get_user_info(request):
         "share_mail_history": ["531273646@qq.com"]
     }
     """
-    response_data = copy.deepcopy(user_info_dict)
+    if request.method != "GET":
+        return HttpResponseBadRequest()
+    response_data = {"uid": "",
+                     "mail": "",
+                     "name": "",
+                     "avatar": "",
+                     "type": "",
+                     "region": "",
+                     "currency_type": "",
+                     "project": "[]",
+                     "regis_time": 0,
+                     "last_login_time": 0,
+                     "donate_history": "{}",
+                     "share_mail_history": ","}
     user = check_login(request)
     if user:
         for i in response_data:
@@ -99,7 +112,7 @@ def edit_user_info(request):
     if not update_user(user, edit_dict):
         response_data["status"] = edit_user_info_status["edit_fail"]
     else:
-        if user.type == user_type["charity"]:
+        if user.type == USER_TYPE["charity"]:
             edit_dict = {}
             if "name" in data:
                 edit_dict["charity"] = data["name"]
