@@ -13,6 +13,9 @@ import {
   Button,
   DatePicker,
 } from 'antd';
+import apiConfig from "src/api/apiConfig";
+import api from "src/api";
+import log from "tailwindcss/lib/util/log";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -58,7 +61,11 @@ export default () => {
   //   console.log('--userInfo--\n', userInfo);
   // }, [userInfo]);
 
-  console.log(createResult);
+
+
+  api.get(apiConfig.createProject).then(
+    res => console.log(res)
+  );
 
   const onFinish = (values) => {
     console.log(values);
