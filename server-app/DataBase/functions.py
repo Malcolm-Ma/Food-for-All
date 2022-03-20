@@ -185,4 +185,5 @@ def init_database_with_fake_data(user_num=50, project_num=200):
     for donor_uid in donate_history:
         user = get_user({"uid": donor_uid})
         user.donate_history = str(donate_history[donor_uid])
-        user.save(update_fields=["donate_history"])
+        user.project = str(list(donate_history[donor_uid].keys()))
+        user.save(update_fields=["project", "donate_history"])
