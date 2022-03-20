@@ -156,7 +156,7 @@ EMAIL_HOST_USER = 'team08.apex@gmail.com'
 EMAIL_HOST_PASSWORD = 'foodforall'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = ["http://localhost", "http://127.0.0.1", "http://*"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "http://127.0.0.1:3000"]
 CORS_ALLOW_METHODS = [
      "DELETE",
      "GET",
