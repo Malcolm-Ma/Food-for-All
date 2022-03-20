@@ -16,10 +16,16 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useState } from "react";
+
+const STEP_NAME = ['', '', ''];
 
 const theme = createTheme();
 
 export default () => {
+
+  const [step, setStep] = useState(0);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
