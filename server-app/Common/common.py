@@ -16,6 +16,10 @@ RID2CID = create_region_currency_list()
 EXCHANGE_RATE = create_exchange_rate()
 REGION2CURRENCY = dict([[RID2REGION[i], CID2CURRENCY[j]] for i,j in RID2CID.items()])
 
+USER_TYPE = {"admin": 0,
+             "charity": 1,
+             "guest": 2}
+
 def region2rid(region):
     if region in REGION2RID:
         return REGION2RID[region]

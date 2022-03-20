@@ -176,6 +176,8 @@ def logout(request):
         'status': 0
     }
     """
+    if request.method != "GET":
+        return HttpResponseBadRequest()
     response_data = {"status": logout_status["not_logged_in"]}
     if not check_login(request):
         response_data["status"] = logout_status["not_logged_in"]

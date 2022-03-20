@@ -58,11 +58,11 @@ def copy_random_img(img_type, path=IMG_PATH):
         return ""
     return os.path.join(STATIC_URL, name)
 
-def create_fake_user(user_type_list=(user_type["charity"], user_type["guest"])):
+def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
     fake_user = {"uid": "",
                  "mail": fk.safe_email(),
                  "password": fk.password(),
-                 "name": fk.name(),
+                 "name": "",
                  "avatar": copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
                  "type": random.choice(user_type_list),
                  "region": random.choice(list(RID2REGION.keys())),
@@ -73,6 +73,10 @@ def create_fake_user(user_type_list=(user_type["charity"], user_type["guest"])):
                  "donate_history": "{}",
                  "share_mail_history": str([fk.safe_email(), fk.safe_email()])}
     fake_user["uid"] = gen_uid(fake_user["mail"])
+    if fake_user["type"] == USER_TYPE["charity"]:
+        fake_user["name"] = fk.company()
+    else:
+        fake_user["name"] = fk.name()
     models.User.objects.create(**fake_user)
     return fake_user["uid"], fake_user["type"]
 
@@ -103,6 +107,7 @@ def create_fake_project(uid, donate_history):
     fake_project["background_image"] = copy_random_img("background_image")#download_random_img((img_width, img_height))
     project_status_list = ["prepare", "ongoing", "finish"]
     project_status = random.choices(project_status_list, weights=[1, 3, 1], k=1)[0]
+    project_donate_dict = {}
     if project_status == "prepare":
         fake_project["current_num"] = 0
         fake_project["start_time"] = int(time.time()) + random.randint(24 * 60 * 60, 365 * 24 * 60 * 60)
@@ -113,7 +118,6 @@ def create_fake_project(uid, donate_history):
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 5 * 24 * 60 * 60)
         fake_project["end_time"] = random.randint(fake_project["start_time"] + 5 * 24 * 60 * 60, int(time.time()))
         donor_dict = Counter(random.choices(list(donate_history.keys()), k=fake_project["current_num"]))
-        project_donate_dict = {}
         for donor_uid in donor_dict:
             donor_times = random.randint(1, donor_dict[donor_uid])
             donor_counts = random.sample(list(range(1, donor_dict[donor_uid])), donor_times - 1)
@@ -136,7 +140,6 @@ def create_fake_project(uid, donate_history):
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 5 * 24 * 60 * 60)
         fake_project["end_time"] = random.randint(int(time.time()) + 5 * 24 * 60 * 60, int(time.time()) + 365 * 24 * 60 * 60)
         donor_dict = Counter(random.choices(list(donate_history.keys()), k=fake_project["current_num"]))
-        project_donate_dict = {}
         for donor_uid in donor_dict:
             donor_times = random.randint(1, donor_dict[donor_uid])
             donor_counts = random.sample(list(range(1, donor_dict[donor_uid])), donor_times - 1)
@@ -156,6 +159,11 @@ def create_fake_project(uid, donate_history):
         fake_project["donate_history"] = str(project_donate_dict)
     models.Project.objects.create(**fake_project)
     add_project(user, fake_project["pid"])
+    if project_donate_dict:
+        user_donate_history = eval(user.donate_history)
+        user_donate_history[fake_project["pid"]] = project_donate_dict
+        user.donate_history = str(user_donate_history)
+        user.save(update_fields=["donate_history"])
     return donate_history
 
 def init_database_with_fake_data(user_num=50, project_num=200):
@@ -163,8 +171,8 @@ def init_database_with_fake_data(user_num=50, project_num=200):
     guest_list = []
     charity_list = []
     for _ in range(user_num):
-        fake_user_uid, fake_user_type = create_fake_user(user_type_list=(user_type["charity"], user_type["guest"]))
-        if fake_user_type == user_type["charity"]:
+        fake_user_uid, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
+        if fake_user_type == USER_TYPE["charity"]:
             charity_list.append(fake_user_uid)
         else:
             guest_list.append(fake_user_uid)
