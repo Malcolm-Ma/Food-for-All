@@ -4,7 +4,6 @@
  */
 
 import { useSelector } from 'react-redux';
-import { useEffect } from "react";
 import React from 'react';
 import {
   Form,
@@ -53,11 +52,13 @@ const rangeConfig = {
 
 
 export default () => {
-  const { userInfo } = useSelector(state => state.user);
+  const { createResult } = useSelector(state => state.project);
 
-  useEffect(() => {
-    console.log('--userInfo--\n', userInfo);
-  }, [userInfo]);
+  // useEffect(() => {
+  //   console.log('--userInfo--\n', userInfo);
+  // }, [userInfo]);
+
+  console.log(createResult);
 
   const onFinish = (values) => {
     console.log(values);
