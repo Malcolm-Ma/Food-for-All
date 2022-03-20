@@ -37,7 +37,7 @@ def create_user(create_info):
         return False
     if user_info["name"] == "":
         user_info["name"] = user_info["mail"]
-    if user_info["avatar"] != "" and not os.path.isfile(os.path.join(IMG_PATH, os.path.basename(user_info["avatar"]))):
+    if user_info["avatar"] != "" and not os.path.isfile(os.path.join(IMG_DIR, os.path.basename(user_info["avatar"]))):
         user_info["avatar"] = ""
     user_info["uid"] = gen_uid(seq=user_info["mail"])
     return models.User.objects.create(**user_info)

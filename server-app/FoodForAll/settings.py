@@ -130,16 +130,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-IMG_PATH = os.path.join(BASE_DIR, "IMG")
-DOC_PATH = os.path.join(BASE_DIR, "DOC")
+IMG_DIR = os.path.join(BASE_DIR, "IMG")
+DOC_DIR = os.path.join(BASE_DIR, "DOC")
 
 STATIC_URL = 'static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "Static")
 
 STATICFILES_DIRS = [
-    IMG_PATH,
-    DOC_PATH,
+    IMG_DIR,
+    DOC_DIR,
 ]
 
 # Default primary key field type
@@ -178,6 +178,54 @@ CORS_ALLOW_HEADERS = [
      "x-requested-with",
 ]
 
-RESOURCE_PATH = os.path.join(BASE_DIR, "Resource")
+LOG_DIR = os.path.join(BASE_DIR, "LOG")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s] - %(levelname)-8s - [%(pathname)s:%(funcName)s:%(lineno)d] - %(message)s',
+        },
+        'simple': {
+            'format': '[%(asctime)s] - %(levelname)s - %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        #'mail_admins': {
+        #    'level': 'ERROR',
+        #    'class': 'django.utils.log.AdminEmailHandler',
+        #},
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 365,
+            'encoding': 'utf-8',
+            'filename': os.path.join(LOG_DIR, 'server-app.log'),
+        },
+    },
+    'loggers': {
+        'standard': {
+            'handlers': ['file','console'],
+            'level':'INFO',
+            'propagate': False,
+        }
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+        'propagate': False,
+    },
+}
+
+RESOURCE_DIR = os.path.join(BASE_DIR, "Resource")
 
 APPEND_SLASH=False
