@@ -5,7 +5,7 @@ from django.forms import TextInput, Textarea
 
 class UserAdmin(admin.ModelAdmin):
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 4})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 128})},
     }
     list_display = ('id', 'uid', 'mail', 'password', 'name', 'avatar', 'type', 'region', 'currency_type', 'short_project', 'regis_time', 'last_login_time', 'short_donate_history', 'share_mail_history')
     list_filter = ['type', 'region']
