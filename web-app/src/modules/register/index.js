@@ -18,13 +18,27 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from "react";
 
-const STEP_NAME = ['', '', ''];
+const STEP_CONFIG = [
+  {
+    name: 'Enter Email',
+    submitLabel: 'Next',
+  },
+  {
+    name: 'Verify Email',
+    submitLabel: 'Verify',
+  },
+  {
+    name: 'Enter Details',
+    submitLabel: 'Submit',
+  }
+];
 
 const theme = createTheme();
 
 export default () => {
 
   const [step, setStep] = useState(0);
+  const [signUpInfo, setSignUpInfo] = useState({});
 
   const handleSubmit = (event) => {
     event.preventDefault();
