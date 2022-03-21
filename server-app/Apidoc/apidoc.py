@@ -18,4 +18,14 @@ import os
 
 # os.system(command)
 
-os.system('./Apidoc/scripts/generate_doc.sh')
+os.chdir('Apidoc')
+npm_res = os.system('npm run doc')
+
+if npm_res != 0:
+    print("No apidoc detected, installing ...")
+    os.system("npm install")
+    os.system('npm run doc')
+
+print("Generating API doc ...")
+
+os.chdir('..')
