@@ -31,7 +31,7 @@ def get_projects_list(request):
     @apiSuccess (Success 200 return) {String} charity (Sub-parameter of project_info) Name of the project's owner.
     @apiSuccess (Success 200 return) {String} charity_avatar (Sub-parameter of project_info) Static avatar url of the project's owner.
     @apiSuccess (Success 200 return) {String} background_image (Sub-parameter of project_info) Static background image url of the project.
-    @apiSuccess (Success 200 return) {Int} status (Sub-parameter of project_info) Status of th project (0: prepare, 1: ongoing, 2: stop, 3: finish).
+    @apiSuccess (Success 200 return) {Int} status (Sub-parameter of project_info) Status of th project (0: prepare, 1: ongoing, 2: finish).
     @apiSuccess (Success 200 return) {Float} price (Sub-parameter of project_info) The single donation price of the project.
     @apiSuccess (Success 200 return) {Int} current_num (Sub-parameter of project_info) Number of donations accepted.
     @apiSuccess (Success 200 return) {Int} total_num (Sub-parameter of project_info) The total number of donations expected to be received and the project ends when this number is reached.
@@ -231,7 +231,7 @@ def get_project_info(request):
     @apiSuccess (Success 200 return) {String} charity Name of the project's owner.
     @apiSuccess (Success 200 return) {String} charity_avatar Static avatar url of the project's owner.
     @apiSuccess (Success 200 return) {String} background_image Static background image url of the project.
-    @apiSuccess (Success 200 return) {Int} status Status of th project (0: prepare, 1: ongoing, 2: stop, 3: finish).
+    @apiSuccess (Success 200 return) {Int} status Status of the project (0: prepare, 1: ongoing, 2: finish).
     @apiSuccess (Success 200 return) {String} details Details of the project, containing rich text information.
     @apiSuccess (Success 200 return) {Float} price The single donation price of the project.
     @apiSuccess (Success 200 return) {Dict} donate_history Donate history. The data format is {string: {string: int}}, i.e. {uid: {timestamp: num}}. This means that the user "uid" donated "num" times to the project at time "timestamp".
@@ -255,7 +255,7 @@ def get_project_info(request):
         "charity": "qwer",
         "charity_avatar": "",
         "background_image": "",
-        "status": 0,
+        "status": 1,
         "details": "49",
         "price": 63.8893964219,
         "donate_history": {},

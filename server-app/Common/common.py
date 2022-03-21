@@ -24,8 +24,7 @@ USER_TYPE = {"admin": 0,
 
 PROJECT_STATUS = {"prepare": 0,
                   "ongoing": 1,
-                  "stop": 2,
-                  "finish": 3}
+                  "finish": 2}
 
 def region2rid(region):
     if region in REGION2RID:
