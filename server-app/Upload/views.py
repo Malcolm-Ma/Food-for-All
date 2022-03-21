@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from .functions import *
 
+@api_logger(logger=logger_standard)
 def upload_img(request):
     """
     @api {POST} /upload_img/ upload image
@@ -24,11 +25,12 @@ def upload_img(request):
     response_data = {"url": ""}
     file_obj = request.FILES.get('img')
     file_name = gen_img_name(file_obj.name)
-    img_path = os.path.join(IMG_PATH, file_name)
+    img_path = os.path.join(IMG_DIR, file_name)
     write_file(img_path, file_obj, 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def upload_doc(request):
     """
     @api {POST} /upload_doc/ upload document
@@ -51,7 +53,7 @@ def upload_doc(request):
     response_data = {"url": ""}
     file_obj = request.FILES.get('doc')
     file_name = gen_doc_name(file_obj.name)
-    doc_path = os.path.join(DOC_PATH, file_name)
+    doc_path = os.path.join(DOC_DIR, file_name)
     write_file(doc_path, file_obj, 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     return HttpResponse(json.dumps(response_data), content_type="application/json")

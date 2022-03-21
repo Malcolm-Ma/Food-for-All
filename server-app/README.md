@@ -40,7 +40,7 @@ apidoc
 # Server Start
 ## Under the environment of the tsp
     cd {project path}/server-app
-    python manage.py runserver 8000
+    python manage.py runserver --noreload 8000
 
 # API Document
 Visit http://127.0.0.1:8000/static/apidoc/index.html after startup the server.

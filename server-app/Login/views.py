@@ -3,6 +3,7 @@ import json
 from Mail.functions import Mail
 from .functions import *
 
+@api_logger(logger=logger_standard)
 def login(request):
     """
     @api {POST} /login/ user login
@@ -51,6 +52,7 @@ def login(request):
             rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT + get_request_url(request), max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
+@api_logger(logger=logger_standard)
 def regis(request):
     """
     @api {POST} /regis/ user registration
@@ -161,6 +163,7 @@ def regis(request):
         response_data["status"] = regis_status["wrong_action"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def logout(request):
     """
     @api {GET} /logout/ user logout
@@ -187,6 +190,7 @@ def logout(request):
     rep.delete_cookie(COOKIE_KEY)
     return rep
 
+@api_logger(logger=logger_standard)
 def reset_password(request):
     """
     @api {POST} /reset_password/ reset password

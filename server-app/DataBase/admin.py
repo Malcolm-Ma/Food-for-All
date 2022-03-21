@@ -12,8 +12,8 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['mail', 'name']
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('id', 'pid', 'uid', 'title', 'intro', 'region', 'charity', 'charity_avatar', 'background_image', 'total_num', 'current_num', 'start_time', 'end_time', 'short_details', 'price', 'short_donate_history')
-    list_filter = ['region']
+    list_display = ('id', 'pid', 'uid', 'title', 'intro', 'region', 'charity', 'charity_avatar', 'background_image', 'status', 'total_num', 'current_num', 'start_time', 'end_time', 'short_details', 'price', 'short_donate_history')
+    list_filter = ['region', 'status']
     search_fields = ['title', 'intro', 'charity', 'details']
 
 admin.site.register(User, UserAdmin)

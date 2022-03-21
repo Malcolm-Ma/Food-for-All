@@ -5,6 +5,7 @@ from .functions import *
 import math
 from User.functions import update_user, add_project, remove_project
 
+@api_logger(logger=logger_standard)
 def get_projects_list(request):
     """
     @api {GET, POST} /get_projects_list/ get projects list
@@ -30,6 +31,7 @@ def get_projects_list(request):
     @apiSuccess (Success 200 return) {String} charity (Sub-parameter of project_info) Name of the project's owner.
     @apiSuccess (Success 200 return) {String} charity_avatar (Sub-parameter of project_info) Static avatar url of the project's owner.
     @apiSuccess (Success 200 return) {String} background_image (Sub-parameter of project_info) Static background image url of the project.
+    @apiSuccess (Success 200 return) {Int} status (Sub-parameter of project_info) Status of th project (0: prepare, 1: ongoing, 2: finish).
     @apiSuccess (Success 200 return) {Float} price (Sub-parameter of project_info) The single donation price of the project.
     @apiSuccess (Success 200 return) {Int} current_num (Sub-parameter of project_info) Number of donations accepted.
     @apiSuccess (Success 200 return) {Int} total_num (Sub-parameter of project_info) The total number of donations expected to be received and the project ends when this number is reached.
@@ -69,6 +71,7 @@ def get_projects_list(request):
                 "charity": "3",
                 "charity_avatar": "",
                 "background_image": "",
+                "status": 1,
                 "price": 24.7987350414,
                 "current_num": 3,
                 "total_num": 100,
@@ -83,6 +86,7 @@ def get_projects_list(request):
                 "charity": "13",
                 "charity_avatar": "",
                 "background_image": "",
+                "status": 1,
                 "price": 107.4611851794,
                 "current_num": 13,
                 "total_num": 100,
@@ -97,6 +101,7 @@ def get_projects_list(request):
                 "charity": "23qwer",
                 "charity_avatar": "",
                 "background_image": "",
+                "status": 1,
                 "price": 190.12363531740002,
                 "current_num": 23,
                 "total_num": 100,
@@ -111,6 +116,7 @@ def get_projects_list(request):
                 "charity": "30",
                 "charity_avatar": "",
                 "background_image": "",
+                "status": 1,
                 "price": 247.98735041400002,
                 "current_num": 30,
                 "total_num": 100,
@@ -125,6 +131,7 @@ def get_projects_list(request):
                 "charity": "31",
                 "charity_avatar": "",
                 "background_image": "",
+                "status": 1,
                 "price": 256.2535954278,
                 "current_num": 31,
                 "total_num": 100,
@@ -191,12 +198,9 @@ def get_projects_list(request):
     user = check_login(request)
     if user and not currency2cid(currency_type):
         currency_type = user.currency_type
-    else:
-        currency_type = CID2CURRENCY["GBP"]
-    if valid_only:
-        projects = get_valid_projects(uid=uid)
-    else:
-        projects = get_all_projects(uid=uid)
+    elif not currency2cid(currency_type):
+        currency_type = "GBP"
+    projects = get_filtered_projects(uid=uid, valid_only=valid_only)
     current_projects, filter_projects_num = get_current_projects_dict(projects, current_page, page_size, order, search, currency_type)
     response_data["search"] = search
     response_data["valid_only"] = valid_only
@@ -207,6 +211,7 @@ def get_projects_list(request):
     response_data["project_info"] = current_projects
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def get_project_info(request):
     """
     @api {POST} /get_project_info/ get project information
@@ -226,6 +231,7 @@ def get_project_info(request):
     @apiSuccess (Success 200 return) {String} charity Name of the project's owner.
     @apiSuccess (Success 200 return) {String} charity_avatar Static avatar url of the project's owner.
     @apiSuccess (Success 200 return) {String} background_image Static background image url of the project.
+    @apiSuccess (Success 200 return) {Int} status Status of the project (0: prepare, 1: ongoing, 2: finish).
     @apiSuccess (Success 200 return) {String} details Details of the project, containing rich text information.
     @apiSuccess (Success 200 return) {Float} price The single donation price of the project.
     @apiSuccess (Success 200 return) {Dict} donate_history Donate history. The data format is {string: {string: int}}, i.e. {uid: {timestamp: num}}. This means that the user "uid" donated "num" times to the project at time "timestamp".
@@ -249,6 +255,7 @@ def get_project_info(request):
         "charity": "qwer",
         "charity_avatar": "",
         "background_image": "",
+        "status": 1,
         "details": "49",
         "price": 63.8893964219,
         "donate_history": {},
@@ -269,6 +276,7 @@ def get_project_info(request):
         response_data = project2dict(project, currency_type=currency_type)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def create_project(request):
     """
     @api {GET} /create_project/ create project
@@ -297,7 +305,7 @@ def create_project(request):
     elif user.type != USER_TYPE["charity"]:
         response_data["status"] = create_project_status["not_charity_user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    project_dict = project_info_dict
+    project_dict = copy.deepcopy(project_info_dict)
     project_dict["uid"] = user.uid
     project_dict["region"] = user.region
     project_dict["charity"] = user.name
@@ -305,6 +313,7 @@ def create_project(request):
     project_dict["region"] = user.region
     project_dict["donate_history"] = "{}"
     project_dict["pid"] = gen_pid(user.mail)
+    project_dict["status"] = PROJECT_STATUS["prepare"]
     if models.Project.objects.create(**project_dict):
         response_data["status"] = create_project_status["success"]
         response_data["pid"] = project_dict["pid"]
@@ -313,6 +322,7 @@ def create_project(request):
         response_data["status"] = create_project_status["create_fail"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def delete_project(request):
     """
     @api {POST} /delete_project/ delete project
@@ -323,7 +333,7 @@ def delete_project(request):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Delete status (0: success, 1: not_logged_in, 2: not_charity_user, 3: project_not_exists, 4: not_project_owner)
+    @apiSuccess (Success 200 return) {Int} status Delete status (0: success, 1: not_logged_in, 2: not_charity_user, 3: project_not_exists, 4: not_project_owner, 5: not_deletable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -341,7 +351,7 @@ def delete_project(request):
     if not user:
         response_data["status"] = delete_project_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif user.type != USER_TYPE["charity"]:
+    if user.type != USER_TYPE["charity"]:
         response_data["status"] = delete_project_status["not_charity_user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
@@ -353,11 +363,15 @@ def delete_project(request):
     if project.uid != user.uid:
         response_data["status"] = delete_project_status["not_project_owner"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.status != PROJECT_STATUS["prepare"]:
+        response_data["status"] = delete_project_status["not_deletable"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
     project.delete()
     remove_project(user, pid)
     response_data["status"] = delete_project_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def edit_project_info(request):
     """
     @api {POST} /edit_project_info/ edit project information
@@ -373,12 +387,11 @@ def edit_project_info(request):
     @apiParam {String} intro (Sub-parameter of edit) Introduction of project.
     @apiParam {String} background_image (Sub-parameter of edit) Static background image url. This should be preceded by a call to the upload_img/ interface to upload a background image file, with the url of the file returned by the upload_img/ interface as this parameter.
     @apiParam {Int} total_num (Sub-parameter of edit) The total number of donations expected to be received and the project ends when this number is reached.
-    @apiParam {Int} start_time (Sub-parameter of edit) The time at which the project starts and before which the project will not be shown.
     @apiParam {Int} end_time (Sub-parameter of edit) The time at which the project will end. When this time is reached, the project will be closed even if it has not reached the desired number of donations.
     @apiParam {String} details (Sub-parameter of edit) Details of the project, containing rich text information.
     @apiParam {Float} price (Sub-parameter of edit) The single donation price of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Edit status (0: success, 1: not_logged_in, 2: wrong_currency_type, 3: project_not_exists, 4: not_project_owner, 5: edit_fail)
+    @apiSuccess (Success 200 return) {Int} status Edit status (0: success, 1: not_logged_in, 2: wrong_currency_type, 3: project_not_exists, 4: not_project_owner, 5: edit_fail, 6: not_editable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -389,7 +402,6 @@ def edit_project_info(request):
             "intro": "apex",
             "background_image": "",
             "total_num": 80,
-            "start_time": 1647440000,
             "end_time": 1678970000,
             "details": "apex",
             "price": 100
@@ -417,8 +429,11 @@ def edit_project_info(request):
     if project.uid != user.uid:
         response_data["status"] = edit_project_info_status["not_project_owner"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.status != PROJECT_STATUS["prepare"]:
+        response_data["status"] = edit_project_info_status["not_editable"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
     edit_dict = {}
-    for i in ("title", "intro", "background_image", "total_num", "start_time", "end_time", "details", "price"):
+    for i in ("title", "intro", "background_image", "total_num", "end_time", "details", "price"):
         if i in data["edit"]:
             edit_dict[i] = data["edit"][i]
     if "price" in edit_dict:

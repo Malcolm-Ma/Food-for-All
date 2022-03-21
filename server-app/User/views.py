@@ -4,6 +4,7 @@ from Login.functions import check_login
 from .functions import *
 from Project.functions import get_project, get_all_projects
 
+@api_logger(logger=logger_standard)
 def get_user_info(request):
     """
     @api {GET} /get_user_info/ get user information
@@ -70,6 +71,7 @@ def get_user_info(request):
         response_data["share_mail_history"] = eval(response_data["share_mail_history"])
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
+@api_logger(logger=logger_standard)
 def edit_user_info(request):
     """
     @api {POST} /edit_user_info/ edit user information
