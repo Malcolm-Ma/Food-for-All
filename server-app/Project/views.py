@@ -3,7 +3,7 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
-from User.functions import update_user, user_type, add_project, remove_project
+from User.functions import update_user, add_project, remove_project
 
 def get_projects_list(request):
     """
@@ -286,13 +286,15 @@ def create_project(request):
         "pid": "fa00cb5f2e648afa9a39d99098c4fc84"
     }
     """
+    if request.method != "GET":
+        return HttpResponseBadRequest()
     response_data = {"status": "",
                      "pid": ""}
     user = check_login(request)
     if not user:
         response_data["status"] = create_project_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif user.type != user_type["charity"]:
+    elif user.type != USER_TYPE["charity"]:
         response_data["status"] = create_project_status["not_charity_user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     project_dict = project_info_dict
@@ -339,7 +341,7 @@ def delete_project(request):
     if not user:
         response_data["status"] = delete_project_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    elif user.type != user_type["charity"]:
+    elif user.type != USER_TYPE["charity"]:
         response_data["status"] = delete_project_status["not_charity_user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)

@@ -26,3 +26,11 @@ class Mail(object):
     @staticmethod
     def welcome(mail, fail_silently=True):
         send_mail("Welcome to FoodForAll", "Welcome to FoodForAll", EMAIL_HOST_USER, [mail], fail_silently=fail_silently)
+
+    @staticmethod
+    def reset_password_verify(mail, code, fail_silently=True):
+        send_mail("Password Reset", "Your verification code is " + code, EMAIL_HOST_USER, [mail], fail_silently=fail_silently)
+
+    @staticmethod
+    def reset_password_success(mail, fail_silently=True):
+        send_mail("Password Reset Successful", "You have successfully reset your password", EMAIL_HOST_USER, [mail], fail_silently=fail_silently)
