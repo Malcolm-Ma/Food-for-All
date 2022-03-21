@@ -373,11 +373,11 @@ def delete_project(request):
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger(logger=logger_standard)
-def edit_project_info(request):
+def edit_project(request):
     """
-    @api {POST} /edit_project_info/ edit project information
+    @api {POST} /edit_project/ edit project information
     @apiVersion 1.0.0
-    @apiName edit_project_info
+    @apiName edit_project
     @apiGroup Project
     @apiDescription api for editing project information by its owner
 
@@ -418,20 +418,20 @@ def edit_project_info(request):
     response_data = {"status": ""}
     user = check_login(request)
     if not user:
-        response_data["status"] = edit_project_info_status["not_logged_in"]
+        response_data["status"] = edit_project_status["not_logged_in"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
     pid = data["pid"]
     currency_type = data["currency_type"]
     project = get_project({"pid": pid})
     if not project:
-        response_data["status"] = edit_project_info_status["project_not_exists"]
+        response_data["status"] = edit_project_status["project_not_exists"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     if project.uid != user.uid:
-        response_data["status"] = edit_project_info_status["not_project_owner"]
+        response_data["status"] = edit_project_status["not_project_owner"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     if project.status != PROJECT_STATUS["prepare"]:
-        response_data["status"] = edit_project_info_status["not_editable"]
+        response_data["status"] = edit_project_status["not_editable"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     edit_dict = {}
     for i in ("title", "intro", "background_image", "total_num", "end_time", "details", "price"):
@@ -440,14 +440,115 @@ def edit_project_info(request):
     if "price" in edit_dict:
         cid = currency2cid(currency_type)
         if not cid:
-            response_data["status"] = edit_project_info_status["wrong_currency_type"]
+            response_data["status"] = edit_project_status["wrong_currency_type"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         edit_dict["price"] = edit_dict["price"] / EXCHANGE_RATE[cid]
     background_image_url = project.background_image
     if not update_project(project, edit_dict):
-        response_data["status"] = edit_project_info_status["edit_fail"]
+        response_data["status"] = edit_project_status["edit_fail"]
     else:
         if "background_image" in edit_dict:
             remove_img_file(background_image_url)
-        response_data["status"] = edit_project_info_status["success"]
+        response_data["status"] = edit_project_status["success"]
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@api_logger(logger=logger_standard)
+def start_project(request):
+    """
+    @api {POST} /start_project/ start project
+    @apiVersion 1.0.0
+    @apiName start_project
+    @apiGroup Project
+    @apiDescription api to start a project with complete information
+
+    @apiParam {String} pid Pid of the project.
+
+    @apiSuccess (Success 200 return) {Int} status Start status (0: success, 1: not_logged_in, 2: incomplete_information, 3: project_not_exists, 4: not_project_owner, 5: start_fail, 6: not_startable)
+
+    @apiParamExample {Json} Sample Request
+    {
+        "pid": "22fd90badc08090a9b01606dbee18ff1"
+     }
+    @apiSuccessExample {Json} Response-Success
+    {
+        "status": 0
+    }
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    response_data = {"status": ""}
+    user = check_login(request)
+    if not user:
+        response_data["status"] = start_project_status["not_logged_in"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    data = json.loads(request.body)
+    pid = data["pid"]
+    project = get_project({"pid": pid})
+    if not project:
+        response_data["status"] = start_project_status["project_not_exists"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.uid != user.uid:
+        response_data["status"] = start_project_status["not_project_owner"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.status != PROJECT_STATUS["prepare"]:
+        response_data["status"] = start_project_status["not_startable"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if not (project.title and project.intro and project.details and project.total_num > 0 and project.end_time > int(time.time()) and project.price > 0):
+        response_data["status"] = start_project_status["incomplete_information"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if not update_project(project, {"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]}):
+        response_data["status"] = start_project_status["start_fail"]
+    else:
+        response_data["status"] = start_project_status["success"]
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@api_logger(logger=logger_standard)
+def stop_project(request):
+    """
+    @api {POST} /stop_project/ stop project
+    @apiVersion 1.0.0
+    @apiName stop_project
+    @apiGroup Project
+    @apiDescription api to stop aongoing project
+
+    @apiParam {String} pid Pid of the project.
+
+    @apiSuccess (Success 200 return) {Int} status Stop status (0: success, 1: not_logged_in, 2: project_not_exists, 3: not_project_owner, 4: stop_fail, 5: not_stopable)
+
+    @apiParamExample {Json} Sample Request
+    {
+        "pid": "22fd90badc08090a9b01606dbee18ff1"
+     }
+    @apiSuccessExample {Json} Response-Success
+    {
+        "status": 0
+    }
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    response_data = {"status": ""}
+    user = check_login(request)
+    if not user:
+        response_data["status"] = stop_project_status["not_logged_in"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    data = json.loads(request.body)
+    pid = data["pid"]
+    project = get_project({"pid": pid})
+    if not project:
+        response_data["status"] = stop_project_status["project_not_exists"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.uid != user.uid:
+        response_data["status"] = stop_project_status["not_project_owner"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.status != PROJECT_STATUS["ongoing"]:
+        response_data["status"] = stop_project_status["not_stopable"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if project.current_num >= project.total_num or project.end_time <= int(time.time()):
+        update_project(project, {"status": PROJECT_STATUS["finish"]})
+        response_data["status"] = stop_project_status["not_stopable"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if not update_project(project, {"status": PROJECT_STATUS["finish"], "end_time": int(time.time())}):
+        response_data["status"] = stop_project_status["stop_fail"]
+    else:
+        response_data["status"] = stop_project_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
