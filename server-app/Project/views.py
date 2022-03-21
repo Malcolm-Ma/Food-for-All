@@ -366,6 +366,7 @@ def delete_project(request):
     if project.status != PROJECT_STATUS["prepare"]:
         response_data["status"] = delete_project_status["not_deletable"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
+    remove_img_file(project.background_image)
     project.delete()
     remove_project(user, pid)
     response_data["status"] = delete_project_status["success"]
@@ -442,8 +443,11 @@ def edit_project_info(request):
             response_data["status"] = edit_project_info_status["wrong_currency_type"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         edit_dict["price"] = edit_dict["price"] / EXCHANGE_RATE[cid]
+    background_image_url = project.background_image
     if not update_project(project, edit_dict):
         response_data["status"] = edit_project_info_status["edit_fail"]
     else:
+        if "background_image" in edit_dict:
+            remove_img_file(background_image_url)
         response_data["status"] = edit_project_info_status["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
