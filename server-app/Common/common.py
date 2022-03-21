@@ -35,10 +35,10 @@ def region2rid(region):
         return ""
 
 def rid2region(rid):
-    if rid2region in RID2REGION:
-        return RID2REGION[rid2region]
-    elif rid2region in REGION2RID:
-        return rid2region
+    if rid in RID2REGION:
+        return RID2REGION[rid]
+    elif rid in REGION2RID:
+        return rid
     else:
         return ""
 
