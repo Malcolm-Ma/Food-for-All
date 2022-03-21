@@ -21,7 +21,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 
 # os.system(command)
 
-p = subprocess.Popen(['npm', 'run', 'doc'], cwd=CURRENT_DIR, stderr=subprocess.PIPE)
+p = subprocess.Popen(['npm', 'run', 'doc'], shell=True, cwd=CURRENT_DIR, stderr=subprocess.PIPE)
 p.wait()  # wait for response
 npm_res = p.returncode
 
