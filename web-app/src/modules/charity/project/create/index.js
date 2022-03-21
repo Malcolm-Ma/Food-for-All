@@ -13,8 +13,6 @@ import {
   Button,
   DatePicker,
 } from 'antd';
-import apiConfig from "src/api/apiConfig";
-import api from "src/api";
 import actions from 'src/actions';
 
 const { RangePicker } = DatePicker;
@@ -62,15 +60,16 @@ export default () => {
   // }, [userInfo]);
 
   const onFinish = async (values) => {
-    console.log(values);
+    // console.log(values);
     try {
       const createProjectResult = await actions.createProject();
-      // createProjectResult = { status: 0, pid: 'xxxxx' }
       console.log('--createProjectResult--\n', createProjectResult);
       if (createProjectResult.status === 0) {
         const editProjectResponse = await actions.editProject({
           ...values
         });
+
+        console.log(editProjectResponse);
 
       }
     } catch (e) {
