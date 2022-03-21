@@ -1,10 +1,13 @@
 import os
+import subprocess
+from pathlib import Path
+
+CURRENT_DIR = Path(__file__).resolve().parent
 
 # if __name__ != "__main__":
 #     from FoodForAll.settings import DOC_DIR
 # else:
 #     DOC_PATH = "./DOC/"
-# from pathlib import Path
 #
 # api_path = ["Common", "Login", "Payment", "Project", "Upload", "User"]
 # command = "apidoc"
@@ -18,14 +21,15 @@ import os
 
 # os.system(command)
 
-os.chdir('Apidoc')
-npm_res = os.system('npm run doc')
+p = subprocess.Popen(['npm', 'run', 'doc'], cwd=CURRENT_DIR, stderr=subprocess.PIPE)
+p.wait()  # wait for response
+npm_res = p.returncode
 
-if npm_res != 0:
+if npm_res == 0:
+    print("Generating API doc ...")
+else:
     print("No apidoc detected, installing ...")
+    os.chdir('Apidoc')
     os.system("npm install")
     os.system('npm run doc')
-
-print("Generating API doc ...")
-
-os.chdir('..')
+    os.chdir('..')
