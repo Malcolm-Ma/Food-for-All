@@ -1,0 +1,15 @@
+{
+  "name": "server-app",
+  "version": "1.0.0",
+  "description": "Drived by django(python) and mysql",
+  "main": "index.js",
+  "scripts": {
+    "doc": "node Apidoc/scripts/doc.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apidoc": "^0.50.5"
+  }
+}
