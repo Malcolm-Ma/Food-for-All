@@ -95,7 +95,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -197,15 +196,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        #'mail_admins': {
-        #    'level': 'ERROR',
-        #    'class': 'django.utils.log.AdminEmailHandler',
-        #},
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
-            'when': 'D',
+            'when': 'midnight',
             'interval': 1,
             'backupCount': 365,
             'encoding': 'utf-8',
@@ -215,7 +210,7 @@ LOGGING = {
     'loggers': {
         'standard': {
             'handlers': ['file','console'],
-            'level':'INFO',
+            'level':'DEBUG',
             'propagate': False,
         }
     },

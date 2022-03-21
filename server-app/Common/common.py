@@ -73,23 +73,6 @@ def get_request_url(request):
         url = request.META.get('REMOTE_ADDR')
     return url
 
-def check_login(request):
-    s, t, u, a = decode_cookie(request, COOKIE_ENCODE_KEY)
-    try:
-        t = int(re.findall(r'[0-9]+', t)[0])
-    except:
-        return ""
-    cookie_time = int(time.time()) - t
-    url = get_request_url(request)
-    agent = request.META['HTTP_USER_AGENT']
-    if s and cookie_time >= 0 and cookie_time < COOKIE_EXPIRES and url == u[:len(url)] and agent == a[:len(agent)]:
-        try:
-            user = models.User.objects.get(**{"uid": s[:32]})
-            return user
-        except:
-            return ""
-    return ""
-
 def encode_cookie(request, uid, encode_key = COOKIE_ENCODE_KEY):
     random_str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     s = uid
@@ -128,6 +111,23 @@ def decode_cookie(request, decode_key = COOKIE_ENCODE_KEY):
     u = c[2::4][:length]
     a = c[3::4][:length]
     return s, t, u, a
+
+def check_login(request):
+    s, t, u, a = decode_cookie(request, COOKIE_ENCODE_KEY)
+    try:
+        t = int(re.findall(r'[0-9]+', t)[0])
+    except:
+        return ""
+    cookie_time = int(time.time()) - t
+    url = get_request_url(request)
+    agent = request.META['HTTP_USER_AGENT']
+    if s and cookie_time >= 0 and cookie_time < COOKIE_EXPIRES and url == u[:len(url)] and agent == a[:len(agent)]:
+        try:
+            user = models.User.objects.get(**{"uid": s[:32]})
+            return user
+        except:
+            return ""
+    return ""
 
 def api_logger(logger):
     def logging_decorator(func):
