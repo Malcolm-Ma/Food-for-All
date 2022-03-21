@@ -89,32 +89,31 @@ def create_fake_project(uid, donate_history):
                     "region": user.region,
                     "charity": user.name,
                     "charity_avatar": user.avatar,
-                    "background_image": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("background_image"),#download_random_img((img_width, img_height))
+                    "background_image": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("background_image"),#download_random_img((int(img_height * (random.random() + 1.5)), random.randint(300, 600)))
                     "total_num": random.randint(10, 30) * 10,
                     "current_num": "",
                     "start_time": "",
                     "end_time": "",
                     "details": "",
                     "price": random.random() * 20,
-                    "donate_history": "{}"}
+                    "donate_history": "{}",
+                    "status": random.choices(list(PROJECT_STATUS.values()), weights=[2, 11, 2, 5], k=1)[0]}
     content = fk.texts(random.randint(3, 8))
     fake_project["title"] = content[0][:random.randint(30, 50)]
     fake_project["intro"] = content[0]
     fake_project["details"] = "\n".join(content)
-    #img_height = random.randint(300, 600)
-    #img_width = int(img_height * (random.random() + 1.5))
-    project_status_list = ["prepare", "ongoing", "finish"]
-    project_status = random.choices(project_status_list, weights=[1, 3, 1], k=1)[0]
     project_donate_dict = {}
-    if project_status == "prepare":
+    if fake_project["status"] == PROJECT_STATUS["prepare"]:
         fake_project["current_num"] = 0
-        fake_project["start_time"] = int(time.time()) + random.randint(24 * 60 * 60, 365 * 24 * 60 * 60)
+        fake_project["start_time"] = 0
         fake_project["end_time"] = fake_project["start_time"] + random.randint(30 * 24 * 60 * 60, 365 * 24 * 60 * 60)
         fake_project["donate_history"] = "{}"
-    elif project_status == "finish":
-        fake_project["current_num"] = random.randint(0, fake_project["total_num"])
+    elif fake_project["status"] == PROJECT_STATUS["stop"]:
+        pass
+    elif fake_project["status"] == PROJECT_STATUS["finish"]:
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 5 * 24 * 60 * 60)
         fake_project["end_time"] = random.randint(fake_project["start_time"] + 5 * 24 * 60 * 60, int(time.time()))
+        fake_project["current_num"] = random.randint(0, fake_project["total_num"])
         donor_dict = Counter(random.choices(list(donate_history.keys()), k=fake_project["current_num"]))
         for donor_uid in donor_dict:
             donor_times = random.randint(1, donor_dict[donor_uid])
@@ -133,7 +132,7 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
-    elif project_status == "ongoing":
+    elif fake_project["status"] == PROJECT_STATUS["ongoing"]:
         fake_project["current_num"] = random.randint(0, fake_project["total_num"] - 1)
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 5 * 24 * 60 * 60)
         fake_project["end_time"] = random.randint(int(time.time()) + 5 * 24 * 60 * 60, int(time.time()) + 365 * 24 * 60 * 60)

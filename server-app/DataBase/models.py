@@ -39,6 +39,7 @@ class Project(models.Model):
     charity = models.CharField(max_length=256)
     charity_avatar = models.FilePathField(max_length=256)
     background_image = models.FilePathField(max_length=256)
+    status = models.IntegerField()
     total_num = models.IntegerField()
     current_num = models.IntegerField()
     start_time = models.IntegerField()
