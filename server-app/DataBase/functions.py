@@ -1,5 +1,3 @@
-import os
-import time
 from Project.functions import *
 from User.functions import *
 from faker import Faker
