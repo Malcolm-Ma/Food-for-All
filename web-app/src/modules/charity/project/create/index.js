@@ -113,27 +113,50 @@ export default () => {
       message.loading({content: 'Loading...', key});
       const createProjectRes = await actions.createProject();
       console.log('createProjectRes.status\n', createProjectRes);
-      if (createProjectRes.status === 0) {
-        const editProjectRes = await actions.editProject({
-          "pid": createProjectRes.pid,
-          "currency_type": values.currency,
-          "edit": {
-            "title": values.title,
-            "intro": values.introduction,
-            "background_image": "",
-            "total_num": values.donation,
-            "start_time": moment(values.projectTime[0]).valueOf(),
-            "end_time": moment(values.projectTime[1]).valueOf(),
-            "details": values.details,
-            "price": 100
+      switch (createProjectRes.status) {
+        case 0:
+          const editProjectRes = await actions.editProject({
+            "pid": createProjectRes.pid,
+            "currency_type": values.currency,
+            "edit": {
+              "title": values.title,
+              "intro": values.introduction,
+              "background_image": "",
+              "total_num": values.donation,
+              "start_time": moment(values.projectTime[0]).valueOf(),
+              "end_time": moment(values.projectTime[1]).valueOf(),
+              "details": values.details,
+              "price": 100
+            }
+          });
+          switch (editProjectRes.status) {
+            case 0:
+              await message.success({content: 'Successs!', key});
+              break;
+            case 1:
+              await message.error({content: "Please login first!", key});
+              break;
+            case 2:
+              await message.error({content: "Wrong currency type!", key});
+              break;
+            case 3:
+              await message.error({content: "Create project failed!", key});
+              break;
+            case 4:
+              await message.error({content: "You are not the project owner!", key});
+              break;
+            case 5:
+              await message.error({content: "Project edit failed!", key});
+              break;
           }
-        });
-        if (editProjectRes.status === 0) {
-          await message.success({content: 'Successs!', key});
-        }
-      } else if (createProjectRes.status === 1) {
-        setIsModalVisible(true);
-        await message.error({content: "Please login first!", key});
+          break;
+        case 1:
+          setIsModalVisible(true);
+          await message.error({content: "Please login first!", key});
+          break;
+        case 2:
+          await message.error({content: "You are not the charity", key});
+          break;
       }
     } catch (e) {
 
