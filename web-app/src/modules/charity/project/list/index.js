@@ -8,49 +8,54 @@ import { Space, Table, Progress } from 'antd';
 import actions from "src/actions";
 import _ from "lodash";
 
-const { Column } = Table;
-
 // Column config of a table
 // Using either dataIndex or key to point out unique props
-const columnsConfig = [
-  {
-    title: 'Title',
-    dataIndex: 'title',
-    key: 'title',
-    render: text => <a key={'title'}>{text}</a>,
-  },
-  {
-    title: 'Introduction',
-    dataIndex: 'intro',
-    ellipsis: true,
-  },
-  {
-    title: 'Price',
-    dataIndex: 'price',
-  },
-  {
-    title: 'Progress',
-    key: 'Progress',
-    width: 160,
-    render: (text, record) => {
-      const { current_num: currentNum, total_num: totalNum } = record;
-      const percent = _.floor((currentNum / totalNum) * 100, 0);
-      return (
-        <Progress percent={percent} />
-      );
-    }
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: (text, record) => (
-      <Space size="middle">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
-      </Space>
-    ),
-  },
-];
+const columnsConfig = (functions) => {
+
+  const {
+    onDelete,
+  } = functions;
+
+  return [
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title',
+      render: text => <a key={'title'}>{text}</a>,
+    },
+    {
+      title: 'Introduction',
+      dataIndex: 'intro',
+      ellipsis: true,
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+    },
+    {
+      title: 'Progress',
+      key: 'Progress',
+      width: 160,
+      render: (text, record) => {
+        const { current_num: currentNum, total_num: totalNum } = record;
+        const percent = _.floor((currentNum / totalNum) * 100, 0);
+        return (
+          <Progress percent={percent} />
+        );
+      }
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record) => (
+        <Space size="middle">
+          <a>Invite {record.name}</a>
+          <a>Delete</a>
+        </Space>
+      ),
+    },
+  ];
+}
 
 export default () => {
 
@@ -85,10 +90,17 @@ export default () => {
     getProjectList().catch(err => console.error(err));
   }, [getProjectList]);
 
+  const onDelete = () => {
+
+  };
+
+  const customFunctions = {
+    onDelete
+  };
   return (
     <div>
       <Table
-        columns={columnsConfig}
+        columns={columnsConfig(customFunctions)}
         rowKey={record => record.pid}
         dataSource={_.get(projectInfo, 'projectInfo', [])}
       />
