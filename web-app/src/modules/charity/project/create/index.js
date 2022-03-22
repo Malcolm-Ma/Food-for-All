@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
+import moment from "moment";
 
 const {RangePicker} = DatePicker;
 const {Option} = Select;
@@ -65,16 +66,12 @@ export default () => {
     dispatch(actions.getCurrencyList());
   }, [dispatch]);
 
-
   const {userInfo} = useSelector(state => state.user);
   const {currencyList} = useSelector(state => state.global);
-
-  // console.log(userInfo);
 
   const suffixSelector = (
     <Form.Item name="currency" noStyle>
       <Select
-        // defaultValue="123"
         showSearch
         style={{width: 200}}
         placeholder="Search to Select"
@@ -87,48 +84,40 @@ export default () => {
         }
       >
         {currencyList.map(item => (
-          <Option value={item}>{item}</Option>
+          <Option value={item} key={item}>{item}</Option>
         ))}
       </Select>
     </Form.Item>
   );
-
 
   const logout = () => {
     actions.logout();
     console.log('logout');
   }
 
-  // useEffect( () => {
-  //   const userInfo = dispatch(actions.getUserInfo());
-  //   const currencyList = dispatch(actions.getCurrencyList());
-  //   // dispatch(actions.getUserInfo()).catch(err => console.error(err));
-  //   // dispatch(actions.getCurrencyList()).catch(err => console.error(err));
-  //   console.log();
-  // }, [dispatch]);
-
-
   const onFinish = async (values) => {
-
     try {
-      // console.log('values\n',values);
-
-
-      // const userInfoRes = await actions.getUserInfo();
-
-
       const createProjectRes = await actions.createProject();
       console.log('createProjectRes.status\n', createProjectRes);
-
       if (createProjectRes.status === 0) {
         const editProjectRes = await actions.editProject({
-          ...values
+          "pid": createProjectRes.pid,
+          "currency_type": values.currency,
+          "edit": {
+            "title": values.title,
+            "intro": values.introduction,
+            "background_image": "",
+            "total_num": values.donation,
+            "start_time": moment(values.projectTime[0]).valueOf(),
+            "end_time": moment(values.projectTime[1]).valueOf(),
+            "details": values.details,
+            "price": 100
+          }
         });
       }
     } catch (e) {
 
     }
-
   };
 
   return (
@@ -136,6 +125,9 @@ export default () => {
           name="nest-messages"
           onFinish={onFinish}
           validateMessages={validateMessages}
+          initialValues={{
+            currency: userInfo.currency_type
+          }}
     >
 
       <Form.Item name="title" label="Title" rules={[{required: false, message: 'Please input the title'}]}>
@@ -144,18 +136,22 @@ export default () => {
 
       <Form.Item
         // name="donation"
-        name={['user', 'donation']}
+        name="donation"
         label="Donation Amount"
         rules={[{required: false, message: 'Please input donation amount!'}]}
       >
         <InputNumber addonAfter={suffixSelector} style={{width: '100%'}}/>
       </Form.Item>
 
-      <Form.Item name="range-picker" label="RangePicker" {...rangeConfig}>
+      <Form.Item name="projectTime" label="RangePicker" {...rangeConfig}>
         <RangePicker/>
       </Form.Item>
 
-      <Form.Item name={['user', 'introduction']} label="Introduction">
+      <Form.Item name="introduction" label="Introduction">
+        <Input.TextArea/>
+      </Form.Item>
+
+      <Form.Item name="details" label="Details">
         <Input.TextArea/>
       </Form.Item>
 

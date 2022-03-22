@@ -29,7 +29,7 @@ export const getRegionList = (params) => async (dispatch) => {
 export const getCurrencyList = (params) => async (dispatch) => {
   try {
     const { currency_list: currencyList } = await api.get(apiConfig.currencyList, params);
-    console.log('--currencyList--\n', currencyList);
+    // console.log('--currencyList--\n', currencyList);
     dispatch({
       type: SET_CURRENCY_LIST,
       payload: { currencyList },
