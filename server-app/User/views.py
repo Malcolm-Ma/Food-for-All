@@ -111,9 +111,12 @@ def edit_user_info(request):
     for i in ("name", "region", "currency_type", "avatar"):
         if i in data:
             edit_dict[i] = data[i]
+    avatar_url = user.avatar
     if not update_user(user, edit_dict):
         response_data["status"] = edit_user_info_status["edit_fail"]
     else:
+        if "avatar" in edit_dict:
+            remove_img_file(avatar_url)
         if user.type == USER_TYPE["charity"]:
             edit_dict = {}
             if "name" in data:
