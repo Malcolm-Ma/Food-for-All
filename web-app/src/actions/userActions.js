@@ -2,6 +2,7 @@
  * @file user action
  * @author Mingze Ma
  */
+import _ from 'lodash';
 import api from "src/api";
 import apiConfig from "src/api/apiConfig";
 import { SET_USER_INFO } from 'src/constants/actionTypes';
@@ -22,16 +23,25 @@ export const getUserInfo = () => async (dispatch) => {
   try {
     const userInfo = await api.get(apiConfig.userInfo);
     console.log('--userInfo--\n', userInfo);
+    const isLoggedIn = !!_.get(userInfo, 'uid');
+
     dispatch({
       type: SET_USER_INFO,
-      payload: { userInfo },
+      payload: {
+        userInfo: {
+          ...userInfo,
+          isLoggedIn,
+        }
+      },
     });
     return userInfo;
   } catch (e) {
     dispatch({
       type: SET_USER_INFO,
       payload: {
-        userInfo: {},
+        userInfo: {
+          isLoggedIn: false,
+        },
       },
     });
   }
