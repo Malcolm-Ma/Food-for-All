@@ -20,7 +20,6 @@ import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
 import moment from "moment";
 
-const {RangePicker} = DatePicker;
 const {Option} = Select;
 
 const layout = {
@@ -55,10 +54,6 @@ const normFile = (e) => {
   }
 
   return e && e.fileList;
-};
-
-const rangeConfig = {
-  rules: [{required: false, message: 'Please select time!'}],
 };
 
 export default () => {
@@ -97,7 +92,7 @@ export default () => {
         }
       >
         {currencyList.map(item => (
-          <Option value={item.code} key={item.code}>{item.code}</Option>
+          <Option value={item.value} key={item.value}>{item.value}</Option>
         ))}
       </Select>
     </Form.Item>
@@ -162,37 +157,43 @@ export default () => {
     }
   };
 
+  function disabledDate(current) {
+    // Can not select days before today and today
+    return current && current < moment().endOf('day');
+  }
+
   return (
     <Form {...layout}
           name="nest-messages"
           onFinish={onFinish}
           validateMessages={validateMessages}
           initialValues={{
-            currency: userInfo.currency_type
+            currency: userInfo.currency_type,
+            price: 100,
           }}
     >
 
-      <Form.Item name="title" label="Title" rules={[{required: false, message: 'Please input the title'}]}>
+      <Form.Item name="title" label="Title" rules={[{required: true, message: 'Please input the title'}]}>
         <Input/>
       </Form.Item>
 
-      <Form.Item name="price" label="Price" rules={[{required: false, message: 'Please input the price'}]}>
-        <InputNumber min={1} defaultValue={100} />
+      <Form.Item name="price" label="Price" rules={[{required: true, message: 'Please input the price'}]}>
+        <InputNumber min={1} />
       </Form.Item>
 
       <Form.Item
         name="donation"
         label="Donation Amount"
-        rules={[{required: false, message: 'Please input donation amount!'}]}
+        rules={[{required: true, message: 'Please input donation amount!'}]}
       >
         <InputNumber addonAfter={suffixSelector} style={{width: '100%'}}/>
       </Form.Item>
 
-      <Form.Item name="projectTime" label="Deadline" {...rangeConfig}>
-        <DatePicker />
+      <Form.Item name="projectTime" label="Deadline" rules={[{required: true, message: 'Please select deadline!'}]}>
+        <DatePicker disabledDate={disabledDate} />
       </Form.Item>
 
-      <Form.Item name="introduction" label="Introduction">
+      <Form.Item name="introduction" label="Introduction" rules={[{required: true, message: 'Please write the introduction!'}]}>
         <Input.TextArea/>
       </Form.Item>
 
