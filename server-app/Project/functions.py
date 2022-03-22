@@ -16,13 +16,28 @@ delete_project_status = {"success": 0,
                          "not_project_owner": 4,
                          "not_deletable": 5}
 
-edit_project_info_status = {"success": 0,
+edit_project_status = {"success": 0,
                             "not_logged_in": 1,
                             "wrong_currency_type": 2,
                             "project_not_exists": 3,
                             "not_project_owner": 4,
                             "edit_fail": 5,
                             "not_editable": 6}
+
+start_project_status = {"success": 0,
+                        "not_logged_in": 1,
+                        "incomplete_information": 2,
+                        "project_not_exists": 3,
+                        "not_project_owner": 4,
+                        "start_fail": 5,
+                        "not_startable": 6}
+
+stop_project_status = {"success": 0,
+                       "not_logged_in": 1,
+                       "project_not_exists": 2,
+                       "not_project_owner": 3,
+                       "stop_fail": 4,
+                       "not_stopable": 5}
 
 project_info_dict = {"pid": "",
                      "uid": "",
@@ -151,7 +166,7 @@ def get_project(filter_dict):
         return ""
 
 def update_project(project, update_dict):
-    update_keys_list = ["title", "intro", "background_image", "total_num", "start_time", "end_time", "details", "price"]
+    update_keys_list = ["title", "intro", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history"]
     for key in update_dict.keys():
         if key not in update_keys_list:
             return False

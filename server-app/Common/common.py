@@ -143,3 +143,9 @@ def api_logger(logger):
             return response
         return wrapped_function
     return logging_decorator
+
+def remove_img_file(img_url):
+    if img_url:
+        img_path = os.path.join(IMG_DIR, os.path.basename(img_url))
+        if os.path.exists(img_path):
+            os.remove(img_path)
