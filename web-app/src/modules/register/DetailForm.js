@@ -22,19 +22,10 @@ export default (props) => {
   const dispatch = useDispatch();
   const { regionList, currencyList } = useSelector(state => state.global);
 
-  const [regionOptions, setRegionOptions] = useState([]);
-  const [currencyOptions, setCurrencyOptions] = useState([]);
-
   useEffect(() => {
     dispatch(actions.getRegionList()).catch(err => console.error(err));
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
-
-  useEffect(() => {
-    // reformat region & currency options
-    setRegionOptions(_.map(regionList, (item) => ({label: item, value: item})));
-    setCurrencyOptions(_.map(currencyList, (item) => ({label: item, value: item})));
-  }, [currencyList, regionList]);
 
   return (
     <Grid container spacing={2}>
@@ -82,7 +73,7 @@ export default (props) => {
           disablePortal
           fullWidth
           id="region"
-          options={regionOptions}
+          options={regionList}
           renderInput={(params) => <TextField
             {...params}
             label="Select Region"
@@ -95,7 +86,7 @@ export default (props) => {
           disablePortal
           fullWidth
           id="currency"
-          options={currencyOptions}
+          options={currencyList}
           renderInput={(params) => <TextField
             {...params}
             label="Select Currency"
