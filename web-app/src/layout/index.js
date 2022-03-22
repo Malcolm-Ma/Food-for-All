@@ -36,7 +36,7 @@ const Layout = (props) => {
   }, [userInfo]);
 
   return (
-    <AntdLayout className="ffa-frame">
+    <div className="ffa-frame">
       {
         initStatus
           ? <>
@@ -50,7 +50,7 @@ const Layout = (props) => {
           </>
           : <div></div>
       }
-    </AntdLayout>
+    </div>
   );
 };
 
