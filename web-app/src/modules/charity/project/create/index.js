@@ -4,14 +4,17 @@
  */
 
 import {useDispatch, useSelector} from 'react-redux';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Form,
   Input,
   InputNumber,
   Select,
   Button,
-  DatePicker, Upload,
+  DatePicker,
+  Upload,
+  message,
+  Modal,
 } from 'antd';
 import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
@@ -61,6 +64,16 @@ const rangeConfig = {
 export default () => {
   const dispatch = useDispatch();
 
+  const key = 'MessageKey';
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   useEffect(() => {
     dispatch(actions.getUserInfo());
     dispatch(actions.getCurrencyList());
@@ -97,6 +110,7 @@ export default () => {
 
   const onFinish = async (values) => {
     try {
+      message.loading({content: 'Loading...', key});
       const createProjectRes = await actions.createProject();
       console.log('createProjectRes.status\n', createProjectRes);
       if (createProjectRes.status === 0) {
@@ -114,6 +128,12 @@ export default () => {
             "price": 100
           }
         });
+        if (editProjectRes.status === 0) {
+          await message.success({content: 'Successs!', key});
+        }
+      } else if (createProjectRes.status === 1) {
+        setIsModalVisible(true);
+        await message.error({content: "Please login first!", key});
       }
     } catch (e) {
 
@@ -178,6 +198,10 @@ export default () => {
           Logout
         </Button>
       </Form.Item>
+
+      <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+        <p>You have not logged in! Please login first!</p>
+      </Modal>
     </Form>
   );
 };
