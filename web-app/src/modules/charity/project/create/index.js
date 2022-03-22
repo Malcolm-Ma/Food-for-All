@@ -3,7 +3,7 @@
  * @author Mingze Ma
  */
 
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import React from 'react';
 import {
   Form,
@@ -53,7 +53,9 @@ const rangeConfig = {
 
 
 export default () => {
-  // const { createResult } = useSelector(state => state.project);
+   const { userInfo } = useSelector(state => state.user);
+
+  const dispatch = useDispatch();
 
   // useEffect(() => {
   //   console.log('--userInfo--\n', userInfo);
@@ -62,14 +64,18 @@ export default () => {
   const onFinish = async (values) => {
     // console.log(values);
     try {
-      const createProjectResult = await actions.createProject();
-      console.log('--createProjectResult--\n', createProjectResult);
-      if (createProjectResult.status === 0) {
-        const editProjectResponse = await actions.editProject({
+      const createProjectRes = await actions.createProject();
+      console.log('--createProjectRes--\n', createProjectRes);
+      const userRes = await dispctch
+
+      // @Todo reset status
+      if (createProjectRes.status === 0) {
+        const editProjectRes = await actions.editProject({
           ...values
         });
 
-        console.log(editProjectResponse);
+        console.log('--editProjectResponse--\n',editProjectRes);
+        console.log('pid\n',editProjectRes.pid);
 
       }
     } catch (e) {
