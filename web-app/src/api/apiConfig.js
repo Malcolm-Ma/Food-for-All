@@ -6,5 +6,7 @@
 export default {
   login: '/login/',
   userInfo: '/get_user_info/',
-  register: '/regis/'
+  register: '/regis/',
+  regionList: '/region_list/',
+  currencyList: '/currency_list/',
 };

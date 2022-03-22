@@ -5,3 +5,7 @@
 
 // User related
 export const SET_USER_INFO = 'SET_USER_INFO';
+
+export const SET_REGION_LIST = 'SET_REGION_LIST';
+
+export const SET_CURRENCY_LIST = 'SET_CURRENCY_LIST';

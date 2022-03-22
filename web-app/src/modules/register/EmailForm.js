@@ -14,8 +14,8 @@ import _ from "lodash";
  */
 
 const ACCOUNT_TYPE = [
-  { label: 'Donor', value: '0' },
-  { label: 'Charity', value: '1' },
+  { label: 'Donor', value: 0 },
+  { label: 'Charity', value: 1 },
 ];
 
 export default (props) => {
@@ -36,7 +36,7 @@ export default (props) => {
       <Grid item xs={12}>
         <FormControlLabel
           required
-          label="Account Type*"
+          label="Account Type *"
           labelPlacement="start"
           value={accountType}
           control={
@@ -60,9 +60,9 @@ export default (props) => {
         <TextField
           required
           fullWidth
-          id="email"
+          id="username"
           label="Email Address"
-          name="email"
+          name="username"
           autoComplete="email"
         />
       </Grid>

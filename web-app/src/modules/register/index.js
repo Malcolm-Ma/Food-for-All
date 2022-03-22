@@ -4,6 +4,7 @@
  */
 
 import React, { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -18,6 +19,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useMemo, useState } from "react";
 import _ from 'lodash';
@@ -51,12 +53,11 @@ const STEP_CONFIG = [
 const theme = createTheme();
 
 export default () => {
+  const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [signUpInfo, setSignUpInfo] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  const formRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const ActiveComponent = useMemo(() => {
     return STEP_CONFIG[activeStep].Component;
@@ -64,24 +65,49 @@ export default () => {
 
   const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
+    setLoading(true);
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    if (activeStep === 0) {
-      try {
+    try {
+      if (activeStep === 0) {
         const res = await actions.register({
-          username: _.get(data, 'email'),
+          username: _.get(data, 'username'),
           action: activeStep,
         });
-        console.log('--res--\n', res);
+        // TODO Add status check
         setActiveStep(1);
-      } catch (e) {
-        console.error(e);
+      } else if (activeStep === 1) {
+        const res = await actions.register({
+          ...signUpInfo,
+          action: activeStep,
+          code: _.get(data, 'code'),
+        });
+        // TODO Add status check
+        setActiveStep(2);
+        console.log('--res--\n', res);
+      } else if (activeStep === 2) {
+        const res = await actions.register({
+          ...signUpInfo,
+          action: activeStep,
+          password: _.get(data, 'password'),
+          region: _.get(data, 'region'),
+          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', 'GBP'),
+          name: _.get(data, 'name'),
+          avatar: '',
+        });
+        console.log('--res--\n', res);
+        if (res.status === 6) {
+          navigate('/home');
+        }
       }
+      setSignUpInfo(prevState => ({
+        ...prevState,
+        ...data,
+      }));
+    } catch (e) {
+      console.error(e);
     }
-    setSignUpInfo(prevState => ({
-      ...prevState,
-      ...data,
-    }));
-  }, [activeStep]);
+    setLoading(false);
+  }, [activeStep, signUpInfo]);
 
   const handleActiveComponentChange = useCallback((e, data) => {
     setSignUpInfo(prevState => ({
@@ -94,6 +120,11 @@ export default () => {
     console.log('--signUpInfo--\n', signUpInfo);
   }, [signUpInfo]);
 
+  const activeComponentProps = useMemo(() => ({
+    ...(activeStep === 0 && { btnLabel: "type" }),
+    onChange: handleActiveComponentChange,
+    username: _.get(signUpInfo, 'username', '')
+  }), [activeStep, handleActiveComponentChange, signUpInfo]);
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="sm">
@@ -124,24 +155,34 @@ export default () => {
               </Step>
             ))}
           </Stepper>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }} ref={formRef}>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             {
               !loading
-                ? <ActiveComponent btnLabel="account_type" onChange={handleActiveComponentChange} />
+                ? <ActiveComponent {...activeComponentProps} />
                 : <>
                   <Skeleton className="loading" />
                   <Skeleton className="loading" animation="wave" />
                   <Skeleton className="loading" animation={false} />
                 </>
             }
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              {STEP_CONFIG[activeStep].submitLabel}
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {activeStep !== 0 && (
+                <Button
+                  onClick={() => setActiveStep(prevState => (prevState - 1))}
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Back
+                </Button>
+              )}
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={loading}
+                sx={{ mt: 3, mb: 2 }}
+              >
+                {STEP_CONFIG[activeStep].submitLabel}
+              </LoadingButton>
+            </Box>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="#" variant="body2">

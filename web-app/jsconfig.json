@@ -5,6 +5,11 @@
     "baseUrl": "./",
     "allowSyntheticDefaultImports": false,
     "experimentalDecorators": true,
+    "paths": {
+      "src/*": ["./src/*"],
+      "utils/*": ["src/utils/*"],
+      "root/*": ["./*"]
+    }
   },
   "include": [
     "./src/**/*.js"
