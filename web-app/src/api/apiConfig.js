@@ -9,4 +9,5 @@ export default {
   register: '/regis/',
   regionList: '/region_list/',
   currencyList: '/currency_list/',
+  projectList: '/get_projects_list/',
 };
