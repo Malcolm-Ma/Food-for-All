@@ -4,7 +4,7 @@
  */
 import api from "src/api";
 import apiConfig from "src/api/apiConfig";
-import { SET_USER_INFO, } from 'src/constants/actionTypes';
+import { SET_USER_INFO } from 'src/constants/actionTypes';
 
 export const login = params => async (dispatch) => {
   try {
@@ -36,3 +36,5 @@ export const getUserInfo = () => async (dispatch) => {
     });
   }
 }
+
+export const register = params => api.post(apiConfig.register, params);

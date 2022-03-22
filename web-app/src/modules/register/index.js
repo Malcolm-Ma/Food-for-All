@@ -3,379 +3,196 @@
  * @author Mingze Ma
  */
 
-import React, { useState } from 'react';
-import {
-  Form,
-  Input,
-  InputNumber,
-  Cascader,
-  Select,
-  Row,
-  Col,
-  Checkbox,
-  Button,
-  AutoComplete,
-  Upload,
-} from 'antd';
-import { UploadOutlined, InboxOutlined } from '@ant-design/icons';
+import React, { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import Skeleton from '@mui/material/Skeleton';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import LoadingButton from '@mui/lab/LoadingButton';
 
-const { Option } = Select;
+import { useMemo, useState } from "react";
+import _ from 'lodash';
 
-const residences = [
+import EmailForm from "./EmailForm";
+import VerifyForm from "./VerifyForm";
+import DetailForm from './DetailForm'
+
+import './index.less';
+import api from "../../api";
+import actions from "../../actions";
+
+const STEP_CONFIG = [
   {
-    value: 'zhejiang',
-    label: 'Zhejiang',
-    children: [
-      {
-        value: 'hangzhou',
-        label: 'Hangzhou',
-        children: [
-          {
-            value: 'xihu',
-            label: 'West Lake',
-          },
-        ],
-      },
-    ],
+    name: 'Enter Email',
+    submitLabel: 'Next',
+    Component: EmailForm,
   },
   {
-    value: 'jiangsu',
-    label: 'Jiangsu',
-    children: [
-      {
-        value: 'nanjing',
-        label: 'Nanjing',
-        children: [
-          {
-            value: 'zhonghuamen',
-            label: 'Zhong Hua Men',
-          },
-        ],
-      },
-    ],
+    name: 'Verify Email',
+    submitLabel: 'Verify',
+    Component: VerifyForm,
   },
+  {
+    name: 'Enter Details',
+    submitLabel: 'Submit',
+    Component: DetailForm,
+  }
 ];
-const formItemLayout = {
-  labelCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 8,
-    },
-  },
-  wrapperCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 16,
-    },
-  },
-};
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
+
+const theme = createTheme();
 
 export default () => {
-  const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-  const onFinish = (values) => {
-    console.log('Received values of form: ', values);
-  };
+  const [activeStep, setActiveStep] = useState(0);
+  const [signUpInfo, setSignUpInfo] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
-  const suffixSelector = (
-    <Form.Item name="suffix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="USD">$</Option>
-        <Option value="CNY">¥</Option>
-      </Select>
-    </Form.Item>
-  );
-  const [autoCompleteResult, setAutoCompleteResult] = useState([]);
+  const ActiveComponent = useMemo(() => {
+    return STEP_CONFIG[activeStep].Component;
+  }, [activeStep]);
 
-  const onWebsiteChange = (value) => {
-    if (!value) {
-      setAutoCompleteResult([]);
-    } else {
-      setAutoCompleteResult(['.com', '.org', '.net'].map((domain) => `${value}${domain}`));
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    try {
+      if (activeStep === 0) {
+        const res = await actions.register({
+          username: _.get(data, 'username'),
+          action: activeStep,
+        });
+        // TODO Add status check
+        setActiveStep(1);
+      } else if (activeStep === 1) {
+        const res = await actions.register({
+          ...signUpInfo,
+          action: activeStep,
+          code: _.get(data, 'code'),
+        });
+        // TODO Add status check
+        setActiveStep(2);
+        console.log('--res--\n', res);
+      } else if (activeStep === 2) {
+        const res = await actions.register({
+          ...signUpInfo,
+          action: activeStep,
+          password: _.get(data, 'password'),
+          region: _.get(data, 'region'),
+          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', 'GBP'),
+          name: _.get(data, 'name'),
+          avatar: '',
+        });
+        console.log('--res--\n', res);
+        if (res.status === 6) {
+          navigate('/home');
+        }
+      }
+      setSignUpInfo(prevState => ({
+        ...prevState,
+        ...data,
+      }));
+    } catch (e) {
+      console.error(e);
     }
-  };
+    setLoading(false);
+  }, [activeStep, signUpInfo]);
 
-  const handleUpload = async (file) => {
-    console.log('--file--\n', file);
-  };
+  const handleActiveComponentChange = useCallback((e, data) => {
+    setSignUpInfo(prevState => ({
+      ...prevState,
+      ...data,
+    }))
+  }, []);
 
-  const normFile = (e) => {
-    console.log('Upload event:', e);
+  useEffect(() => {
+    console.log('--signUpInfo--\n', signUpInfo);
+  }, [signUpInfo]);
 
-    if (Array.isArray(e)) {
-      return e;
-    }
-
-    return e && e.fileList;
-  };
-
-  const websiteOptions = autoCompleteResult.map((website) => ({
-    label: website,
-    value: website,
-  }));
+  const activeComponentProps = useMemo(() => ({
+    ...(activeStep === 0 && { btnLabel: "type" }),
+    onChange: handleActiveComponentChange,
+    username: _.get(signUpInfo, 'username', '')
+  }), [activeStep, handleActiveComponentChange, signUpInfo]);
   return (
-    <Form
-      {...formItemLayout}
-      form={form}
-      name="register"
-      onFinish={onFinish}
-      initialValues={{
-        residence: ['zhejiang', 'hangzhou', 'xihu'],
-        prefix: '86',
-      }}
-      scrollToFirstError
-    >
-      <Form.Item
-        name="email"
-        label="E-mail"
-        rules={[
-          {
-            type: 'email',
-            message: 'The input is not valid E-mail!',
-          },
-          {
-            required: true,
-            message: 'Please input your E-mail!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="password"
-        label="Password"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your password!',
-          },
-        ]}
-        hasFeedback
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        name="confirm"
-        label="Confirm Password"
-        dependencies={['password']}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: 'Please confirm your password!',
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue('password') === value) {
-                return Promise.resolve();
-              }
-
-              return Promise.reject(new Error('The two passwords that you entered do not match!'));
-            },
-          }),
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        name="nickname"
-        label="Nickname"
-        tooltip="What do you want others to call you?"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your nickname!',
-            whitespace: true,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="residence"
-        label="Habitual Residence"
-        rules={[
-          {
-            type: 'array',
-            required: true,
-            message: 'Please select your habitual residence!',
-          },
-        ]}
-      >
-        <Cascader options={residences} />
-      </Form.Item>
-
-      <Form.Item
-        name="phone"
-        label="Phone Number"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your phone number!',
-          },
-        ]}
-      >
-        <Input
-          addonBefore={prefixSelector}
-          style={{
-            width: '100%',
+    <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="sm">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
           }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="donation"
-        label="Donation"
-        rules={[
-          {
-            required: true,
-            message: 'Please input donation amount!',
-          },
-        ]}
-      >
-        <InputNumber
-          addonAfter={suffixSelector}
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="website"
-        label="Website"
-        rules={[
-          {
-            required: true,
-            message: 'Please input website!',
-          },
-        ]}
-      >
-        <AutoComplete options={websiteOptions} onChange={onWebsiteChange} placeholder="website">
-          <Input />
-        </AutoComplete>
-      </Form.Item>
-
-      <Form.Item
-        name="intro"
-        label="Intro"
-        rules={[
-          {
-            required: true,
-            message: 'Please input Intro',
-          },
-        ]}
-      >
-        <Input.TextArea showCount maxLength={100} />
-      </Form.Item>
-
-      <Form.Item
-        name="gender"
-        label="Gender"
-        rules={[
-          {
-            required: true,
-            message: 'Please select gender!',
-          },
-        ]}
-      >
-        <Select placeholder="select your gender">
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item label="Captcha" extra="We must make sure that your are a human.">
-        <Row gutter={8}>
-          <Col span={12}>
-            <Form.Item
-              name="captcha"
-              noStyle
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the captcha you got!',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Button>Get captcha</Button>
-          </Col>
-        </Row>
-      </Form.Item>
-
-      <Form.Item label="Dragger">
-        <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
-          <Upload.Dragger name="files" action={handleUpload}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-            <p className="ant-upload-hint">Support for a single or bulk upload.</p>
-          </Upload.Dragger>
-        </Form.Item>
-      </Form.Item>
-
-      <Form.Item
-        name="agreement"
-        valuePropName="checked"
-        rules={[
-          {
-            validator: (_, value) =>
-              value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
-          },
-        ]}
-        {...tailFormItemLayout}
-      >
-        <Checkbox>
-          I have read the <a href="">agreement</a>
-        </Checkbox>
-      </Form.Item>
-      <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
-          Register
-        </Button>
-      </Form.Item>
-    </Form>
+        >
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign up
+            </Typography>
+          </Box>
+          <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 3 }}>
+            {_.map(STEP_CONFIG, ({ name }) => (
+              <Step key={name}>
+                <StepLabel>{name}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            {
+              !loading
+                ? <ActiveComponent {...activeComponentProps} />
+                : <>
+                  <Skeleton className="loading" />
+                  <Skeleton className="loading" animation="wave" />
+                  <Skeleton className="loading" animation={false} />
+                </>
+            }
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {activeStep !== 0 && (
+                <Button
+                  onClick={() => setActiveStep(prevState => (prevState - 1))}
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Back
+                </Button>
+              )}
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={loading}
+                sx={{ mt: 3, mb: 2 }}
+              >
+                {STEP_CONFIG[activeStep].submitLabel}
+              </LoadingButton>
+            </Box>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="#" variant="body2">
+                  Already have an account? Sign in
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
-};
+}

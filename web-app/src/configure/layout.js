@@ -7,5 +7,6 @@
 export default {
   hideSidebar: [
     /^\/login/,
+    /^\/register/,
   ],
 };
