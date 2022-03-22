@@ -58,7 +58,7 @@ const normFile = (e) => {
 };
 
 const rangeConfig = {
-  rules: [{type: 'array', required: false, message: 'Please select time!'}],
+  rules: [{required: false, message: 'Please select time!'}],
 };
 
 export default () => {
@@ -86,7 +86,7 @@ export default () => {
     <Form.Item name="currency" noStyle>
       <Select
         showSearch
-        style={{width: 200}}
+        style={{ width: 200 }}
         placeholder="Search to Select"
         optionFilterProp="children"
         filterOption={(input, option) =>
@@ -97,7 +97,7 @@ export default () => {
         }
       >
         {currencyList.map(item => (
-          <Option value={item} key={item}>{item}</Option>
+          <Option value={item.code} key={item.code}>{item.code}</Option>
         ))}
       </Select>
     </Form.Item>
@@ -116,17 +116,16 @@ export default () => {
       switch (createProjectRes.status) {
         case 0:
           const editProjectRes = await actions.editProject({
-            "pid": createProjectRes.pid,
-            "currency_type": values.currency,
-            "edit": {
-              "title": values.title,
-              "intro": values.introduction,
-              "background_image": "",
-              "total_num": values.donation,
-              "start_time": moment(values.projectTime[0]).valueOf(),
-              "end_time": moment(values.projectTime[1]).valueOf(),
-              "details": values.details,
-              "price": 100
+            pid: createProjectRes.pid,
+            currency_type: values.currency,
+            edit: {
+              title: values.title,
+              intro: values.introduction,
+              background_image: "",
+              total_num: values.donation,
+              end_time: moment(values.projectTime).unix(),
+              details: values.details,
+              price: 100
             }
           });
           switch (editProjectRes.status) {
@@ -178,7 +177,6 @@ export default () => {
       </Form.Item>
 
       <Form.Item
-        // name="donation"
         name="donation"
         label="Donation Amount"
         rules={[{required: false, message: 'Please input donation amount!'}]}
@@ -186,8 +184,8 @@ export default () => {
         <InputNumber addonAfter={suffixSelector} style={{width: '100%'}}/>
       </Form.Item>
 
-      <Form.Item name="projectTime" label="RangePicker" {...rangeConfig}>
-        <RangePicker/>
+      <Form.Item name="projectTime" label="Deadline" {...rangeConfig}>
+        <DatePicker />
       </Form.Item>
 
       <Form.Item name="introduction" label="Introduction">
