@@ -20,6 +20,8 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { message } from 'antd';
+
 
 import { useMemo, useState } from "react";
 import _ from 'lodash';
@@ -73,6 +75,9 @@ export default () => {
           username: _.get(data, 'username'),
           action: activeStep,
         });
+        if (res.status === 0) {
+          message.error('Email has been registered, please try again.');
+        }
         // TODO Add status check
         setActiveStep(1);
       } else if (activeStep === 1) {

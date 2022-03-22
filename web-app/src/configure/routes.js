@@ -41,4 +41,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/project/list',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/list'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
