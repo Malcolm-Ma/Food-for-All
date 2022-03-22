@@ -49,4 +49,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/account/profile',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];

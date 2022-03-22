@@ -10,6 +10,7 @@ import Menu from '@mui/material/Menu';
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import actions from "src/actions";
+import Typography from "@mui/material/Typography";
 
 export default () => {
 
@@ -18,6 +19,8 @@ export default () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const settings = ['Profile', 'Account', 'Logout'];
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -25,6 +28,17 @@ export default () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  async function handleClick(key) {
+    switch (key) {
+      case 'Logout':
+        await handleLogOut();
+        break;
+      case 'Profile':
+        navigate('/account/profile');
+        break;
+    };
+  }
 
   const handleLogOut = useCallback(async () => {
     try {
@@ -63,7 +77,12 @@ export default () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleLogOut}>Log Out</MenuItem>
+        {/*<MenuItem onClick={handleLogOut}>Log Out</MenuItem>*/}
+        {settings.map((setting) => (
+          <MenuItem key={setting}  onClick={() => handleClick(setting)}>
+            <Typography textAlign="center" >{setting}</Typography>
+          </MenuItem>
+        ))}
       </Menu>
     </div>
   );
