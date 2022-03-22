@@ -6,4 +6,5 @@
 export default {
   login: '/login/',
   userInfo: '/get_user_info/',
+  register: '/regis/'
 };
