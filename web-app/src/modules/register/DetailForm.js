@@ -25,14 +25,12 @@ export default (props) => {
   const [regionOptions, setRegionOptions] = useState([]);
   const [currencyOptions, setCurrencyOptions] = useState([]);
 
-
   useEffect(() => {
     dispatch(actions.getRegionList()).catch(err => console.error(err));
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('--{ regionList, currencyList }--\n', { regionList, currencyList });
     // reformat region & currency options
     setRegionOptions(_.map(regionList, (item) => ({label: item, value: item})));
     setCurrencyOptions(_.map(currencyList, (item) => ({label: item, value: item})));

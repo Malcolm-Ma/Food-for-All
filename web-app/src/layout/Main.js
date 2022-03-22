@@ -3,7 +3,7 @@
  * @author Mingze Ma
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes ,Route } from 'react-router-dom';
 import _ from "lodash";
 import { Layout } from 'antd';

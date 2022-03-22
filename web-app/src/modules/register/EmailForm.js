@@ -1,3 +1,8 @@
+/**
+ * @file form of entering email
+ * @author Mingze Ma
+ */
+
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -7,11 +12,6 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import FormGroup from '@mui/material/FormGroup';
 import { useEffect, useState } from "react";
 import _ from "lodash";
-
-/**
- * @file form of entering email
- * @author Mingze Ma
- */
 
 const ACCOUNT_TYPE = [
   { label: 'Donor', value: 0 },
