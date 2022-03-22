@@ -125,7 +125,7 @@ export default () => {
               total_num: values.donation,
               end_time: moment(values.projectTime).unix(),
               details: values.details,
-              price: 100
+              price: values.price,
             }
           });
           switch (editProjectRes.status) {
@@ -176,6 +176,10 @@ export default () => {
         <Input/>
       </Form.Item>
 
+      <Form.Item name="price" label="Price" rules={[{required: false, message: 'Please input the price'}]}>
+        <InputNumber min={1} defaultValue={100} />
+      </Form.Item>
+
       <Form.Item
         name="donation"
         label="Donation Amount"
@@ -220,7 +224,7 @@ export default () => {
         </Button>
       </Form.Item>
 
-      <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+      <Modal title="Error!" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
         <p>You have not logged in! Please login first!</p>
       </Modal>
     </Form>
