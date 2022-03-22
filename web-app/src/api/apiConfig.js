@@ -7,5 +7,5 @@ export default {
   login: '/login/',
   userInfo: '/get_user_info/',
   createProject: '/create_project/',
-  editProject: '/edit_project_info/',
+  editProject: '/edit_project/',
 };

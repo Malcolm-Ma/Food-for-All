@@ -7,8 +7,11 @@ import {
   SET_USER_INFO,
 } from 'src/constants/actionTypes';
 
+// @Todo reset initialState
 const initialState = {
-  userInfo: {},
+  userInfo: {
+    status: 0,
+  },
 };
 
 export default (state = initialState, action) => {

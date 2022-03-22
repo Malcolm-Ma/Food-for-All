@@ -11,9 +11,10 @@ import {
   InputNumber,
   Select,
   Button,
-  DatePicker,
+  DatePicker, Upload,
 } from 'antd';
 import actions from 'src/actions';
+import {InboxOutlined} from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -47,10 +48,23 @@ const suffixSelector = (
   </Form.Item>
 );
 
+const handleUpload = async (file) => {
+  console.log('--file--\n', file);
+};
+
+const normFile = (e) => {
+  console.log('Upload event:', e);
+
+  if (Array.isArray(e)) {
+    return e;
+  }
+
+  return e && e.fileList;
+};
+
 const rangeConfig = {
   rules: [{ type: 'array', required: true, message: 'Please select time!' }],
 };
-
 
 export default () => {
    const { userInfo } = useSelector(state => state.user);
@@ -62,21 +76,18 @@ export default () => {
   // }, [userInfo]);
 
   const onFinish = async (values) => {
-    // console.log(values);
+
     try {
-      const createProjectRes = await actions.createProject();
-      console.log('--createProjectRes--\n', createProjectRes);
-      const userRes = await dispctch
+      console.log(values);
+      // @Todo generate "pid"?
+      const createProjectRes = await actions.createProject({ userInfo });
+      // console.log('--createProjectRes--\n', createProjectRes);
 
       // @Todo reset status
-      if (createProjectRes.status === 0) {
+      if (createProjectRes.status === 1) {
         const editProjectRes = await actions.editProject({
           ...values
         });
-
-        console.log('--editProjectResponse--\n',editProjectRes);
-        console.log('pid\n',editProjectRes.pid);
-
       }
     } catch (e) {
 
@@ -87,10 +98,14 @@ export default () => {
   return (
     <Form {...layout} name="nest-messages" onFinish={onFinish} validateMessages={validateMessages}>
 
+      <Form.Item name="test" label="Title" rules={[{ required: true, message: 'Please input the title'}]}>
+        <Input />
+      </Form.Item>
+
       <Form.Item
         // name="donation"
         name={['user', 'donation']}
-        label="Donation"
+        label="Donation Amount"
         rules={[{ required: true, message: 'Please input donation amount!' }]}
       >
         <InputNumber addonAfter={suffixSelector} style={{ width: '100%' }} />
@@ -102,6 +117,18 @@ export default () => {
 
       <Form.Item name={['user', 'introduction']} label="Introduction">
         <Input.TextArea />
+      </Form.Item>
+
+      <Form.Item label="Backgrund Image">
+        <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+          <Upload.Dragger name="files" action={handleUpload}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+            <p className="ant-upload-hint">Support for a single or bulk upload.</p>
+          </Upload.Dragger>
+        </Form.Item>
       </Form.Item>
 
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
