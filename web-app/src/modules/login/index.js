@@ -4,6 +4,7 @@
  */
 
 import { useDispatch } from "react-redux";
+import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -17,7 +18,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import actions from "src/actions";
 
@@ -25,6 +26,8 @@ const theme = createTheme();
 
 export default (props) => {
   const {} = props;
+
+  const [showError, setShowError] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -36,24 +39,28 @@ export default (props) => {
       password: data.get('password'),
     });
     try {
+      // call login api
       const res = await dispatch(actions.login({
         username: data.get('email'),
         password: data.get('password'),
       }));
+      // login error
       if (res.status && res.status !== 0) {
-
+        setShowError(true);
       }
     } catch (e) {
-
+      console.error(e);
     }
-    console.log('--res--\n', res);
   }, [dispatch]);
 
   return (
     <div className="ffa-login">
       <ThemeProvider theme={theme}>
+        {showError && <Alert severity="error" onClose={() => setShowError(false)}>
+          Invalid Username or Password, please try again.
+        </Alert>}
         <Container component="main" maxWidth="xs">
-          <CssBaseline />
+          <CssBaseline/>
           <Box
             sx={{
               marginTop: 8,
@@ -63,7 +70,7 @@ export default (props) => {
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
+              <LockOutlinedIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
               Sign in
@@ -90,7 +97,7 @@ export default (props) => {
                 autoComplete="current-password"
               />
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+                control={<Checkbox value="remember" color="primary"/>}
                 label="Remember me"
               />
               <Button
@@ -108,14 +115,13 @@ export default (props) => {
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href="/register" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
             </Box>
           </Box>
-          {/*<Copyright sx={{ mt: 8, mb: 4 }} />*/}
         </Container>
       </ThemeProvider>
     </div>

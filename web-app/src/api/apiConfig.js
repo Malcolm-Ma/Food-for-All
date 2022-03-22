@@ -8,4 +8,7 @@ export default {
   userInfo: '/get_user_info/',
   createProject: '/create_project/',
   editProject: '/edit_project/',
+  register: '/regis/',
+  regionList: '/region_list/',
+  currencyList: '/currency_list/',
 };
