@@ -198,7 +198,7 @@ export default () => {
         <Input.TextArea/>
       </Form.Item>
 
-      <Form.Item label="Backgrund Image">
+      <Form.Item label="Background Image">
         <Form.Item name="background_image" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
           <Upload.Dragger name="files" action={handleUpload}>
             <p className="ant-upload-drag-icon">
