@@ -19,7 +19,6 @@ import {
 import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
 import moment from "moment";
-import './index.less';
 
 const {Option} = Select;
 
@@ -138,12 +137,13 @@ export default () => {
 
   return (
     <Form labelCol={{ span: 6 }}
-          wrapperCol={{ span: 16}}
+          wrapperCol={{ span: 12}}
           name="nest-messages"
           onFinish={onFinish}
           initialValues={{
             currency: userInfo.currency_type,
             price: 100,
+            donation: 10,
           }}
     >
 
@@ -152,15 +152,16 @@ export default () => {
       </Form.Item>
 
       <Form.Item name="price" label="Price" rules={[{required: true, message: 'Please input the price'}]}>
-        <InputNumber min={1} />
+        <InputNumber min={1} addonAfter={suffixSelector} style={{width: '30%'}}/>
       </Form.Item>
 
-      <Form.Item
-        name="donation"
-        label="Donation Amount"
-        rules={[{required: true, message: 'Please input donation amount!'}]}
-      >
-        <InputNumber addonAfter={suffixSelector} style={{width: '100%'}}/>
+      <Form.Item name="donation" label="Donation Amount" rules={[{required: true, message: 'Please input donation amount!'}]}>
+        <InputNumber min={1} style={{width: '30%'}}/>
+      </Form.Item>
+
+      {/* @Todo multiply price and amount of donation*/}
+      <Form.Item name="sum" label="Total money">
+        <span>{}</span>
       </Form.Item>
 
       <Form.Item name="projectTime" label="Deadline" rules={[{required: true, message: 'Please select deadline!'}]}>
@@ -187,7 +188,7 @@ export default () => {
         </Form.Item>
       </Form.Item>
 
-      <Form.Item>
+      <Form.Item wrapperCol={{offset: 6}}>
         <Button type="primary" htmlType="submit">
           Submit
         </Button>
