@@ -1,27 +1,13 @@
 import os
 import subprocess
 from pathlib import Path
+import platform
 
 CURRENT_DIR = Path(__file__).resolve().parent
 
-# if __name__ != "__main__":
-#     from FoodForAll.settings import DOC_DIR
-# else:
-#     DOC_PATH = "./DOC/"
-#
-# api_path = ["Common", "Login", "Payment", "Project", "Upload", "User"]
-# command = "apidoc"
-# output_path = os.path.join(DOC_DIR, "apidoc")
-# config_file = os.path.join(Path(__file__).resolve().parent, "apidoc.json")
-#
-# for i in api_path:
-#     command += " -i \"{path}\"".format(path=i)
-# command += " -o \"{path}\"".format(path=output_path)
-# command += " -c \"{path}\"".format(path=config_file)
+isShell = platform.system() == 'Windows'
 
-# os.system(command)
-
-p = subprocess.Popen(['npm', 'run', 'doc'], shell=True, cwd=CURRENT_DIR, stderr=subprocess.PIPE)
+p = subprocess.Popen(['npm', 'run', 'doc'], shell=isShell, cwd=CURRENT_DIR, stderr=subprocess.PIPE)
 p.wait()  # wait for response
 npm_res = p.returncode
 

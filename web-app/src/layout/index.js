@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { Layout as AntdLayout } from 'antd';
 import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import layoutConfig from 'src/configure/layout';
 import actions from "src/actions";
@@ -18,6 +18,7 @@ const Layout = (props) => {
 
   const dispatch = useDispatch();
   const location = useLocation();
+  const userInfo = useSelector(state => state.user.userInfo);
 
   const { pathname } = location;
 
@@ -30,16 +31,25 @@ const Layout = (props) => {
     dispatch(actions.getUserInfo()).catch(err => console.error(err));
   }, [dispatch]);
 
+  const initStatus = useMemo(() => {
+    return !_.isNil(_.get(userInfo, 'isLoggedIn'));
+  }, [userInfo]);
 
   return (
     <AntdLayout className="ffa-frame">
-      <Header />
-      <AntdLayout>
-        {!sidebarHidingStatus && <Sidebar/>}
-        <AntdLayout className="frame-content">
-          <Main/>
-        </AntdLayout>
-      </AntdLayout>
+      {
+        initStatus
+          ? <>
+            <Header />
+            <AntdLayout>
+              {!sidebarHidingStatus && <Sidebar />}
+              <AntdLayout className="frame-content">
+                <Main />
+              </AntdLayout>
+            </AntdLayout>
+          </>
+          : <div></div>
+      }
     </AntdLayout>
   );
 };
