@@ -589,7 +589,7 @@ def stop_project(request, user, project):
 @get_user_decorator()
 def get_prepare_projects_list(request, user):
     """
-    @api {GET, POST} /get_prepare_projects_list/ get projects list with status = prepare
+    @api {GET, POST} /get_prepare_projects_list/ get prepare projects list
     @apiVersion 1.0.0
     @apiName get_prepare_projects_list
     @apiGroup Project

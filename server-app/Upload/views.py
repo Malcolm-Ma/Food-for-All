@@ -25,8 +25,7 @@ def upload_img(request):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": "",
-                     "url": ""}
+    response_data = {"status": "", "url": ""}
     file_obj = request.FILES.get('img')
     file_name = gen_img_name(file_obj.name)
     img_path = os.path.join(IMG_DIR, file_name)
