@@ -3,10 +3,6 @@ from DataBase import models
 import time
 from Common.common import *
 
-edit_user_info_status = {"success": 0,
-                         "not_logged_in": 1,
-                         "edit_fail": 2}
-
 def gen_uid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
     if models.User.objects.filter(uid=id):
@@ -78,6 +74,22 @@ def add_project(user, pid):
     user.project = str(project)
     user.save(update_fields=["project"])
     return True
+
+def get_user_decorator(force_login=True):
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            request = args[0]
+            user = check_login(request)
+            if not user and force_login:
+                response_data = {"status": ""}
+                response_data["status"] = STATUS_CODE["user_not_logged_in"]
+                return HttpResponse(json.dumps(response_data), content_type="application/json")
+            kwargs["user"] = user
+            response = func(*args, **kwargs)
+            return response
+        return wrapped_function
+    return decorator
 
 def remove_project(user, pid):
     project = eval(user.project)

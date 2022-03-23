@@ -26,6 +26,35 @@ PROJECT_STATUS = {"prepare": 0,
                   "ongoing": 1,
                   "finish": 2}
 
+STATUS_CODE = {"success": 0,
+               "user_not_logged_in": 100001,
+               "edit_user_info_fail": 100002,
+               "user_not_charity": 100003,
+               "user_already_logged_in": 100004,
+               "wrong_username": 100005,
+               "wrong_password": 100006,
+               "mail_already_registered": 100007,
+               "set_password_fail": 100008,
+               "mail_not_registered": 100009,
+               "user_not_match": 100010,
+               "create_project_fail": 200001,
+               "project_not_exists": 200002,
+               "user_not_project_owner": 200003,
+               "project_non_deletable": 200004,
+               "edit_project_fail": 200005,
+               "project_non_editable": 200006,
+               "project_information_incomplete": 200007,
+               "start_project_fail": 200008,
+               "project_non_startable": 200009,
+               "stop_project_fail": 200010,
+               "project_non_stopable": 200011,
+               "wrong_currency_type": 300001,
+               "mail_send_fail": 300002,
+               "code_verify_fail": 300003,
+               "wrong_action": 300004,
+               "request_parameters_wrong": 400001,
+               }
+
 def region2rid(region):
     if region in REGION2RID:
         return REGION2RID[region]
@@ -133,8 +162,8 @@ def check_login(request):
             return ""
     return ""
 
-def api_logger(logger):
-    def logging_decorator(func):
+def logger_decorator(logger=logger_standard):
+    def decorator(func):
         @wraps(func)
         def wrapped_function(*args, **kwargs):
             request = args[0]
@@ -142,10 +171,40 @@ def api_logger(logger):
             logger.info("[{uid}] - [Request] [{url}] [{method}] [{path_info}] [{request_data}] - [Response] [{status_code}] [{response_data}]".format(url=get_request_url(request), method=request.method, path_info=request.path_info, request_data=request.body.decode(), status_code=str(response.status_code), response_data=response.content.decode(), uid="guest" if not check_login(request) else check_login(request).uid))
             return response
         return wrapped_function
-    return logging_decorator
+    return decorator
 
 def remove_img_file(img_url):
     if img_url:
         img_path = os.path.join(IMG_DIR, os.path.basename(img_url))
         if os.path.exists(img_path):
             os.remove(img_path)
+
+def check_request_method_decorator(method=("POST",)):
+    if type(method) == str:
+        method = [method]
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            request = args[0]
+            if request.method not in method:
+                return HttpResponseNotAllowed(method)
+            response = func(*args, **kwargs)
+            return response
+        return wrapped_function
+    return decorator
+
+def check_request_parameters_decorator(params=()):
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            if params:
+                request = args[0]
+                data = json.loads(request.body)
+                for i in params:
+                    if i not in data:
+                        response_data = {"status": STATUS_CODE["request_parameters_wrong"]}
+                        return HttpResponseBadRequest(json.dumps(response_data), content_type="application/json")
+            response = func(*args, **kwargs)
+            return response
+        return wrapped_function
+    return decorator

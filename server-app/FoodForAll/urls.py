@@ -32,7 +32,7 @@ urlpatterns = [
     path('logout/', login_views.logout),
     path('reset_password/', login_views.reset_password),
     path('get_user_info/', user_views.get_user_info),
-    path('edit_user_info/', user_views.edit_user_info),
+    path('edit_user/', user_views.edit_user),
     path('get_project_info/', project_views.get_project_info),
     path('edit_project/', project_views.edit_project),
     path('get_projects_list/', project_views.get_projects_list),
