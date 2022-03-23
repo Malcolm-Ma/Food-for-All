@@ -7,7 +7,6 @@ from User.functions import update_user, add_project, remove_project, get_user_de
 
 @logger_decorator()
 @check_request_method_decorator(method=["POST", "GET"])
-@check_request_parameters_decorator(params=["order", "currency_type", "page_info", "search", "valid_only", "uid"])
 @get_user_decorator(force_login=False)
 def get_projects_list(request, user):
     """
@@ -55,7 +54,7 @@ def get_projects_list(request, user):
     @apiParamExample {Json} Sample Request
     {
         "order": "-progress",
-        "currency_type": "Chinese Yuan Renminbi",
+        "currency_type": "CNY",
         "page_info": {
                 "page_size": 5,
                 "page": 1
@@ -149,7 +148,7 @@ def get_projects_list(request, user):
             "page_size": 5,
             "total_page": 3
         },
-        "currency_type": "CNY (Chinese Yuan Renminbi)",
+        "currency_type": "CNY",
         "order": {
             "current_order": "progress",
             "order_list": [
@@ -255,7 +254,7 @@ def get_project_info(request, project):
     @apiParamExample {Json} Sample Request
     {
         "pid": "360a27773752a7a025b3cd3d931f26e2",
-        "currency_type": "USD"
+        "currency_type": "CNY"
     }
     @apiSuccessExample {Json} Response-Success
     {
@@ -265,7 +264,7 @@ def get_project_info(request, project):
             "uid": "506d201c0d8d23fcee2a4bada084acae",
             "title": "49",
             "intro": "49",
-            "region": "GB",
+            "region": "Turkey",
             "charity": "qwer",
             "charity_avatar": "",
             "background_image": "",
@@ -424,7 +423,7 @@ def edit_project(request, user, project):
     @apiParamExample {Json} Sample Request
     {
         "pid": "22fd90badc08090a9b01606dbee18ff1",
-        "currency_type": "CNY (Chinese Yuan Renminbi)",
+        "currency_type": "CNY",
         "edit": {
             "title": "apex",
             "intro": "apex",
@@ -583,4 +582,147 @@ def stop_project(request, user, project):
         response_data["status"] = STATUS_CODE["stop_project_fail"]
     else:
         response_data["status"] = STATUS_CODE["success"]
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@logger_decorator()
+@check_request_method_decorator(method=["GET", "POST"])
+@get_user_decorator()
+def get_prepare_projects_list(request, user):
+    """
+    @api {GET, POST} /get_prepare_projects_list/ get projects list with status = prepare
+    @apiVersion 1.0.0
+    @apiName get_prepare_projects_list
+    @apiGroup Project
+    @apiDescription api to get projects list with status = prepare by conditions
+
+    @apiParam {String} currency_type Currency type. It should be included in the list provided by "currency_list/" interface.
+    @apiParam {Dict} page_info Information of pages. Its sub-parameters are shown below.
+    @apiParam {Int} page_size (Sub-parameter of page_info) Number of projects displayed per page.
+    @apiParam {Int} page (Sub-parameter of page_info) Current page number.
+    @apiParam {String} search The string to be retrieved. It should be set to "" when the search action has not occurred.
+
+    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 100003: user_not_charity)
+    @apiSuccess (Success 200 return) {Dict} project_info Projects list. The keys of this dictionary are the order of the projects counting from 0 and the values are the information of the projects corresponding to their order. Its sub-parameters are shown below.
+    @apiSuccess (Success 200 return) {String} pid (Sub-parameter of project_info) Pid of the project.
+    @apiSuccess (Success 200 return) {String} title (Sub-parameter of project_info) Title of project.
+    @apiSuccess (Success 200 return) {String} intro (Sub-parameter of project_info) Introduction of project.
+    @apiSuccess (Success 200 return) {String} region (Sub-parameter of project_info) Country or region of the project's owner. It should be included in the list provided by "region_list/" interface.
+    @apiSuccess (Success 200 return) {String} charity (Sub-parameter of project_info) Name of the project's owner.
+    @apiSuccess (Success 200 return) {String} charity_avatar (Sub-parameter of project_info) Static avatar url of the project's owner.
+    @apiSuccess (Success 200 return) {String} background_image (Sub-parameter of project_info) Static background image url of the project.
+    @apiSuccess (Success 200 return) {Int} status (Sub-parameter of project_info) Status of th project (0: prepare, 1: ongoing, 2: finish).
+    @apiSuccess (Success 200 return) {Float} price (Sub-parameter of project_info) The single donation price of the project.
+    @apiSuccess (Success 200 return) {Int} current_num (Sub-parameter of project_info) Number of donations accepted.
+    @apiSuccess (Success 200 return) {Int} total_num (Sub-parameter of project_info) The total number of donations expected to be received and the project ends when this number is reached.
+    @apiSuccess (Success 200 return) {Int} start_time (Sub-parameter of project_info) The time at which the project starts and before which the project will not be shown.
+    @apiSuccess (Success 200 return) {Int} end_time (Sub-parameter of project_info) The time at which the project will end. When this time is reached, the project will be closed even if it has not reached the desired number of donations.
+    @apiSuccess (Success 200 return) {Dict} page_info Information of pages. Its sub-parameters are shown below.
+    @apiSuccess (Success 200 return) {Int} page_size (Sub-parameter of page_info) Number of projects displayed per page.
+    @apiSuccess (Success 200 return) {Int} total_page (Sub-parameter of page_info) Total number of pages.
+    @apiSuccess (Success 200 return) {Int} page (Sub-parameter of page_info) Current page number.
+    @apiSuccess (Success 200 return) {String} currency_type Currency type. It should be included in the list provided by "currency_list/" interface.
+    @apiSuccess (Success 200 return) {String} search The string has been retrieved. It would be set to "" when the search action has not occurred.
+
+    @apiParamExample {Json} Sample Request
+    {
+        "currency_type": "CNY",
+        "page_info": {
+                "page_size": 3,
+                "page": 1
+                },
+        "search": "qwer",
+    }
+    @apiSuccessExample {Json} Response-Success
+    {
+        "status": 0,
+        "project_info": {
+            "0": {
+                "pid": "d48b0eac410514a8b032fd41bd20c1dc",
+                "title": "3",
+                "intro": "qwer3",
+                "region": "CN",
+                "charity": "3",
+                "charity_avatar": "",
+                "background_image": "",
+                "status": 0,
+                "price": 24.7987350414,
+                "current_num": 0,
+                "total_num": 100,
+                "start_time": 0,
+                "end_time": 1679094899
+            },
+            "1": {
+                "pid": "9dfd14feba9c9822377262fdf76e2c1c",
+                "title": "13",
+                "intro": "qwer13",
+                "region": "CN",
+                "charity": "3",
+                "charity_avatar": "",
+                "background_image": "",
+                "status": 0,
+                "price": 107.4611851794,
+                "current_num": 0,
+                "total_num": 100,
+                "start_time": 0,
+                "end_time": 1679094909
+            },
+            "2": {
+                "pid": "3494c5b8f941afb1a228260861d9f7d9",
+                "title": "23",
+                "intro": "23",
+                "region": "CN",
+                "charity": "3",
+                "charity_avatar": "",
+                "background_image": "",
+                "status": 0,
+                "price": 190.12363531740002,
+                "current_num": 0,
+                "total_num": 100,
+                "start_time": 0,
+                "end_time": 1679094919
+            }
+        },
+        "page_info": {
+            "page": 1,
+            "page_size": 3,
+            "total_page": 2
+        },
+        "currency_type": "CNY",
+        "search": "qwer"
+    }
+    """
+    #if request.method != "GET":
+    #    return HttpResponseBadRequest()
+    response_data = {"status": "",
+                     "project_info": {},
+                     "page_info": {"page": 1,
+                                   "page_size": 1,
+                                   "total_page": 1},
+                     "currency_type": "GBP",
+                     "search": ""}
+    if user.type != USER_TYPE["charity"]:
+        response_data["status"] = STATUS_CODE["user_not_charity"]
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    if request.method == "GET":
+        search = ""
+        page_size = 20
+        current_page = 1
+        currency_type = user.currency_type
+        order = "title"
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        search = data["search"]
+        page_size = data["page_info"]["page_size"] if data["page_info"]["page_size"] else 20
+        current_page = data["page_info"]["page"] if data["page_info"]["page"] else 1
+        currency_type = data["currency_type"]
+        order = "title"
+    prepare_projects = get_prepare_projects(user.uid)
+    current_projects, prepare_projects_num = get_current_projects_dict(prepare_projects, current_page, page_size, order, search, currency_type)
+    response_data["search"] = search
+    response_data["currency_type"] = currency_type
+    response_data["page_info"]["page"] = current_page
+    response_data["page_info"]["page_size"] = page_size
+    response_data["page_info"]["total_page"] = math.ceil(prepare_projects_num / page_size)
+    response_data["project_info"] = current_projects
+    response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")

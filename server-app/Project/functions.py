@@ -36,7 +36,7 @@ def project2dict(project, fields=(), currency_type=""):
         else:
             return {}
     if "region" in fields or len(fields) == 0:
-        project_dict["region"] = rid2region(project_dict["region"])
+        project_dict["region"] = region2rid(project_dict["region"])
     if "donate_history" in fields or len(fields) == 0:
         project_dict["donate_history"] = eval(project_dict["donate_history"])
     if "status" in fields or len(fields) == 0:

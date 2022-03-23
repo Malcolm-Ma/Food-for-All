@@ -189,9 +189,9 @@ def logout(request, user):
     #    return HttpResponseBadRequest()
     response_data = {"status": ""}
     #if not check_login(request):
-    #    response_data["status"] = logout_status["not_logged_in"]
+    #    response_data["status"] = STATUS_CODE["not_logged_in"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    response_data["status"] = logout_status["success"]
+    response_data["status"] = STATUS_CODE["success"]
     rep = HttpResponse(json.dumps(response_data), content_type="application/json")
     rep.delete_cookie(COOKIE_KEY)
     return rep

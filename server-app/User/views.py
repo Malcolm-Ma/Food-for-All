@@ -118,7 +118,7 @@ def edit_user(request, user):
     {
         "name": "qwer",
         "region": "Afghanistan",
-        "currency_type": "AFN (Afghan Afghani)",
+        "currency_type": "AFN",
         "avatar": "/static/avatar.16475514014588146.jpg"
     }
     @apiSuccessExample {Json} Response-Success

@@ -36,6 +36,7 @@ urlpatterns = [
     path('get_project_info/', project_views.get_project_info),
     path('edit_project/', project_views.edit_project),
     path('get_projects_list/', project_views.get_projects_list),
+    path('get_prepare_projects_list/', project_views.get_prepare_projects_list),
     path('create_project/', project_views.create_project),
     path('delete_project/', project_views.delete_project),
     path('start_project/', project_views.start_project),
