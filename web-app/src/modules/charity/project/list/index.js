@@ -7,6 +7,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import moment from "moment";
 import {
+  DatePicker,
   Button,
   Form,
   Input,
@@ -17,11 +18,13 @@ import {
   Drawer,
   Row,
   Col,
+  Select, InputNumber,
 } from "antd";
 
 import actions from "src/actions";
 import _ from "lodash";
 
+const {Option} = Select;
 // Column config of a table
 // Using either dataIndex or key to point out unique props
 const columnsConfig = (payloads) => {
@@ -191,7 +194,14 @@ export default () => {
     console.log('Clicked cancel button');
     modalSetVisible(false);
   };
-
+  const selectAfter = (
+    <Select defaultValue="USD" style={{ width: 60 }}>
+      <Option value="USD">$</Option>
+      <Option value="EUR">€</Option>
+      <Option value="GBP">£</Option>
+      <Option value="CNY">¥</Option>
+    </Select>
+  );
 
   const payloads = {
     drawVisible,
@@ -219,6 +229,7 @@ export default () => {
         zIndex={10000}
         visible={drawVisible}
         bodyStyle={{paddingBottom: 80}}
+        width={600}
         extra={
           <Space>
             <Button onClick={onClose}>Cancel</Button>
@@ -242,16 +253,51 @@ export default () => {
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                name="description"
-                label="Description"
+                name="introduction"
+                label="Introduction"
                 rules={[
                   {
                     required: true,
-                    message: 'please enter new description',
+                    message: 'please enter new introduction',
                   },
                 ]}
               >
-                <Input.TextArea rows={4} placeholder="please enter description"/>
+                <Input.TextArea rows={4} placeholder="please enter introduction"/>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="num"
+                label="Num"
+                rules={[{required: true, message: 'Please enter new num'}]}
+              >
+                <InputNumber min={1} max={10000000} style={{ width: '100%' }}/>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="price"
+                label="Price"
+                rules={[{required: true, message: 'Please enter new price'}]}
+              >
+                <InputNumber addonAfter={selectAfter} min={1} max={30} style={{ width: '100%' }}/>
+              </Form.Item>
+            </Col>
+
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="dateTime"
+                label="DateTime"
+                rules={[{required: true, message: 'Please choose the dateTime'}]}
+              >
+                <DatePicker.RangePicker
+                  style={{ width: '100%' }}
+                  getPopupContainer={trigger => trigger.parentElement}
+                />
               </Form.Item>
             </Col>
           </Row>
