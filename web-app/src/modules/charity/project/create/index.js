@@ -77,8 +77,9 @@ export default () => {
   );
 
   const onFinish = async (values) => {
+
     try {
-      message.loading({content: 'Loading...', key});
+      message.loading({content:'Loading'}, key);
       const createProjectRes = await actions.createProject();
       console.log('createProjectRes.status\n', createProjectRes);
       switch (createProjectRes.status) {

@@ -49,7 +49,7 @@ export default () => {
 
   // @Todo Upload edit info
   const handleSubmit = async (event) => {
-    message.loading({content: 'Saving...', key});
+    message.loading({content: 'Saving...'});
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
     const editUserRes = await actions.editUser({
@@ -60,9 +60,9 @@ export default () => {
     });
     switch (editUserRes.status) {
       case 0:
-        await message.success({content: 'Saved!', key});
         setName(data.name);
         handleCancel();
+        await message.success({content: 'Saved!', key});
         break;
       case 100001:
         await message.error({content: 'Please login first!', key});
