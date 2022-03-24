@@ -66,18 +66,17 @@ export default () => {
         id="menu-appbar"
         anchorEl={anchorEl}
         anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
         keepMounted
         transformOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: 'top',
+          horizontal: 'left',
         }}
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        {/*<MenuItem onClick={handleLogOut}>Log Out</MenuItem>*/}
         {settings.map((setting) => (
           <MenuItem key={setting}  onClick={() => handleClick(setting)}>
             <Typography textAlign="center" >{setting}</Typography>
