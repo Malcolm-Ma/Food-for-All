@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {Avatar, Badge, FormGroup, Grid, styled, FormControl, TextField, Box} from '@mui/material';
+import {Avatar, Badge, Grid, styled, TextField} from '@mui/material';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
@@ -107,7 +106,7 @@ export default () => {
           setCurrencyColor(null);
         }
         break;
-    };
+    }
   };
 
   const Input = styled('input')({

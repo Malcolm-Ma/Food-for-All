@@ -20,29 +20,30 @@ import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
 import moment from "moment";
 
-const {Option} = Select;
-
-const handleUpload = async (file) => {
-  console.log('--file--\n', file);
-};
-
-const normFile = (e) => {
-  console.log('Upload event:', e);
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e && e.fileList;
-};
-
 export default () => {
   const dispatch = useDispatch();
-
   const key = 'MessageKey';
-
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const {Option} = Select;
+  const [price, setPrice] = useState(100);
+  const [donation, setDonation] = useState(10);
+
+  const handleUpload = async (file) => {
+    console.log('--file--\n', file);
+  };
+
+  const normFile = (e) => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
   const handleOk = () => {
     setIsModalVisible(false);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
@@ -77,7 +78,6 @@ export default () => {
   );
 
   const onFinish = async (values) => {
-
     try {
       message.loading({content:'Loading'}, key);
       const createProjectRes = await actions.createProject();
@@ -147,26 +147,33 @@ export default () => {
             donation: 10,
           }}
     >
-
       <Form.Item name="title" label="Title" rules={[{required: true, message: 'Please input the title'}]}>
         <Input/>
       </Form.Item>
 
-      <Form.Item name="price" label="Price" rules={[{required: true, message: 'Please input the price'}]}>
-        <InputNumber min={1} addonAfter={suffixSelector} style={{width: '30%'}}/>
+      <Form.Item
+        name="price"
+        label="Price"
+        rules={[{required: true, message: 'Please input the price'}]}
+      >
+        <InputNumber name="price" min={1} addonAfter={suffixSelector} style={{width: '30%'}} onChange={(value)=>{setPrice(value)}}/>
       </Form.Item>
 
-      <Form.Item name="donation" label="Donation Amount" rules={[{required: true, message: 'Please input donation amount!'}]}>
-        <InputNumber min={1} style={{width: '30%'}}/>
+      <Form.Item
+        name="donation"
+        label="Donation Amount"
+        rules={[{required: true, message: 'Please input donation amount!'}]}
+      >
+        <InputNumber name="donation" min={1} style={{width: '30%'}} onChange={(value)=>{setDonation(value)}}/>
       </Form.Item>
 
       {/* @Todo multiply price and amount of donation*/}
       <Form.Item name="sum" label="Total money">
-        <span>{}</span>
+        <span>{price * donation}</span>
       </Form.Item>
 
       <Form.Item name="projectTime" label="Deadline" rules={[{required: true, message: 'Please select deadline!'}]}>
-        <DatePicker disabledDate={disabledDate} />
+        <DatePicker disabledDate={disabledDate}/>
       </Form.Item>
 
       <Form.Item name="introduction" label="Introduction" rules={[{required: true, message: 'Please write the introduction!'}]}>
