@@ -4,41 +4,6 @@ from django.db.models import F, Q
 from Common.common import *
 from hashlib import md5
 
-create_project_status = {"success": 0,
-                         "not_logged_in": 1,
-                         "not_charity_user": 2,
-                         "create_fail": 3}
-
-delete_project_status = {"success": 0,
-                         "not_logged_in": 1,
-                         "not_charity_user": 2,
-                         "project_not_exists": 3,
-                         "not_project_owner": 4,
-                         "not_deletable": 5}
-
-edit_project_status = {"success": 0,
-                            "not_logged_in": 1,
-                            "wrong_currency_type": 2,
-                            "project_not_exists": 3,
-                            "not_project_owner": 4,
-                            "edit_fail": 5,
-                            "not_editable": 6}
-
-start_project_status = {"success": 0,
-                        "not_logged_in": 1,
-                        "incomplete_information": 2,
-                        "project_not_exists": 3,
-                        "not_project_owner": 4,
-                        "start_fail": 5,
-                        "not_startable": 6}
-
-stop_project_status = {"success": 0,
-                       "not_logged_in": 1,
-                       "project_not_exists": 2,
-                       "not_project_owner": 3,
-                       "stop_fail": 4,
-                       "not_stopable": 5}
-
 project_info_dict = {"pid": "",
                      "uid": "",
                      "title": "",
@@ -71,7 +36,7 @@ def project2dict(project, fields=(), currency_type=""):
         else:
             return {}
     if "region" in fields or len(fields) == 0:
-        project_dict["region"] = rid2region(project_dict["region"])
+        project_dict["region"] = region2rid(project_dict["region"])
     if "donate_history" in fields or len(fields) == 0:
         project_dict["donate_history"] = eval(project_dict["donate_history"])
     if "status" in fields or len(fields) == 0:
@@ -177,3 +142,21 @@ def update_project(project, update_dict):
         return True
     except:
         return False
+
+def get_project_decorator(force_exist=True):
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            request = args[0]
+            data = json.loads(request.body)
+            pid = data["pid"]
+            project = get_project({"pid": pid})
+            if not project and force_exist:
+                response_data = {"status": ""}
+                response_data["status"] = STATUS_CODE["project_not_exists"]
+                return HttpResponse(json.dumps(response_data), content_type="application/json")
+            kwargs["project"] = project
+            response = func(*args, **kwargs)
+            return response
+        return wrapped_function
+    return decorator
