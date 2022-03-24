@@ -9,13 +9,17 @@ import {useDispatch, useSelector} from "react-redux";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import actions from "src/actions";
+import {message} from 'antd';
 
 
 export default () => {
 
+  const key = 'MessageKey';
+
   const dispatch = useDispatch();
 
   const {userInfo} = useSelector(state => state.user);
+  const user_info = userInfo.user_info;
   const { regionList, currencyList } = useSelector(state => state.global);
   const currencyCode = currencyList.map(item => item.value);
 
@@ -24,14 +28,13 @@ export default () => {
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
 
-  const navigate = useNavigate();
-
   const [nameColor, setNameColor] = useState(null);
   const [regionColor, setRegionColor] = useState(null);
   const [currencyColor, setCurrencyColor] = useState(null);
   const [saveDisabled, setSaveDisabled] = useState(true);
   const [display, setDisplay] = useState("none");
   const [editDisplay, setEditDisplay] = useState(null);
+  const [name, setName] = useState(user_info.name);
 
   const handleDisplay = () => {
     setDisplay(null);
@@ -45,16 +48,34 @@ export default () => {
   };
 
   // @Todo Upload edit info
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
+    message.loading({content: 'Saving...', key});
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    console.log(data.name);
+    const editUserRes = await actions.editUser({
+      name: data.name,
+      region: data.region,
+      currency_type: data.currency,
+      avatar: user_info.avatar,
+    });
+    switch (editUserRes.status) {
+      case 0:
+        await message.success({content: 'Saved!', key});
+        setName(data.name);
+        handleCancel();
+        break;
+      case 100001:
+        await message.error({content: 'Please login first!', key});
+        break;
+      case 100002:
+        await message.error({content: 'Save failed!', key});
+    }
   };
 
   const handleChange = async (event) => {
     switch (event.target.name) {
       case "name":
-        if (event.target.value !== userInfo.name) {
+        if (event.target.value !== user_info.name) {
           setNameColor("success");
           setSaveDisabled(false);
         } else if (regionColor === null && currencyColor === null){
@@ -65,7 +86,7 @@ export default () => {
         }
         break;
       case "region":
-        if (event.target.value !== userInfo.region) {
+        if (event.target.value !== user_info.region) {
           setRegionColor("success");
           setSaveDisabled(false);
         } else if (nameColor === null && currencyColor === null){
@@ -76,7 +97,7 @@ export default () => {
         }
         break;
       case "currency":
-        if (event.target.value !== userInfo.currency_type) {
+        if (event.target.value !== user_info.currency_type) {
           setCurrencyColor("success");
           setSaveDisabled(false);
         } else if (regionColor === null && nameColor === null){
@@ -114,7 +135,7 @@ export default () => {
       </Grid>
 
       <Grid item xs={12} display={editDisplay}>
-        <Typography textAlign="left" >{userInfo.name}</Typography>
+        <Typography textAlign="left" >{name}</Typography>
       </Grid>
 
 
@@ -130,7 +151,7 @@ export default () => {
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
-                defaultValue={userInfo.name}
+                defaultValue={user_info.name}
                 required
                 fullWidth
                 id="name"
@@ -144,7 +165,7 @@ export default () => {
 
             <Grid item xs={12}>
               <Autocomplete
-                defaultValue={userInfo.region}
+                defaultValue={user_info.region}
                 disablePortal
                 fullWidth
                 id="region"
@@ -166,7 +187,7 @@ export default () => {
 
             <Grid item xs={12}>
               <Autocomplete
-                defaultValue={userInfo.currency_type}
+                defaultValue={user_info.currency_type}
                 disablePortal
                 fullWidth
                 id="currency"

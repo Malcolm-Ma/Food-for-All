@@ -14,4 +14,5 @@ export default {
   logout: '/logout/',
   projectList: '/get_projects_list/',
   projectInfo: '/get_project_info/',
+  editUser: '/edit_user/',
 };

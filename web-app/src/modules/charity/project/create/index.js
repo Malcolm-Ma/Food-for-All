@@ -141,7 +141,7 @@ export default () => {
           name="nest-messages"
           onFinish={onFinish}
           initialValues={{
-            currency: userInfo.currency_type,
+            currency: userInfo.user_info.currency_type,
             price: 100,
             donation: 10,
           }}
