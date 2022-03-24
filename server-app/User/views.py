@@ -101,7 +101,7 @@ def get_user_info(request, user):
 @get_user_decorator()
 def edit_user(request, user):
     """
-    @api {POST} /edit_user/ edit user information
+    @api {POST} /edit_user/ edit user
     @apiVersion 1.0.0
     @apiName edit_user
     @apiGroup User

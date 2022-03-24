@@ -355,7 +355,7 @@ def delete_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 100003: user_not_charity, 200002: project_not_exists, 200003: user_not_project_owner, 200004: project_non_deletable)
+    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200004: project_non_deletable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -373,9 +373,6 @@ def delete_project(request, user, project):
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if user.type != USER_TYPE["charity"]:
-        response_data["status"] = STATUS_CODE["user_not_charity"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
     #data = json.loads(request.body)
     #pid = data["pid"]
     #project = get_project({"pid": pid})
@@ -401,7 +398,7 @@ def delete_project(request, user, project):
 @get_project_decorator()
 def edit_project(request, user, project):
     """
-    @api {POST} /edit_project/ edit project information
+    @api {POST} /edit_project/ edit project
     @apiVersion 1.0.0
     @apiName edit_project
     @apiGroup Project
@@ -418,7 +415,7 @@ def edit_project(request, user, project):
     @apiParam {String} details (Sub-parameter of edit) Details of the project, containing rich text information.
     @apiParam {Float} price (Sub-parameter of edit) The single donation price of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200005: edit_project_fail, 200006: project_non_editable, 300001: wrong_currency_type)
+    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200005: edit_project_fail, 200006: project_non_editable, 200012: project_end_time_invalid, 300001: wrong_currency_type)
 
     @apiParamExample {Json} Sample Request
     {
@@ -463,6 +460,10 @@ def edit_project(request, user, project):
     for i in ("title", "intro", "background_image", "total_num", "end_time", "details", "price"):
         if i in data["edit"]:
             edit_dict[i] = data["edit"][i]
+    if "end_time" in edit_dict:
+        if edit_dict["end_time"] < int(time.time()):
+            response_data["status"] = STATUS_CODE["project_end_time_invalid"]
+            return HttpResponse(json.dumps(response_data), content_type="application/json")
     if "price" in edit_dict:
         cid = currency2cid(currency_type)
         if not cid:
