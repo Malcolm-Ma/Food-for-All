@@ -11,6 +11,8 @@ import random
 import re
 import base64 as b64
 from DataBase import models
+import json
+from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")
