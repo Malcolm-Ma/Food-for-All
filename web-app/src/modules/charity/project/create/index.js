@@ -14,13 +14,15 @@ import {
   DatePicker,
   Upload,
   message,
-  Modal,
+  Modal, Result,
 } from 'antd';
 import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
 import moment from "moment";
+import {useNavigate} from "react-router-dom";
 
 export default () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const key = 'MessageKey';
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -99,6 +101,7 @@ export default () => {
           });
           switch (editProjectRes.status) {
             case 0:
+              navigate('/project/create/result');
               await message.success({content: 'Successs!', key});
               break;
             case 1:
@@ -167,7 +170,6 @@ export default () => {
         <InputNumber name="donation" min={1} style={{width: '30%'}} onChange={(value)=>{setDonation(value)}}/>
       </Form.Item>
 
-      {/* @Todo multiply price and amount of donation*/}
       <Form.Item name="sum" label="Total money">
         <span>{price * donation}</span>
       </Form.Item>

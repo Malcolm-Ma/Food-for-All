@@ -65,4 +65,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/project/create/result',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create/Result.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
