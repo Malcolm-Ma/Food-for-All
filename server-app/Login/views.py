@@ -2,8 +2,10 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Mail.functions import Mail
 from .functions import *
+from Logging.functions import *
+from User.functions import *
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["username", "password"])
 def login(request):
@@ -47,14 +49,14 @@ def login(request):
             response_data["status"] = STATUS_CODE["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
-            update_user(user, {"last_login_time": int(time.time())})
+            user.update_from_fict({"last_login_time": int(time.time())})
             response_data["status"] = STATUS_CODE["success"]
             rep = HttpResponse(json.dumps(response_data), content_type="application/json")
             cookie = encode_cookie(request, user.uid, COOKIE_ENCODE_KEY)
             rep.set_signed_cookie(COOKIE_KEY, cookie, salt=COOKIE_SALT + get_request_url(request), max_age=COOKIE_EXPIRES, expires=COOKIE_EXPIRES, path=COOKIE_PATH)
             return rep
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["username", "action"])
 def regis(request):
@@ -167,7 +169,7 @@ def regis(request):
         response_data["status"] = STATUS_CODE["wrong_action"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
 def logout(request, user):
@@ -196,7 +198,7 @@ def logout(request, user):
     rep.delete_cookie(COOKIE_KEY)
     return rep
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["username", "action"])
 @get_user_decorator(force_login=False)
@@ -290,7 +292,7 @@ def reset_password(request, user):
             response_data["status"] = STATUS_CODE["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         update_info = {"password": data["password"]}
-        if not update_user(user, update_info):
+        if not user.update_from_fict(update_info):
             response_data["status"] = STATUS_CODE["set_password_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         Mail.reset_password_success(mail)

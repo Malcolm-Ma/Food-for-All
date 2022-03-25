@@ -3,9 +3,10 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
-from User.functions import update_user, add_project, remove_project, get_user_decorator
+from User.functions import add_project, remove_project, get_user_decorator
+from Logging.functions import *
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST", "GET"])
 @get_user_decorator(force_login=False)
 def get_projects_list(request, user):
@@ -217,7 +218,7 @@ def get_projects_list(request, user):
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid", "currency_type"])
 @get_project_decorator()
@@ -292,7 +293,7 @@ def get_project_info(request, project):
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
 def create_project(request, user):
@@ -332,7 +333,7 @@ def create_project(request, user):
     project_dict["donate_history"] = "{}"
     project_dict["pid"] = gen_pid(user.mail)
     project_dict["status"] = PROJECT_STATUS["prepare"]
-    if models.Project.objects.create(**project_dict):
+    if DProject.objects.create(**project_dict):
         response_data["status"] = STATUS_CODE["success"]
         response_data["pid"] = project_dict["pid"]
         add_project(user, project_dict["pid"])
@@ -340,7 +341,7 @@ def create_project(request, user):
         response_data["status"] = STATUS_CODE["create_project_fail"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -391,7 +392,7 @@ def delete_project(request, user, project):
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid", "currency_type", "edit"])
 @get_user_decorator()
@@ -471,7 +472,7 @@ def edit_project(request, user, project):
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         edit_dict["price"] = edit_dict["price"] / EXCHANGE_RATE[cid]
     background_image_url = project.background_image
-    if not update_project(project, edit_dict):
+    if not project.update_from_fict(edit_dict):
         response_data["status"] = STATUS_CODE["edit_project_fail"]
     else:
         if "background_image" in edit_dict:
@@ -479,7 +480,7 @@ def edit_project(request, user, project):
         response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -527,13 +528,13 @@ def start_project(request, user, project):
     if not (project.title and project.intro and project.details and project.total_num > 0 and project.end_time > int(time.time()) and project.price > 0):
         response_data["status"] = STATUS_CODE["project_information_incomplete"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if not update_project(project, {"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]}):
+    if not project.update_from_fict({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]}):
         response_data["status"] = STATUS_CODE["start_project_fail"]
     else:
         response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -577,15 +578,15 @@ def stop_project(request, user, project):
     elif project.status != PROJECT_STATUS["ongoing"]:
         response_data["status"] = STATUS_CODE["project_non_stopable"]
     elif project.current_num >= project.total_num or project.end_time <= int(time.time()):
-        update_project(project, {"status": PROJECT_STATUS["finish"]})
+        project.update_from_fict({"status": PROJECT_STATUS["finish"]})
         response_data["status"] = STATUS_CODE["project_non_stopable"]
-    elif not update_project(project, {"status": PROJECT_STATUS["finish"], "end_time": int(time.time())}):
+    elif not project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time())}):
         response_data["status"] = STATUS_CODE["stop_project_fail"]
     else:
         response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET", "POST"])
 @get_user_decorator()
 def get_prepare_projects_list(request, user):

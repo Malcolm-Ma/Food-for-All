@@ -4,13 +4,11 @@ from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC
 import time
 from hashlib import md5
 import copy
-import logging
 import sys
 from functools import wraps
 import random
 import re
 import base64 as b64
-from DataBase import models
 import json
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 

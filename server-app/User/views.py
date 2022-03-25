@@ -3,8 +3,9 @@ import json
 from Login.functions import check_login
 from .functions import *
 from Project.functions import get_project, get_all_projects
+from Logging.functions import *
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
 def get_user_info(request, user):
@@ -95,7 +96,7 @@ def get_user_info(request, user):
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["name", "region", "currency_type", "avatar"])
 @get_user_decorator()
@@ -139,7 +140,7 @@ def edit_user(request, user):
         if i in data:
             edit_dict[i] = data[i]
     avatar_url = user.avatar
-    if not update_user(user, edit_dict):
+    if not user.update_from_fict(edit_dict):
         response_data["status"] = STATUS_CODE["edit_user_info_fail"]
     else:
         if "avatar" in edit_dict:

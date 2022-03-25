@@ -153,6 +153,10 @@ def user_logout():
     r = rs.get(url_dict["logout/"], headers=headers)
     return r
 
+def create_project():
+    r = rs.get(url_dict["create_project/"], headers=headers)
+    return r
+
 def gen_verify_code(id_str, usefor_str, expires=30 * 60):
     dynamic_num = int(time.time()) // expires
     code = md5((str(dynamic_num) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
@@ -164,13 +168,13 @@ if __name__ == "__main__":
             with open(output_file, "w") as f:
                 f.write(check_wrong_request_method() + "\n")
                 f.write(check_wrong_request_params() + "\n")
-                f.write(check_upload('upload_img/', 'img', "..\\demo\\test.jpg") + "\n")
-                f.write(check_upload('upload_doc/', 'doc', "..\\demo\\test.txt") + "\n")
+                f.write(check_upload('upload_img/', 'img', os.path.join(path, "test.jpg")) + "\n")
+                f.write(check_upload('upload_doc/', 'doc', os.path.join(path, "test.txt")) + "\n")
                 for api in ['init_database/', 'region_list/', 'currency_list/', 'region2currency/']:
                     for code in correct_response[api]:
                         for method, data, answer in correct_response[api][code]:
                             f.write(check_api(api, code, method, data, answer) + "\n")
-                cursor.execute('SELECT * FROM database_user WHERE type=1 AND project!=""')
+                cursor.execute('SELECT * FROM database_duser WHERE type=1 AND project!=""')
                 db.commit()
                 user = get_one_cursor_dict(cursor)
 
@@ -222,7 +226,7 @@ if __name__ == "__main__":
                 f.write(check_api('create_project/', STATUS_CODE["success"], "GET", "", '{"status": %d, "pid": "[0-9a-z]*"}' % STATUS_CODE["success"]) + "\n")
                 #200001 can't be test
 
-                cursor.execute('SELECT * FROM database_project WHERE uid="{uid}" AND status=0 AND title=""'.format(uid=user["uid"]))
+                cursor.execute('SELECT * FROM database_dproject WHERE uid="{uid}" AND status=0 AND title=""'.format(uid=user["uid"]))
                 db.commit()
                 project = get_one_cursor_dict(cursor)
                 f.write(check_api('edit_project/', STATUS_CODE["project_not_exists"], "POST", {"pid": "test" + project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) + 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["project_not_exists"]) + "\n")
@@ -265,7 +269,8 @@ if __name__ == "__main__":
                 f.write(check_api('delete_project/', STATUS_CODE["user_not_project_owner"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user_not_project_owner"]) + "\n")
                 user_logout()
                 user_login(user["mail"], user["password"])
-                cursor.execute('SELECT * FROM database_project WHERE uid="{uid}" AND status=0'.format(uid=user["uid"]))
+                create_project()
+                cursor.execute('SELECT * FROM database_dproject WHERE uid="{uid}" AND status=0'.format(uid=user["uid"]))
                 db.commit()
                 project_tmp = get_one_cursor_dict(cursor)
                 f.write(check_api('delete_project/', STATUS_CODE["success"], "POST", {"pid": project_tmp["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")

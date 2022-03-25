@@ -1,7 +1,7 @@
 import time
 
 from django.test import TestCase
-from DataBase import models
+from DataBase.models import *
 from Project.functions import *
 from User.functions import *
 from Common.common import *
@@ -58,8 +58,8 @@ class Test(TestCase):
 
     def test_user(self):
         for i in userinfo:
-            models.User.objects.create(**i)
-        q = models.User.objects.all()
+            DUser.objects.create(**i)
+        q = DUser.objects.all()
         print("User table num after create 2: {num}\n".format(num=str(len(q))))
         for i in q:
             for k, v in i.__dict__.items():
@@ -68,8 +68,8 @@ class Test(TestCase):
 
     def test_project(self):
         for i in projectinfo:
-            models.Project.objects.create(**i)
-        q = models.User.objects.all()
+            DProject.objects.create(**i)
+        q = DUser.objects.all()
         print("User table num after create 2: {num}\n".format(num=str(len(q))))
         for i in q:
             for k, v in i.__dict__.items():
@@ -80,8 +80,8 @@ class Test(TestCase):
         pass
 
 def init_database():
-    models.User.objects.all().delete()
-    models.Project.objects.all().delete()
+    DUser.objects.all().delete()
+    DProject.objects.all().delete()
     userinfo = [{"uid": gen_uid("a"),
                  "mail": "ty_liang@foxmail.com",
                  "password": "123456",
@@ -109,7 +109,7 @@ def init_database():
                  "donate_history": "",
                  "share_mail_history": ""}]
     for i in userinfo:
-        models.User.objects.create(**i)
+        DUser.objects.create(**i)
     projectinfo = [{"pid": gen_pid("as"),
                     "uid": get_user({"mail": "ty_liang@foxmail.com"}).uid,
                     "title": str(i),
@@ -126,6 +126,6 @@ def init_database():
                     "price": i,
                     "donate_history": ""} for i in range(1, 50)]
     for i in projectinfo:
-        models.Project.objects.create(**i)
-    models.User.objects.filter(mail="ty_liang@foxmail.com").update(
-        project=str([i.pid for i in models.Project.objects.all()]))
+        DProject.objects.create(**i)
+    DUser.objects.filter(mail="ty_liang@foxmail.com").update(
+        project=str([i.pid for i in DProject.objects.all()]))

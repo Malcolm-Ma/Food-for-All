@@ -16,8 +16,8 @@ resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "av
                  "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")]}
 
 def clear_database():
-    models.User.objects.all().delete()
-    models.Project.objects.all().delete()
+    DUser.objects.all().delete()
+    DProject.objects.all().delete()
     img_path_list = os.listdir(IMG_DIR)
     for i in img_path_list:
         if os.path.isfile(os.path.join(IMG_DIR, i)) and i.endswith(".jpg"):
@@ -76,7 +76,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
         fake_user["name"] = fk.company()
     else:
         fake_user["name"] = fk.name()
-    models.User.objects.create(**fake_user)
+    DUser.objects.create(**fake_user)
     return fake_user["uid"], fake_user["type"]
 
 def create_fake_project(uid, donate_history):
@@ -155,7 +155,7 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
-    models.Project.objects.create(**fake_project)
+    DProject.objects.create(**fake_project)
     add_project(user, fake_project["pid"])
     if project_donate_dict:
         user_donate_history = eval(user.donate_history)

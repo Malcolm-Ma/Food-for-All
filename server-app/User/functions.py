@@ -1,11 +1,12 @@
 from hashlib import md5
-from DataBase import models
+from DataBase.models import *
 import time
 from Common.common import *
+from Login.functions import *
 
 def gen_uid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
-    if models.User.objects.filter(uid=id):
+    if DUser.objects.filter(uid=id):
         id = gen_uid(seq=seq)
     return id
 
@@ -36,37 +37,16 @@ def create_user(create_info):
     if user_info["avatar"] != "" and not os.path.isfile(os.path.join(IMG_DIR, os.path.basename(user_info["avatar"]))):
         user_info["avatar"] = ""
     user_info["uid"] = gen_uid(seq=user_info["mail"])
-    return models.User.objects.create(**user_info)
+    return DUser.objects.create(**user_info)
 
 def get_user(filter_dict):
     if len(filter_dict) != 1 or ("uid" not in filter_dict and "mail" not in filter_dict):
         return ""
     try:
-        r = models.User.objects.get(**filter_dict)
+        r = DUser.objects.get(**filter_dict)
         return r
     except:
         return ""
-
-def update_user(user, update_dict):
-    update_keys_list = ["mail", "password", "name", "avatar", "region", "currency_type", "last_login_time", "share_mail_history"]
-    for key in update_dict.keys():
-        if key not in update_keys_list:
-            return False
-    if "region" in update_dict:
-        update_dict["region"] = region2rid(update_dict["region"])
-        if not update_dict["region"]:
-            return False
-    if "currency_type" in update_dict:
-        update_dict["currency_type"] = currency2cid(update_dict["currency_type"])
-        if not update_dict["currency_type"]:
-            return False
-    try:
-        for i in update_dict:
-            user.__setattr__(i, update_dict[i])
-        user.save(update_fields=list(update_dict.keys()))
-        return True
-    except:
-        return False
 
 def add_project(user, pid):
     project = eval(user.project)

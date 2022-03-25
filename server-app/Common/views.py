@@ -1,8 +1,9 @@
 import json
 from django.http import HttpResponse, HttpResponseBadRequest
 from .common import *
+from Logging.functions import *
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 def get_region_list(request):
     """
@@ -55,7 +56,7 @@ def get_region_list(request):
     response_data = {"status": STATUS_CODE["success"], "region_list": region_list}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 def get_currency_list(request):
     """
@@ -104,7 +105,7 @@ def get_currency_list(request):
     response_data = {"status": STATUS_CODE["success"], "currency_list": currency_list}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@logger_decorator()
+@api_logger_decorator()
 @check_request_method_decorator(method=["GET"])
 def get_region2currency(request):
     """

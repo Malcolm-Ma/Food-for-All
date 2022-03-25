@@ -1,4 +1,4 @@
-from DataBase import models
+from DataBase.models import *
 import time
 from django.db.models import F, Q
 from Common.common import *
@@ -25,25 +25,13 @@ projects_orders = ["title", "-title", "charity", "-charity", "price", "-price",
                    "start_time", "-start_time", "end_time", "-end_time", "progress", "-progress"]
 
 def project2dict(project, fields=(), currency_type=""):
-    project_dict = {}
-    for i in copy.deepcopy(project_info_dict):
-        if i in fields or len(fields) == 0:
-            project_dict[i] = project.__getattribute__(i)
+    project_dict = project.to_dict(fields)
     if "price" in fields or len(fields) == 0:
         cid = currency2cid(currency_type)
         if cid:
             project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
         else:
             return {}
-    if "region" in fields or len(fields) == 0:
-        project_dict["region"] = region2rid(project_dict["region"])
-    if "donate_history" in fields or len(fields) == 0:
-        project_dict["donate_history"] = eval(project_dict["donate_history"])
-    if "status" in fields or len(fields) == 0:
-        if project_dict["status"] == PROJECT_STATUS["ongoing"] and (project.current_num >= project.total_num or project.end_time <= int(time.time())):
-            project_dict["status"] = PROJECT_STATUS["finish"]
-            project.status = PROJECT_STATUS["finish"]
-            project.save(fields=["status"])
     return project_dict
 
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
@@ -59,9 +47,9 @@ def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
 
 def get_all_projects(uid=""):
     if uid:
-        projects = models.Project.objects.filter(uid=uid)
+        projects = DProject.objects.filter(uid=uid)
     else:
-        projects = models.Project.objects.all()
+        projects = DProject.objects.all()
     return projects
 
 def get_filtered_projects(uid="", valid_only=1):
@@ -73,11 +61,11 @@ def get_filtered_projects(uid="", valid_only=1):
         exclude_conditions.update({"status": PROJECT_STATUS["prepare"]})
     if uid:
         filter_conditions.update({"uid": uid})
-    filtered_projects = models.Project.objects.filter(**filter_conditions).exclude(**exclude_conditions)
+    filtered_projects = DProject.objects.filter(**filter_conditions).exclude(**exclude_conditions)
     return filtered_projects
 
 def get_prepare_projects(uid):
-    return models.Project.objects.filter(**{"uid": uid, "status": PROJECT_STATUS["prepare"]})
+    return DProject.objects.filter(**{"uid": uid, "status": PROJECT_STATUS["prepare"]})
 
 def get_ordered_projects(projects, order):
     if order not in projects_orders:
@@ -110,14 +98,9 @@ def get_current_projects_dict(filtered_projects, current_page, project_num, orde
     current_projects_dict = projects_query2dict(current_projects, currency_type)
     return current_projects_dict, filter_projects_num
 
-# def update_projects_query_status(projects):
-#     projects_outdated = projects.filter(**{"status": PROJECT_STATUS["ongoing"]}).filter(Q(current_num__gte = F("total_num")) | Q(end_time__lte = int(time.time())))
-#     projects_outdated.update(**{"status": PROJECT_STATUS["finish"]})
-#     return projects
-
 def gen_pid(seq=""):
     id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
-    if models.Project.objects.filter(pid=id):
+    if DProject.objects.filter(pid=id):
         id = gen_pid(seq=seq)
     return id
 
@@ -125,23 +108,10 @@ def get_project(filter_dict):
     if len(filter_dict) != 1 or "pid" not in filter_dict:
         return ""
     try:
-        r = models.Project.objects.get(**filter_dict)
+        r = DProject.objects.get(**filter_dict)
         return r
     except:
         return ""
-
-def update_project(project, update_dict):
-    update_keys_list = ["title", "intro", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history"]
-    for key in update_dict.keys():
-        if key not in update_keys_list:
-            return False
-    try:
-        for i in update_dict:
-            project.__setattr__(i, update_dict[i])
-        project.save(update_fields=list(update_dict.keys()))
-        return True
-    except:
-        return False
 
 def get_project_decorator(force_exist=True):
     def decorator(func):
