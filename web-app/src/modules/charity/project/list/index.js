@@ -24,7 +24,8 @@ import {
 import actions from "src/actions";
 import _ from "lodash";
 
-const {Option} = Select;
+const { Option } = Select;
+
 // Column config of a table
 // Using either dataIndex or key to point out unique props
 const columnsConfig = (payloads) => {
@@ -167,7 +168,7 @@ export default () => {
   //Edit button
   const [modalVisible, modalSetVisible] = React.useState(false);
   const [confirmLoading, setConfirmLoading] = React.useState(false);
-  const [modalText, setModalText] = React.useState('Content of the modal');
+  const [modalText, setModalText] = React.useState('Are you sure you want to terminate the project. Terminated projects cannot be continued.');
   //Edit popup window
   const showDrawer = () => {
     drawSetVisible(true);
@@ -182,12 +183,12 @@ export default () => {
   };
 
   const handleOk = () => {
-    setModalText('The modal will be closed after two seconds');
+    setModalText('Terminating project.');
     setConfirmLoading(true);
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
-    }, 2000);
+    }, 3000);
   };
 
   const handleCancel = () => {
@@ -195,14 +196,13 @@ export default () => {
     modalSetVisible(false);
   };
   const selectAfter = (
-    <Select defaultValue="USD" style={{ width: 60 }}>
+    <Select defaultValue="GBP" style={{ width: 60 }}>
       <Option value="USD">$</Option>
       <Option value="EUR">€</Option>
       <Option value="GBP">£</Option>
       <Option value="CNY">¥</Option>
     </Select>
   );
-
   const payloads = {
     drawVisible,
     modalVisible,
@@ -304,7 +304,7 @@ export default () => {
         </Form>
       </Drawer>
       <Modal
-        title="Title"
+        title= "Stop Project"
         visible={modalVisible}
         onOk={handleOk}
         confirmLoading={confirmLoading}
