@@ -98,12 +98,6 @@ def get_current_projects_dict(filtered_projects, current_page, project_num, orde
     current_projects_dict = projects_query2dict(current_projects, currency_type)
     return current_projects_dict, filter_projects_num
 
-def gen_pid(seq=""):
-    id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
-    if DProject.objects.filter(pid=id):
-        id = gen_pid(seq=seq)
-    return id
-
 def get_project(filter_dict):
     if len(filter_dict) != 1 or "pid" not in filter_dict:
         return ""

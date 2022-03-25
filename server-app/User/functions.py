@@ -4,12 +4,6 @@ import time
 from Common.common import *
 from Login.functions import *
 
-def gen_uid(seq=""):
-    id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
-    if DUser.objects.filter(uid=id):
-        id = gen_uid(seq=seq)
-    return id
-
 def create_user(create_info):
     param_list = ("mail", "password", "type", "region", "currency_type", "name", "avatar")
     if len(create_info) != len(param_list):
@@ -36,7 +30,7 @@ def create_user(create_info):
         user_info["name"] = user_info["mail"]
     if user_info["avatar"] != "" and not os.path.isfile(os.path.join(IMG_DIR, os.path.basename(user_info["avatar"]))):
         user_info["avatar"] = ""
-    user_info["uid"] = gen_uid(seq=user_info["mail"])
+    user_info["uid"] = DUser.gen_uid(seq=user_info["mail"])
     return DUser.objects.create(**user_info)
 
 def get_user(filter_dict):
@@ -47,13 +41,6 @@ def get_user(filter_dict):
         return r
     except:
         return ""
-
-def add_project(user, pid):
-    project = eval(user.project)
-    project.append(pid)
-    user.project = str(project)
-    user.save(update_fields=["project"])
-    return True
 
 def get_user_decorator(force_login=True):
     def decorator(func):
@@ -70,11 +57,3 @@ def get_user_decorator(force_login=True):
             return response
         return wrapped_function
     return decorator
-
-def remove_project(user, pid):
-    project = eval(user.project)
-    if pid in project:
-        project.remove(pid)
-        user.project = str(project)
-        user.save(update_fields=["project"])
-    return True

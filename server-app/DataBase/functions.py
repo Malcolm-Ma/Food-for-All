@@ -71,7 +71,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
                  "last_login_time": int(time.time()) - random.randint(0, 24 * 60 * 60),
                  "donate_history": "{}",
                  "share_mail_history": str([fk.safe_email(), fk.safe_email()])}
-    fake_user["uid"] = gen_uid(fake_user["mail"])
+    fake_user["uid"] = DUser.gen_uid(fake_user["mail"])
     if fake_user["type"] == USER_TYPE["charity"]:
         fake_user["name"] = fk.company()
     else:
@@ -82,7 +82,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
 def create_fake_project(uid, donate_history):
     donate_history = copy.deepcopy(donate_history)
     user = get_user({"uid": uid})
-    fake_project = {"pid": gen_pid(user.mail),
+    fake_project = {"pid": DProject.gen_pid(user.mail),
                     "uid": user.uid,
                     "title": "",
                     "intro": "",
@@ -156,7 +156,7 @@ def create_fake_project(uid, donate_history):
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
     DProject.objects.create(**fake_project)
-    add_project(user, fake_project["pid"])
+    user.add_project_to_list(fake_project["pid"])
     if project_donate_dict:
         user_donate_history = eval(user.donate_history)
         user_donate_history[fake_project["pid"]] = project_donate_dict

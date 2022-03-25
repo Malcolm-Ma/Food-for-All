@@ -3,7 +3,7 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
-from User.functions import add_project, remove_project, get_user_decorator
+from User.functions import get_user_decorator
 from Logging.functions import *
 
 @api_logger_decorator()
@@ -321,24 +321,9 @@ def create_project(request, user):
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if user.type != USER_TYPE["charity"]:
-        response_data["status"] = STATUS_CODE["user_not_charity"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    project_dict = copy.deepcopy(project_info_dict)
-    project_dict["uid"] = user.uid
-    project_dict["region"] = user.region
-    project_dict["charity"] = user.name
-    project_dict["charity_avatar"] = user.avatar
-    project_dict["region"] = user.region
-    project_dict["donate_history"] = "{}"
-    project_dict["pid"] = gen_pid(user.mail)
-    project_dict["status"] = PROJECT_STATUS["prepare"]
-    if DProject.objects.create(**project_dict):
-        response_data["status"] = STATUS_CODE["success"]
-        response_data["pid"] = project_dict["pid"]
-        add_project(user, project_dict["pid"])
-    else:
-        response_data["status"] = STATUS_CODE["create_project_fail"]
+    status, pid = user.create_project()
+    response_data["status"] = status
+    response_data["pid"] = pid
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
@@ -380,16 +365,8 @@ def delete_project(request, user, project):
     #if not project:
     #    response_data["status"] = STATUS_CODE["project_not_exists"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if project.uid != user.uid:
-        response_data["status"] = STATUS_CODE["user_not_project_owner"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if project.status != PROJECT_STATUS["prepare"]:
-        response_data["status"] = STATUS_CODE["project_non_deletable"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    remove_img_file(project.background_image)
-    project.delete()
-    remove_project(user, project.pid)
-    response_data["status"] = STATUS_CODE["success"]
+    status = user.delete_project(project)
+    response_data["status"] = status
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()

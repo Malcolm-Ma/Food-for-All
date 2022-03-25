@@ -58,6 +58,65 @@ class DUser(models.Model):
         except:
             return False
 
+    def create_project(self):
+        if self.type != USER_TYPE["charity"]:
+            return STATUS_CODE["user_not_charity"], -1
+        create_dict = {}
+        create_dict["uid"] = self.uid
+        create_dict["title"] = ""
+        create_dict["intro"] = ""
+        create_dict["region"] = self.region
+        create_dict["charity"] = self.name
+        create_dict["charity_avatar"] = self.avatar
+        create_dict["background_image"] = ""
+        create_dict["status"] = PROJECT_STATUS["prepare"]
+        create_dict["total_num"] = 0
+        create_dict["current_num"] = 0
+        create_dict["start_time"] = 0
+        create_dict["end_time"] = 0
+        create_dict["details"] = ""
+        create_dict["price"] = 0
+        create_dict["donate_history"] = "{}"
+        create_dict["pid"] = DProject.gen_pid(self.mail)
+        try:
+            DProject.objects.create(**create_dict)
+            self.add_project_to_list(create_dict["pid"])
+            return STATUS_CODE["success"], create_dict["pid"]
+        except:
+            return STATUS_CODE["create_project_fail"], -1
+
+    def delete_project(self, project):
+        if project.uid != self.uid:
+            return STATUS_CODE["user_not_project_owner"]
+        if project.status != PROJECT_STATUS["prepare"]:
+            return STATUS_CODE["project_non_deletable"]
+        remove_img_file(project.background_image)
+        self.delete_project_from_list(project.pid)
+        project.delete()
+        return STATUS_CODE["success"]
+
+    def add_project_to_list(self, pid):
+        project = eval(self.project)
+        project.append(pid)
+        self.project = str(project)
+        self.save(update_fields=["project"])
+        return STATUS_CODE["success"]
+
+    def delete_project_from_list(user, pid):
+        project = eval(user.project)
+        if pid in project:
+            project.remove(pid)
+            user.project = str(project)
+            user.save(update_fields=["project"])
+        return STATUS_CODE["success"]
+
+    @staticmethod
+    def gen_uid(seq=""):
+        id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
+        if DUser.objects.filter(uid=id):
+            id = DUser.gen_uid(seq=seq)
+        return id
+
     def short_donate_history(self):
         max_len = 256
         if len(str(self.donate_history)) > max_len:
@@ -126,6 +185,13 @@ class DProject(models.Model):
             return True
         except:
             return False
+
+    @staticmethod
+    def gen_pid(seq=""):
+        id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
+        if DProject.objects.filter(pid=id):
+            id = DProject.gen_pid(seq=seq)
+        return id
 
     def short_details(self):
         max_len = 256
