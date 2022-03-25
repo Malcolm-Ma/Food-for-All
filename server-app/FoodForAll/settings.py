@@ -202,7 +202,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
-            'when': 'midnight',
+            'when': 'D',
             'interval': 1,
             'backupCount': 365,
             'encoding': 'utf-8',

@@ -41,7 +41,7 @@ def login(request):
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
-        user = get_user({"mail": mail})
+        user = DUser.get_user({"mail": mail})
         if not user:
             response_data["status"] = STATUS_CODE["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -134,7 +134,7 @@ def regis(request):
     action = data["action"]
     response_data["action"] = action
     if action == regis_action["send_code"]:
-        if get_user({"mail": mail}):
+        if DUser.get_user({"mail": mail}):
             response_data["status"] = STATUS_CODE["mail_already_registered"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         code = gen_verify_code(mail, VERIFY_CODE_KEY_REGIS)
@@ -159,7 +159,7 @@ def regis(request):
         create_info = {"mail": mail}
         for i in ("password", "type", "region", "currency_type", "name", "avatar"):
             create_info[i] = data[i]
-        if not create_user(create_info):
+        if not DUser.create(create_info):
             response_data["status"] = STATUS_CODE["set_password_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         Mail.welcome(mail)
@@ -267,7 +267,7 @@ def reset_password(request, user):
     if user and mail != user.mail:
         response_data["status"] = STATUS_CODE["user_not_match"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
-    user = get_user({"mail": mail})
+    user = DUser.get_user({"mail": mail})
     if not user:
         response_data["status"] = STATUS_CODE["mail_not_registered"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")

@@ -98,15 +98,6 @@ def get_current_projects_dict(filtered_projects, current_page, project_num, orde
     current_projects_dict = projects_query2dict(current_projects, currency_type)
     return current_projects_dict, filter_projects_num
 
-def get_project(filter_dict):
-    if len(filter_dict) != 1 or "pid" not in filter_dict:
-        return ""
-    try:
-        r = DProject.objects.get(**filter_dict)
-        return r
-    except:
-        return ""
-
 def get_project_decorator(force_exist=True):
     def decorator(func):
         @wraps(func)
@@ -114,7 +105,7 @@ def get_project_decorator(force_exist=True):
             request = args[0]
             data = json.loads(request.body)
             pid = data["pid"]
-            project = get_project({"pid": pid})
+            project = DProject.get_project({"pid": pid})
             if not project and force_exist:
                 response_data = {"status": ""}
                 response_data["status"] = STATUS_CODE["project_not_exists"]

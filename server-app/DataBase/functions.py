@@ -81,7 +81,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
 
 def create_fake_project(uid, donate_history):
     donate_history = copy.deepcopy(donate_history)
-    user = get_user({"uid": uid})
+    user = DUser.get_user({"uid": uid})
     fake_project = {"pid": DProject.gen_pid(user.mail),
                     "uid": user.uid,
                     "title": "",
@@ -181,7 +181,7 @@ def init_database_with_fake_data(user_num=50, project_num=200):
     for i in range(project_num):
         donate_history = create_fake_project(owner_list[i], donate_history)
     for donor_uid in donate_history:
-        user = get_user({"uid": donor_uid})
+        user = DUser.get_user({"uid": donor_uid})
         user.donate_history = str(donate_history[donor_uid])
         user.project = str(list(donate_history[donor_uid].keys()))
         user.save(update_fields=["project", "donate_history"])

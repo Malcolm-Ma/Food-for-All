@@ -103,6 +103,9 @@ def remove_img_file(img_url):
         if os.path.exists(img_path):
             os.remove(img_path)
 
+def check_img_exist(img_url):
+    return os.path.isfile(os.path.join(IMG_DIR, os.path.basename(img_url)))
+
 def check_request_method_decorator(method=("POST",)):
     if type(method) == str:
         method = [method]

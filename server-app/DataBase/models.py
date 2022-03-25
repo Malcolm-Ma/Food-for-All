@@ -58,6 +58,37 @@ class DUser(models.Model):
         except:
             return False
 
+    @staticmethod
+    def create(create_dict):
+        must_fields = ["mail", "password", "type", "region", "currency_type", "name", "avatar"]
+        if not set(must_fields) == set(create_dict.keys()):
+            return False
+        if create_dict["type"] not in USER_TYPE.values():
+            return False
+        default_dict = {"uid": "",
+                        "project": "[]",
+                        "regis_time": int(time.time()),
+                        "last_login_time": int(time.time()),
+                        "donate_history": "{}",
+                        "share_mail_history": "[]"}
+        create_dict.update(default_dict)
+        create_dict["region"] = region2rid(create_dict["region"])
+        if not create_dict["region"]:
+            return False
+        create_dict["currency_type"] = currency2cid(create_dict["currency_type"])
+        if not create_dict["currency_type"]:
+            return False
+        if create_dict["name"] == "":
+            create_dict["name"] = create_dict["mail"]
+        if create_dict["avatar"] != "" and not check_img_exist(create_dict["avatar"]):
+            create_dict["avatar"] = ""
+        create_dict["uid"] = DUser.gen_uid(seq=create_dict["mail"])
+        try:
+            DUser.objects.create(**create_dict)
+            return True
+        except:
+            return False
+
     def create_project(self):
         if self.type != USER_TYPE["charity"]:
             return STATUS_CODE["user_not_charity"], -1
@@ -116,6 +147,16 @@ class DUser(models.Model):
         if DUser.objects.filter(uid=id):
             id = DUser.gen_uid(seq=seq)
         return id
+
+    @staticmethod
+    def get_user(filter_dict):
+        if len(filter_dict) != 1 or ("uid" not in filter_dict and "mail" not in filter_dict):
+            return ""
+        try:
+            r = DUser.objects.get(**filter_dict)
+            return r
+        except:
+            return ""
 
     def short_donate_history(self):
         max_len = 256
@@ -192,6 +233,16 @@ class DProject(models.Model):
         if DProject.objects.filter(pid=id):
             id = DProject.gen_pid(seq=seq)
         return id
+
+    @staticmethod
+    def get_project(filter_dict):
+        if len(filter_dict) != 1 or "pid" not in filter_dict:
+            return ""
+        try:
+            r = DProject.objects.get(**filter_dict)
+            return r
+        except:
+            return ""
 
     def short_details(self):
         max_len = 256

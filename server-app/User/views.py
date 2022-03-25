@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Login.functions import check_login
 from .functions import *
-from Project.functions import get_project, get_all_projects
+from Project.functions import get_all_projects
 from Logging.functions import *
 
 @api_logger_decorator()
