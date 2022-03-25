@@ -13,5 +13,7 @@ export default {
   currencyList: '/currency_list/',
   logout: '/logout/',
   projectList: '/get_projects_list/',
+  projectInfo: '/get_project_info/',
+  editUser: '/edit_user/',
   prepareProject: '/get_prepare_projects_list/',
 };
