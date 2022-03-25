@@ -80,13 +80,12 @@ export default () => {
   );
 
   const onFinish = async (values) => {
-
     try {
-      message.loading({content:'Loading'}, key);
+      message.loading({content: 'Loading'}, key);
       const createProjectRes = await actions.createProject();
-      console.log('createProjectRes.status\n', createProjectRes);
-      switch (createProjectRes.status) {
-        case 0:
+      console.log('createProjectRes\n', createProjectRes);
+      if (createProjectRes !== null) {
+        try {
           const editProjectRes = await actions.editProject({
             pid: createProjectRes.pid,
             currency_type: values.currency,
@@ -100,38 +99,18 @@ export default () => {
               price: values.price,
             }
           });
-          switch (editProjectRes.status) {
-            case 0:
-              navigate('/project/create/result');
-              await message.success({content: 'Successs!', key});
-              break;
-            case 1:
-              await message.error({content: "Please login first!", key});
-              break;
-            case 2:
-              await message.error({content: "Wrong currency type!", key});
-              break;
-            case 3:
-              await message.error({content: "Create project failed!", key});
-              break;
-            case 4:
-              await message.error({content: "You are not the project owner!", key});
-              break;
-            case 5:
-              await message.error({content: "Project edit failed!", key});
-              break;
+          if (editProjectRes !== null) {
+            navigate('/project/create/result');
+            await message.success({content: 'Success!', key});
           }
-          break;
-        case 1:
-          setIsModalVisible(true);
-          await message.error({content: "Please login first!", key});
-          break;
-        case 2:
-          await message.error({content: "You are not the charity", key});
-          break;
+        } catch (e) {
+          console.error(e);
+          await message.error({content: 'Edit Error! ERROR INFO: '+e.name, key});
+        }
       }
     } catch (e) {
-
+      console.error(e);
+      await message.error({content: "Create failed! ERROR INFO: "+e.name, key});
     }
   };
 
@@ -146,7 +125,7 @@ export default () => {
           name="nest-messages"
           onFinish={onFinish}
           initialValues={{
-            currency: userInfo.user_info.currency_type,
+            currency: userInfo.currency_type,
             price: 100,
             donation: 10,
           }}
@@ -160,7 +139,7 @@ export default () => {
         label="Price"
         rules={[{required: true, message: 'Please input the price'}]}
       >
-        <InputNumber name="price" min={1} addonAfter={suffixSelector} style={{width: '30%'}} onChange={(value)=>{setPrice(value)}}/>
+        <InputNumber name="price" min={1} addonAfter={suffixSelector} style={{width: '100%'}} onChange={(value)=>{setPrice(value)}}/>
       </Form.Item>
 
       <Form.Item
@@ -168,7 +147,7 @@ export default () => {
         label="Donation Amount"
         rules={[{required: true, message: 'Please input donation amount!'}]}
       >
-        <InputNumber name="donation" min={1} style={{width: '75%'}} onChange={(value)=>{setDonation(value)}}/>
+        <InputNumber name="donation" min={1} style={{width: '30%'}} onChange={(value)=>{setDonation(value)}}/>
       </Form.Item>
 
       <Form.Item name="sum" label="Total money">

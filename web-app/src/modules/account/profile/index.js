@@ -18,7 +18,6 @@ export default () => {
   const dispatch = useDispatch();
 
   const {userInfo} = useSelector(state => state.user);
-  const user_info = userInfo.user_info;
   const { regionList, currencyList } = useSelector(state => state.global);
   const currencyCode = currencyList.map(item => item.value);
 
@@ -33,9 +32,15 @@ export default () => {
   const [saveDisabled, setSaveDisabled] = useState(true);
   const [display, setDisplay] = useState("none");
   const [editDisplay, setEditDisplay] = useState(null);
-  const [name, setName] = useState(user_info.name);
+  const [name, setName] = useState(userInfo.name);
+  const [region, setRegion] = useState(userInfo.region);
+  const [currency, setCurrency] = useState(userInfo.currency_type);
 
   const handleDisplay = () => {
+    setNameColor(null);
+    setRegionColor(null);
+    setCurrencyColor(null);
+    setSaveDisabled(true);
     setDisplay(null);
     setEditDisplay("none");
   };
@@ -46,35 +51,34 @@ export default () => {
     setEditDisplay(null);
   };
 
-  // @Todo Upload edit info
   const handleSubmit = async (event) => {
     message.loading({content: 'Saving...'});
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    const editUserRes = await actions.editUser({
-      name: data.name,
-      region: data.region,
-      currency_type: data.currency,
-      avatar: user_info.avatar,
-    });
-    switch (editUserRes.status) {
-      case 0:
+    console.log(data);
+    try {
+      const editUserRes = await actions.editUser({
+        name: data.name,
+        region: data.region,
+        currency_type: data.currency,
+        avatar: userInfo.avatar,
+      });
+      if (editUserRes !== null) {
         setName(data.name);
+        setRegion(data.region);
+        setCurrency(data.currency);
         handleCancel();
         await message.success({content: 'Saved!', key});
-        break;
-      case 100001:
-        await message.error({content: 'Please login first!', key});
-        break;
-      case 100002:
-        await message.error({content: 'Save failed!', key});
+      }
+    } catch (e) {
+      await message.error({content: 'Edit Error! ERROR INFO: '+e.name, key});
     }
   };
 
   const handleChange = async (event) => {
     switch (event.target.name) {
       case "name":
-        if (event.target.value !== user_info.name) {
+        if (event.target.value !== name) {
           setNameColor("success");
           setSaveDisabled(false);
         } else if (regionColor === null && currencyColor === null){
@@ -85,7 +89,7 @@ export default () => {
         }
         break;
       case "region":
-        if (event.target.value !== user_info.region) {
+        if (event.target.value !== region) {
           setRegionColor("success");
           setSaveDisabled(false);
         } else if (nameColor === null && currencyColor === null){
@@ -96,7 +100,7 @@ export default () => {
         }
         break;
       case "currency":
-        if (event.target.value !== user_info.currency_type) {
+        if (event.target.value !== currency) {
           setCurrencyColor("success");
           setSaveDisabled(false);
         } else if (regionColor === null && nameColor === null){
@@ -150,7 +154,7 @@ export default () => {
           <Grid container spacing={4}>
             <Grid item xs={12}>
               <TextField
-                defaultValue={user_info.name}
+                defaultValue={userInfo.name}
                 required
                 fullWidth
                 id="name"
@@ -164,7 +168,7 @@ export default () => {
 
             <Grid item xs={12}>
               <Autocomplete
-                defaultValue={user_info.region}
+                defaultValue={userInfo.region}
                 disablePortal
                 fullWidth
                 id="region"
@@ -186,7 +190,7 @@ export default () => {
 
             <Grid item xs={12}>
               <Autocomplete
-                defaultValue={user_info.currency_type}
+                defaultValue={userInfo.currency_type}
                 disablePortal
                 fullWidth
                 id="currency"

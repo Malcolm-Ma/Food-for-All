@@ -16,8 +16,6 @@ import {
   Table,
   Space,
   Drawer,
-  Row,
-  Col,
   Select, InputNumber, Upload, message,
 } from "antd";
 
@@ -304,7 +302,7 @@ export default () => {
               name="nest-messages"
               onFinish={onFinish}
               initialValues={{
-                currency: userInfo.user_info.currency_type,
+                currency: userInfo.currency_type,
                 price: 100,
                 donation: 10,
               }}
