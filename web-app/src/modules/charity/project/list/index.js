@@ -121,16 +121,16 @@ const columnsConfig = (payloads) => {
       render: (text, record) => {
         const {status} = record.status;
         console.log(record);
-        return [
-        <Space size="middle">
-          <Button type="primary" onClick={showDrawer} disabled={status==="0"}>
-            Edit
-          </Button>
-          <Button type="primary" onClick={showModal} disabled={status!=="0"}>
-            Stop
-          </Button>
-        </Space>
-      ]
+        return (
+          <Space size="middle">
+            <Button type="primary" onClick={showDrawer} disabled={status==="0"}>
+              Edit
+            </Button>
+            <Button type="primary" onClick={showModal} disabled={status!=="0"}>
+              Stop
+            </Button>
+          </Space>
+        );
       }
     },
   ];
