@@ -4,6 +4,9 @@
  */
 
 import axios from "axios";
+import _ from 'lodash';
+
+import { STATUS_CODE } from 'src/constants/constants';
 
 const BASE_URL = 'http://localhost:8000'
 
@@ -13,12 +16,23 @@ export class Api {
       baseURL: BASE_URL,
     });
 
+    this.codeStatus = _.reduce(STATUS_CODE, (result, value, key) => {
+      result[value] = key;
+      return result;
+    }, {})
+
     this.axiosInstance.defaults.withCredentials = true;
 
     this.axiosInstance.interceptors.response.use((response) => {
       if (response.status === 200) {
         const { data } = response;
-        return data;
+        const { status, ...otherProps } = data;
+
+        if (status !== 0) {
+          return Promise.reject({ status, name: this.codeStatus[status] })
+        }
+
+        return otherProps;
       } else {
         message.error('Fall to request：' + response.status);
       }
