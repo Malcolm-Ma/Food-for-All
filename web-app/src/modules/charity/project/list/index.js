@@ -116,6 +116,7 @@ const columnsConfig = (payloads) => {
     {
       title: 'Action',
       key: 'action',
+      width: 160,
       render: (text, record) => (
         <Space size="middle">
           <Button type="primary" onClick={showDrawer}>
@@ -185,6 +186,7 @@ export default () => {
   const handleOk = () => {
     setModalText('Terminating project.');
     setConfirmLoading(true);
+
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
@@ -242,8 +244,8 @@ export default () => {
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                name="Title"
-                label="Name"
+                name="title"
+                label="Title"
                 rules={[{required: true, message: 'Please enter new title'}]}
               >
                 <Input placeholder="Please enter title"/>
