@@ -50,14 +50,6 @@ export default [
     exact: true,
   },
   {
-    path: '/project/edit',
-    component: loadable({
-      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/edit'),
-      loading: Loading,
-    }),
-    exact: true,
-  },
-  {
     path: '/account/profile',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
