@@ -18,11 +18,13 @@ import {
   Drawer,
   Row,
   Col,
-  Select, InputNumber,
+  Select, InputNumber, Upload, message,
 } from "antd";
 
 import actions from "src/actions";
 import _ from "lodash";
+import {InboxOutlined} from "@ant-design/icons";
+import {useDispatch, useSelector} from "react-redux";
 
 const { Option } = Select;
 
@@ -116,16 +118,20 @@ const columnsConfig = (payloads) => {
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
+      render: (text, record) => {
+        const {status} = record.status;
+        console.log(record);
+        return [
         <Space size="middle">
-          <Button type="primary" onClick={showDrawer}>
+          <Button type="primary" onClick={showDrawer} disabled={status==="0"}>
             Edit
           </Button>
-          <Button type="primary" onClick={showModal}>
+          <Button type="primary" onClick={showModal} disabled={status!=="0"}>
             Stop
           </Button>
         </Space>
-      ),
+      ]
+      }
     },
   ];
 }
@@ -133,6 +139,11 @@ const columnsConfig = (payloads) => {
 export default () => {
 
   const [projectInfo, setProjectInfo] = useState({});
+  const dispatch = useDispatch();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [price, setPrice] = useState(100);
+  const [donation, setDonation] = useState(10);
+
 
   const getProjectList = useCallback(async () => {
     try {
@@ -160,6 +171,14 @@ export default () => {
   }, []);
 
   useEffect(() => {
+    dispatch(actions.getUserInfo());
+    dispatch(actions.getCurrencyList());
+  }, [dispatch]);
+
+  const {userInfo} = useSelector(state => state.user);
+  const {currencyList} = useSelector(state => state.global);
+
+  useEffect(() => {
     getProjectList().catch(err => console.error(err));
   }, [getProjectList]);
 
@@ -182,6 +201,18 @@ export default () => {
     modalSetVisible(true);
   };
 
+  const handleUpload = async (file) => {
+    console.log('--file--\n', file);
+  };
+
+  const normFile = (e) => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
   const handleOk = () => {
     setModalText('Terminating project.');
     setConfirmLoading(true);
@@ -189,20 +220,41 @@ export default () => {
       modalSetVisible(false);
       setConfirmLoading(false);
     }, 3000);
+    setIsModalVisible(false);
   };
+
+  function disabledDate(current) {
+    // Can not select days before today and today
+    return current && current < moment().endOf('day');
+  }
 
   const handleCancel = () => {
     console.log('Clicked cancel button');
     modalSetVisible(false);
+    setIsModalVisible(false);
   };
-  const selectAfter = (
-    <Select defaultValue="GBP" style={{ width: 60 }}>
-      <Option value="USD">$</Option>
-      <Option value="EUR">€</Option>
-      <Option value="GBP">£</Option>
-      <Option value="CNY">¥</Option>
-    </Select>
+
+  const suffixSelector = (
+    <Form.Item name="currency" noStyle>
+      <Select
+        showSearch
+        style={{ width: 100 }}
+        placeholder="Search to Select"
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        }
+        filterSort={(optionA, optionB) =>
+          optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+        }
+      >
+        {currencyList.map(item => (
+          <Option value={item.value} key={item.value}>{item.value}</Option>
+        ))}
+      </Select>
+    </Form.Item>
   );
+
   const payloads = {
     drawVisible,
     modalVisible,
@@ -214,6 +266,15 @@ export default () => {
     handleOk,
     handleCancel,
   };
+
+  const onFinish = async (values) => {
+    try {
+      message.loading({content:'Loading'}, key);
+    } catch (e) {
+
+    }
+  };
+
   return (
     <div>
       <Table
@@ -226,7 +287,7 @@ export default () => {
         title="Edit Drawer"
         placement="right"
         onClose={onClose}
-        zIndex={10000}
+        // zIndex={10000}
         visible={drawVisible}
         bodyStyle={{paddingBottom: 80}}
         width={600}
@@ -238,69 +299,74 @@ export default () => {
             </Button>
           </Space>
         }>
-        <Form layout="vertical" hideRequiredMark>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="Title"
-                label="Name"
-                rules={[{required: true, message: 'Please enter new title'}]}
-              >
-                <Input placeholder="Please enter title"/>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="introduction"
-                label="Introduction"
-                rules={[
-                  {
-                    required: true,
-                    message: 'please enter new introduction',
-                  },
-                ]}
-              >
-                <Input.TextArea rows={4} placeholder="please enter introduction"/>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="num"
-                label="Num"
-                rules={[{required: true, message: 'Please enter new num'}]}
-              >
-                <InputNumber min={1} max={10000000} style={{ width: '100%' }}/>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="price"
-                label="Price"
-                rules={[{required: true, message: 'Please enter new price'}]}
-              >
-                <InputNumber addonAfter={selectAfter} min={1} max={30} style={{ width: '100%' }}/>
-              </Form.Item>
-            </Col>
+        <Form labelCol={{ span: 6 }}
+              wrapperCol={{ span: 12}}
+              name="nest-messages"
+              onFinish={onFinish}
+              initialValues={{
+                currency: userInfo.user_info.currency_type,
+                price: 100,
+                donation: 10,
+              }}
+        >
+          <Form.Item name="title" label="Title" rules={[{required: true, message: 'Please input the title'}]}>
+            <Input/>
+          </Form.Item>
 
-          </Row>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="dateTime"
-                label="DateTime"
-                rules={[{required: true, message: 'Please choose the dateTime'}]}
-              >
-                <DatePicker.RangePicker
-                  style={{ width: '100%' }}
-                  getPopupContainer={trigger => trigger.parentElement}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="price"
+            label="Price"
+            rules={[{required: true, message: 'Please input the price'}]}
+          >
+            <InputNumber name="price" min={1} addonAfter={suffixSelector} style={{width: '100%'}} onChange={(value)=>{setPrice(value)}}/>
+          </Form.Item>
+
+          <Form.Item
+            name="donation"
+            label="Donation Amount"
+            rules={[{required: true, message: 'Please input donation amount!'}]}
+          >
+            <InputNumber name="donation" min={1} style={{width: '100%'}} onChange={(value)=>{setDonation(value)}}/>
+          </Form.Item>
+
+          <Form.Item name="sum" label="Total money">
+            <span>{price * donation}</span>
+          </Form.Item>
+
+          <Form.Item name="projectTime" label="Deadline" rules={[{required: true, message: 'Please select deadline!'}]}>
+            <DatePicker disabledDate={disabledDate}/>
+          </Form.Item>
+
+          <Form.Item name="introduction" label="Introduction" rules={[{required: true, message: 'Please write the introduction!'}]}>
+            <Input.TextArea/>
+          </Form.Item>
+
+          <Form.Item name="details" label="Details">
+            <Input.TextArea/>
+          </Form.Item>
+
+          <Form.Item label="Background Image">
+            <Form.Item name="background_image" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+              <Upload.Dragger name="files" action={handleUpload}>
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined/>
+                </p>
+                <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                <p className="ant-upload-hint">Support for a single or bulk upload.</p>
+              </Upload.Dragger>
+            </Form.Item>
+          </Form.Item>
+
+          {/* @Todo add submit Success page*/}
+          <Form.Item wrapperCol={{offset: 6}}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+
+          <Modal title="Error!" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <p>You have not logged in! Please login first!</p>
+          </Modal>
         </Form>
       </Drawer>
       <Modal

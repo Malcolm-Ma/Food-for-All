@@ -167,7 +167,7 @@ export default () => {
         label="Donation Amount"
         rules={[{required: true, message: 'Please input donation amount!'}]}
       >
-        <InputNumber name="donation" min={1} style={{width: '30%'}} onChange={(value)=>{setDonation(value)}}/>
+        <InputNumber name="donation" min={1} style={{width: '75%'}} onChange={(value)=>{setDonation(value)}}/>
       </Form.Item>
 
       <Form.Item name="sum" label="Total money">
