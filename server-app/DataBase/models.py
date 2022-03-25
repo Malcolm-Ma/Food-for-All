@@ -1,5 +1,7 @@
 from django.db import models
 from Common.common import *
+from django.db.models import F, Q
+import math
 
 USER_TYPE = {"admin": 0,
              "charity": 1,
@@ -190,7 +192,7 @@ class DProject(models.Model):
     price = models.FloatField()
     donate_history = models.TextField()
 
-    def to_dict(self, fields=tuple()):
+    def to_dict(self, fields=tuple(), currency_type=""):
         self.auto_update_status()
         project_dict = {}
         allow_fields = ("pid", "uid", "title", "intro", "region", "charity", "charity_avatar", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history")
@@ -200,6 +202,12 @@ class DProject(models.Model):
         for i in ("donate_history", ):
             if i in fields:
                 project_dict[i] = eval(project_dict[i])
+        if currency_type and "price" in fields:
+            cid = currency2cid(currency_type)
+            if cid:
+                project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
+            else:
+                return {}
         return project_dict
 
     def auto_update_status(self):
@@ -257,6 +265,81 @@ class DProject(models.Model):
             return '{}...'.format(str(self.donate_history)[:max_len])
         else:
             return str(self.donate_history)
+
+class DProjectQuery(object):
+
+    order_list = ["title", "-title", "charity", "-charity", "price", "-price",
+                  "start_time", "-start_time", "end_time", "-end_time", "progress", "-progress"]
+
+    def __init__(self):
+        self.model = DProject
+        self.query = ""
+
+    def to_dict(self, fields=tuple(), currency_type=""):
+        projects_dict = {}
+        allow_fields = ("pid", "uid", "title", "intro", "region", "charity", "charity_avatar", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history")
+        fields = allow_fields if not fields else [i for i in fields if i in allow_fields]
+        if currency_type and "price" in fields and not currency2cid(currency_type):
+            return projects_dict
+        for i in range(len(self.query)):
+            projects_dict[str(i)] = self.query[i].to_dict(fields=fields, currency_type=currency_type)
+        return projects_dict
+
+    def get_all(self, uid=""):
+        if uid:
+            self.query = self.model.objects.filter(uid=uid)
+        else:
+            self.query = self.model.objects.all()
+        return self.query
+
+    def get_ready(self, uid="", valid_only=1):
+        exclude_conditions = {}
+        filter_conditions = {}
+        if valid_only:
+            filter_conditions.update({"status": PROJECT_STATUS["ongoing"], "current_num__lt": F("total_num"), "end_time__gt": int(time.time())})
+        else:
+            exclude_conditions.update({"status": PROJECT_STATUS["prepare"]})
+        if uid:
+            filter_conditions.update({"uid": uid})
+        self.query = self.model.objects.filter(**filter_conditions).exclude(**exclude_conditions)
+        return self.query
+
+    def get_prepare(self, uid):
+        self.query = self.model.objects.filter(**{"uid": uid, "status": PROJECT_STATUS["prepare"]})
+        return self.query
+
+    def order_by(self, order):
+        if order not in self.order_list:
+            return ""
+        if not self.query:
+            return self.query
+        if order == "progress":
+            order = F('current_num') / F('total_num')
+        elif order == "-progress":
+            order = -F('current_num') / F('total_num')
+        self.query = self.query.order_by(order)
+        return self.query
+
+    def search(self, key_word):
+        if key_word == "" or not self.query:
+            return self.query
+        q = Q()
+        for w in key_word.split():
+            q = q | Q(title__icontains=w) | Q(intro__icontains=w) | Q(charity__icontains=w)  # | Q(details__icontains = w)
+        self.query = self.query.filter(q)
+        return self.query
+
+    def filter(self, current_batch, batch_size, order, key_word, currency_type):
+        self.query.search(key_word)
+        self.query.order_by(order)
+        total_num = len(self.query)
+        batch_num = math.ceil(total_num / batch_size)
+        self.query = self.query[(current_batch - 1) * batch_size: min(current_batch * batch_size, total_num)]
+        projects_dict = self.to_dict(fields=["pid", "uid", "title", "intro", "region",
+                                             "charity", "charity_avatar", "background_image", "price",
+                                             "current_num", "total_num", "start_time", "end_time", "status"],
+                                             currency_type=currency_type)
+        return projects_dict, batch_num
 
 class Param(models.Model):
     key = models.CharField(max_length=256)

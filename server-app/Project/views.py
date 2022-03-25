@@ -289,7 +289,7 @@ def get_project_info(request, project):
     #pid = data["pid"]
     #project = get_project({"pid": pid})
     #if project:
-    response_data["project_info"] = project2dict(project, currency_type=currency_type)
+    response_data["project_info"] = project.to_dict(currency_type=currency_type)
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 

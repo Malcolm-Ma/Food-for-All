@@ -58,9 +58,5 @@ def check_login(request):
     url = get_request_url(request)
     agent = request.META['HTTP_USER_AGENT']
     if s and cookie_time >= 0 and cookie_time < COOKIE_EXPIRES and url == u[:len(url)] and agent == a[:len(agent)]:
-        try:
-            user = DUser.objects.get(**{"uid": s[:32]})
-            return user
-        except:
-            return ""
+        return DUser.get_user({"uid": s[:32]})
     return ""

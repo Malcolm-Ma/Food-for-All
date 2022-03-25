@@ -24,22 +24,12 @@ project_info_dict = {"pid": "",
 projects_orders = ["title", "-title", "charity", "-charity", "price", "-price",
                    "start_time", "-start_time", "end_time", "-end_time", "progress", "-progress"]
 
-def project2dict(project, fields=(), currency_type=""):
-    project_dict = project.to_dict(fields)
-    if "price" in fields or len(fields) == 0:
-        cid = currency2cid(currency_type)
-        if cid:
-            project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
-        else:
-            return {}
-    return project_dict
-
 def projects_query2dict(projects_query, currency_type=CID2CURRENCY["GBP"]):
     projects = {}
     cid = currency2cid(currency_type)
     if cid:
         for i in range(len(projects_query)):
-            projects[str(i)] = project2dict(projects_query[i], fields=["pid", "title", "intro", "region",
+            projects[str(i)] = projects_query[i].to_dict(fields=["pid", "title", "intro", "region",
                                             "charity", "charity_avatar", "background_image", "price",
                                             "current_num", "total_num", "start_time", "end_time", "status"],
                                             currency_type=currency_type)
