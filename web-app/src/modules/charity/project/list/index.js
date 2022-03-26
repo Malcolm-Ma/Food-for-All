@@ -23,6 +23,7 @@ import actions from "src/actions";
 import _ from "lodash";
 import {InboxOutlined} from "@ant-design/icons";
 import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 
 const { Option } = Select;
 
@@ -79,15 +80,16 @@ const columnsConfig = (payloads) => {
       title: 'Total Num',
       dataIndex: 'total_num',
     },
-    {
-      title: 'Start Time',
-      key: 'start_time',
-      render: (text, record) => {
-        const {start_time: startTime} = record;
-        const timeOfStart = moment(startTime).format("YYYY-MM-DD");
-        return timeOfStart;
-      }
-    },
+    // @Todo prepared project don't have start time
+    // {
+    //   title: 'Start Time',
+    //   key: 'start_time',
+    //   render: (text, record) => {
+    //     const {start_time: startTime} = record;
+    //     const timeOfStart = moment(startTime).format("YYYY-MM-DD");
+    //     return timeOfStart;
+    //   }
+    // },
     {
       title: 'End Time',
       key: 'end_time',
@@ -134,6 +136,10 @@ const columnsConfig = (payloads) => {
 }
 
 export default () => {
+
+  const key = 'MessageKey';
+
+  const navigate = useNavigate();
 
   const [projectInfo, setProjectInfo] = useState({});
   const dispatch = useDispatch();
@@ -270,10 +276,28 @@ export default () => {
   };
 
   const onFinish = async (values) => {
+    message.loading({content: 'Loading'}, key);
     try {
-      message.loading({content:'Loading'}, key);
+      const editProjectRes = await actions.editProject({
+        pid: targetProject.pid,
+        currency_type: values.currency,
+        edit: {
+          title: values.title,
+          intro: values.introduction,
+          background_image: "",
+          total_num: values.donation,
+          end_time: moment(values.projectTime).unix(),
+          details: values.details,
+          price: values.price,
+        }
+      });
+      if (editProjectRes !== null) {
+        navigate('/project/create/result');
+        await message.success({content: 'Success!', key});
+      }
     } catch (e) {
-
+      console.error(e);
+      await message.error({content: 'Edit Error! ERROR INFO: '+e.name, key});
     }
   };
 
