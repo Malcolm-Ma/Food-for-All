@@ -165,15 +165,18 @@ def create_fake_project(uid, donate_history):
     return donate_history
 
 def init_database_with_fake_data(user_num=50, project_num=200):
-    clear_database()
-    guest_list = []
-    charity_list = []
-    for _ in range(user_num):
-        fake_user_uid, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
-        if fake_user_type == USER_TYPE["charity"]:
-            charity_list.append(fake_user_uid)
-        else:
-            guest_list.append(fake_user_uid)
+    for _ in range(5):
+        clear_database()
+        guest_list = []
+        charity_list = []
+        for _ in range(user_num):
+            fake_user_uid, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
+            if fake_user_type == USER_TYPE["charity"]:
+                charity_list.append(fake_user_uid)
+            else:
+                guest_list.append(fake_user_uid)
+        if len(guest_list) != 0 and len(charity_list) != 0:
+            break
     owner_list = random.choices(charity_list, k=project_num)
     donate_history = {}
     for i in guest_list:

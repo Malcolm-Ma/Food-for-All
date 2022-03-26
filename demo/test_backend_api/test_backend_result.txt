@@ -2,7 +2,6 @@
 [Success] - [400                           ] - [POST] - [400   ]
 [Success] - [upload_img/                   ] - [POST] - [0     ]
 [Success] - [upload_doc/                   ] - [POST] - [0     ]
-[Success] - [init_database/                ] - [POST] - [0     ]
 [Success] - [init_database/                ] - [GET ] - [0     ]
 [Success] - [region_list/                  ] - [GET ] - [0     ]
 [Success] - [currency_list/                ] - [GET ] - [0     ]
