@@ -334,7 +334,8 @@ export default () => {
                 price: targetProject.price,
                 donation: targetProject.total_num,
                 title: targetProject.title,
-                projectTime: targetProject.end_time,
+                // @Todo convert moment
+                // projectTime: targetProject.end_time,
                 introduction: targetProject.introduction,
               }}
         >
