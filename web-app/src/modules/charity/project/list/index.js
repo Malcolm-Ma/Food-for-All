@@ -95,7 +95,7 @@ const columnsConfig = (payloads) => {
       key: 'end_time',
       render: (text, record) => {
         const {end_time: endTime} = record;
-        const timeOfEnd = moment(endTime).format("YYYY-MM-DD");
+        const timeOfEnd = moment(endTime * 1000).format("YYYY-MM-DD");
         return timeOfEnd;
       }
     },
@@ -292,8 +292,8 @@ export default () => {
         }
       });
       if (editProjectRes !== null) {
-        navigate('/project/create/result');
-        await message.success({content: 'Success!', key});
+        await message.success({content: 'Success! Waiting for refreshing...', duration: 1, key});
+        location.reload();
       }
     } catch (e) {
       console.error(e);
@@ -334,9 +334,8 @@ export default () => {
                 price: targetProject.price,
                 donation: targetProject.total_num,
                 title: targetProject.title,
-                // @Todo convert moment
-                // projectTime: targetProject.end_time,
-                introduction: targetProject.introduction,
+                projectTime: moment(targetProject.end_time * 1000),
+                introduction: targetProject.intro,
               }}
         >
           <Form.Item name="title" label="Title" rules={[{required: true, message: 'Please input the title'}]}>
