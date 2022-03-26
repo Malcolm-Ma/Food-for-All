@@ -4,7 +4,7 @@ from Login.functions import check_login
 from .functions import *
 import math
 from User.functions import get_user_decorator
-from Logging.functions import *
+from Common.logging import *
 
 @api_logger_decorator()
 @check_request_method_decorator(method=["POST", "GET"])

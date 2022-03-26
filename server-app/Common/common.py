@@ -1,4 +1,5 @@
 from .functions import *
+from .utils import *
 
 COOKIE_KEY = "apex"
 COOKIE_EXPIRES = 7 * 24 * 60 * 60
@@ -90,21 +91,6 @@ def check_verify_code(id_str, usefor_str, code, expires=VERIFY_CODE_EXPIRES):
     if code in gen_verify_code(id_str, usefor_str, expires=expires, if_check=True):
         return True
     return False
-
-def get_request_url(request):
-    url = request.META.get('HTTP_X_FORWARDED_FOR')
-    if not url:
-        url = request.META.get('REMOTE_ADDR')
-    return url
-
-def remove_img_file(img_url):
-    if img_url:
-        img_path = os.path.join(IMG_DIR, os.path.basename(img_url))
-        if os.path.exists(img_path):
-            os.remove(img_path)
-
-def check_img_exist(img_url):
-    return os.path.isfile(os.path.join(IMG_DIR, os.path.basename(img_url)))
 
 def check_request_method_decorator(method=("POST",)):
     if type(method) == str:

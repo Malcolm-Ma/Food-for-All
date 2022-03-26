@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Mail.functions import Mail
 from .functions import *
-from Logging.functions import *
+from Common.logging import *
 from User.functions import *
 
 @api_logger_decorator()

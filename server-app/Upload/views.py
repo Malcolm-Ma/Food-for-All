@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from .functions import *
-from Logging.functions import *
+from Common.logging import *
 
 @api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
@@ -30,7 +30,7 @@ def upload_img(request):
     file_obj = request.FILES.get('img')
     file_name = gen_img_name(file_obj.name)
     img_path = os.path.join(IMG_DIR, file_name)
-    write_file(img_path, file_obj, 'wb')
+    write_file_from_obj(img_path, file_obj, 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -63,7 +63,7 @@ def upload_doc(request):
     file_obj = request.FILES.get('doc')
     file_name = gen_doc_name(file_obj.name)
     doc_path = os.path.join(DOC_DIR, file_name)
-    write_file(doc_path, file_obj, 'wb')
+    write_file_from_obj(doc_path, file_obj, 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")

@@ -1,7 +1,7 @@
 import json
 from django.http import HttpResponse, HttpResponseBadRequest
 from .common import *
-from Logging.functions import *
+from Common.logging import *
 
 @api_logger_decorator()
 @check_request_method_decorator(method=["GET"])

@@ -3,7 +3,7 @@ import json
 from Login.functions import check_login
 from .functions import *
 from Project.functions import get_all_projects
-from Logging.functions import *
+from Common.logging import *
 
 @api_logger_decorator()
 @check_request_method_decorator(method=["GET"])

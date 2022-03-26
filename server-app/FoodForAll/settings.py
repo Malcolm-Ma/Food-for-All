@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'Apidoc',
     'Common',
     'DataBase',
-    'Logging',
     'Login',
     'Mail',
     'Payment',
