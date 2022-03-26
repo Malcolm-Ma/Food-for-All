@@ -82,7 +82,7 @@ class DUser(models.Model):
             return False
         if create_dict["name"] == "":
             create_dict["name"] = create_dict["mail"]
-        if create_dict["avatar"] != "" and not check_img_exist(create_dict["avatar"]):
+        if create_dict["avatar"] != "" and not check_url_file_exist(create_dict["avatar"], "img"):
             create_dict["avatar"] = ""
         create_dict["uid"] = DUser.gen_uid(seq=create_dict["mail"])
         try:
@@ -123,7 +123,7 @@ class DUser(models.Model):
             return STATUS_CODE["user_not_project_owner"]
         if project.status != PROJECT_STATUS["prepare"]:
             return STATUS_CODE["project_non_deletable"]
-        remove_img_file(project.background_image)
+        remove_url_file(project.background_image, "img")
         self.delete_project_from_list(project.pid)
         project.delete()
         return STATUS_CODE["success"]

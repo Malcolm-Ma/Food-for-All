@@ -4,6 +4,7 @@ from Mail.functions import Mail
 from .functions import *
 from Common.logging import *
 from User.functions import *
+from django.contrib.auth.hashers import make_password, check_password
 
 @api_logger_decorator()
 @check_request_method_decorator(method=["POST"])
@@ -45,7 +46,7 @@ def login(request):
         if not user:
             response_data["status"] = STATUS_CODE["wrong_username"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        elif user.password != password:
+        elif not check_password(password, user.password):
             response_data["status"] = STATUS_CODE["wrong_password"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
@@ -157,8 +158,9 @@ def regis(request):
             response_data["status"] = STATUS_CODE["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         create_info = {"mail": mail}
-        for i in ("password", "type", "region", "currency_type", "name", "avatar"):
+        for i in ("type", "region", "currency_type", "name", "avatar"):
             create_info[i] = data[i]
+        create_info["password"] = make_password(data["password"])
         if not DUser.create(create_info):
             response_data["status"] = STATUS_CODE["set_password_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -291,7 +293,7 @@ def reset_password(request, user):
         if not check_verify_code(mail, VERIFY_CODE_KEY_RESET_PASSWORD, code):
             response_data["status"] = STATUS_CODE["code_verify_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
-        update_info = {"password": data["password"]}
+        update_info = {"password": make_password(data["password"])}
         if not user.update_from_fict(update_info):
             response_data["status"] = STATUS_CODE["set_password_fail"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")

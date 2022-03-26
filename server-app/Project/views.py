@@ -453,7 +453,7 @@ def edit_project(request, user, project):
         response_data["status"] = STATUS_CODE["edit_project_fail"]
     else:
         if "background_image" in edit_dict:
-            remove_img_file(background_image_url)
+            remove_url_file(background_image_url, "img")
         response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 

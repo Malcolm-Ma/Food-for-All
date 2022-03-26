@@ -28,9 +28,8 @@ def upload_img(request):
     #    return HttpResponseBadRequest()
     response_data = {"status": "", "url": ""}
     file_obj = request.FILES.get('img')
-    file_name = gen_img_name(file_obj.name)
-    img_path = os.path.join(IMG_DIR, file_name)
-    write_file_from_obj(img_path, file_obj, 'wb')
+    file_name = gen_file_name(file_obj.name, "img")
+    write_file_from_obj(file_name, file_obj, "img", 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -61,9 +60,8 @@ def upload_doc(request):
     response_data = {"status": "",
                      "url": ""}
     file_obj = request.FILES.get('doc')
-    file_name = gen_doc_name(file_obj.name)
-    doc_path = os.path.join(DOC_DIR, file_name)
-    write_file_from_obj(doc_path, file_obj, 'wb')
+    file_name = gen_file_name(file_obj.name, "doc")
+    write_file_from_obj(file_name, file_obj, "doc", 'wb')
     response_data["url"] = os.path.join(STATIC_URL, file_name)
     response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")

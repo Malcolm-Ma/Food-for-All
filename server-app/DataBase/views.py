@@ -13,5 +13,9 @@ def init_database(request):
     #    project_num = data["project_num"]
     else:
         return HttpResponseBadRequest()
-    init_database_with_fake_data(user_num, project_num)
-    return HttpResponse(json.dumps({"user_num": user_num, "project_num": project_num}), content_type="application/json")
+    user_list = init_database_with_fake_data(user_num, project_num)
+    with open(os.path.join('../demo/test_backend_api', "init_database_user.csv"), 'w', newline='') as f:
+        writer = csv.writer(f)
+        for row in user_list:
+            writer.writerow(row)
+    return HttpResponse(json.dumps({"user_num": user_num, "project_num": project_num, "user_list": user_list[1:]}), content_type="application/json")

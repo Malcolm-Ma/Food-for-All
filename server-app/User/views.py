@@ -144,7 +144,7 @@ def edit_user(request, user):
         response_data["status"] = STATUS_CODE["edit_user_info_fail"]
     else:
         if "avatar" in edit_dict:
-            remove_img_file(avatar_url)
+            remove_url_file(avatar_url, "img")
         if user.type == USER_TYPE["charity"]:
             edit_dict = {}
             if "name" in data:
