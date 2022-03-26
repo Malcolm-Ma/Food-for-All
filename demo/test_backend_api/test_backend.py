@@ -51,6 +51,9 @@ STATUS_CODE = {"success": 0,
                "set_password_fail": 100008,
                "mail_not_registered": 100009,
                "user_not_match": 100010,
+               "wrong user type": 100011,
+               "wrong parameters for user creation": 100012,
+               "user creation failed": 100013,
                "create_project_fail": 200001,
                "project_not_exists": 200002,
                "user_not_project_owner": 200003,
@@ -63,11 +66,17 @@ STATUS_CODE = {"success": 0,
                "stop_project_fail": 200010,
                "project_non_stopable": 200011,
                "project_end_time_invalid": 200012,
+               "project status invalid": 200013,
+               "project price invalid": 200014,
                "wrong_currency_type": 300001,
                "mail_send_fail": 300002,
                "code_verify_fail": 300003,
                "wrong_action": 300004,
+               "write to file failed": 300005,
+               "wrong region name or code": 300006,
                "request_parameters_wrong": 400001,
+               "unable to get image file from request": 400002,
+               "unable to get document file from request": 400003,
                }
 
 main_url = "http://127.0.0.1:8000/"
@@ -136,14 +145,24 @@ def check_wrong_request_params():
     return result_text
 
 def check_upload(api, key, file):
-    with open(file, "rb") as f:
-        r = rs.post(url_dict[api], headers=headers, files={key: f, 'Content-Type': 'multipart/form-data'})
-    if len(re.findall(r'{"status": 0, "url": "static/.+"}', r.text)) == 1:
-        result = "Success"
+    if file:
+        with open(file, "rb") as f:
+            r = rs.post(url_dict[api], headers=headers, files={key: f, 'Content-Type': 'multipart/form-data'})
+        if len(re.findall(r'{"status": 0, "url": "static/.+"}', r.text)) == 1:
+            result = "Success"
+        else:
+            result = "Fail"
+        result_text = "[{result:<7s}] - [{api:<30s}] - [{method:<4s}] - [{code:<6s}]".format(result=result, api=api,
+                                                                                             method="POST", code="0")
     else:
-        result = "Fail"
-    result_text = "[{result:<7s}] - [{api:<30s}] - [{method:<4s}] - [{code:<6s}]".format(result=result, api=api,
-                                                                                        method="POST", code="0")
+        code_dict = {"img": "400002", "doc": "400003"}
+        r = rs.post(url_dict[api], headers=headers)
+        if len(re.findall(r'{"status": %s}' % code_dict[key], r.text)) == 1:
+            result = "Success"
+        else:
+            result = "Fail"
+        result_text = "[{result:<7s}] - [{api:<30s}] - [{method:<4s}] - [{code:<6s}]".format(result=result, api=api,
+                                                                                             method="POST", code=code_dict[key])
     print(result_text)
     return result_text
 
@@ -171,7 +190,10 @@ if __name__ == "__main__":
                 f.write(check_wrong_request_method() + "\n")
                 f.write(check_wrong_request_params() + "\n")
                 f.write(check_upload('upload_img/', 'img', os.path.join(path, "test.jpg")) + "\n")
+                f.write(check_upload('upload_img/', 'img', "") + "\n")
                 f.write(check_upload('upload_doc/', 'doc', os.path.join(path, "test.txt")) + "\n")
+                f.write(check_upload('upload_doc/', 'doc', "") + "\n")
+                #300005 can't be test
                 for api in ['init_database/', 'region_list/', 'currency_list/', 'region2currency/']:
                     for code in correct_response[api]:
                         for method, data, answer in correct_response[api][code]:
@@ -201,10 +223,14 @@ if __name__ == "__main__":
                 f.write(check_api('regis/', STATUS_CODE["code_verify_fail"], "POST", {"username": mail, "action": 1, "code": "testtest"}, '{"status": %d, "action": 1}' % STATUS_CODE["code_verify_fail"]) + "\n")
                 code = gen_verify_code(mail, "regis")#input("Input registration verification code: ")
                 f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 1, "code": code}, '{"status": %d, "action": 1}' % STATUS_CODE["success"]) + "\n")
-                f.write(check_api('regis/', STATUS_CODE["set_password_fail"], "POST", {"username": mail, "action": 2, "code": code, "password": "123456", "region": "CNY", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["set_password_fail"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["wrong parameters for user creation"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": ""}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong parameters for user creation"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["wrong user type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 9}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong user type"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["wrong region name or code"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "testCN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong region name or code"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["wrong_currency_type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "testGBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong_currency_type"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["success"]) + "\n")
                 user_login(mail, password)
                 f.write(check_api('regis/', STATUS_CODE["user_already_logged_in"], "POST", {"username": mail, "action": 0}, '{"status": %d.*}' % STATUS_CODE["user_already_logged_in"]) + "\n")
+                #100013 can't be test
 
                 f.write(check_api('reset_password/', STATUS_CODE["wrong_action"], "POST", {"username": mail, "action": 4}, '{"status": %d, "action": 4}' % STATUS_CODE["wrong_action"]) + "\n")
                 f.write(check_api('reset_password/', STATUS_CODE["user_not_match"], "POST", {"username": user["mail"], "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["user_not_match"]) + "\n")
@@ -221,14 +247,16 @@ if __name__ == "__main__":
                 user_login(user["mail"], user["password"])
                 f.write(check_api('get_user_info/', STATUS_CODE["success"], "GET", "", '{"status": %d, "user_info": {"uid": "%s", "mail": "%s", .*}' % (STATUS_CODE["success"], user["uid"], user["mail"])) + "\n")
 
-                f.write(check_api('edit_user/', STATUS_CODE["edit_user_info_fail"], "POST", {"name": "test", "region": "Afg", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["edit_user_info_fail"]) + "\n")
+                f.write(check_api('edit_user/', STATUS_CODE["wrong_currency_type"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "testUSD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["wrong_currency_type"]) + "\n")
+                f.write(check_api('edit_user/', STATUS_CODE["wrong region name or code"], "POST", {"name": "test", "region": "testAfghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["wrong region name or code"]) + "\n")
                 f.write(check_api('edit_user/', STATUS_CODE["success"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
                 user_logout()
                 f.write(check_api('edit_user/', STATUS_CODE["user_not_logged_in"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["user_not_logged_in"]) + "\n")
+                #100002 can't be test
 
                 f.write(check_api('create_project/', STATUS_CODE["user_not_logged_in"], "GET", "", '{"status": %d}' % STATUS_CODE["user_not_logged_in"]) + "\n")
                 user_login(mail, reset_password)
-                f.write(check_api('create_project/', STATUS_CODE["user_not_charity"], "GET", "", '{"status": %d.*}' % STATUS_CODE["user_not_charity"]) + "\n")
+                f.write(check_api('create_project/', STATUS_CODE["user_not_charity"], "GET", "", '{"status": %d}' % STATUS_CODE["user_not_charity"]) + "\n")
                 user_logout()
                 user_login(user["mail"], user["password"])
                 f.write(check_api('create_project/', STATUS_CODE["success"], "GET", "", '{"status": %d, "pid": "[0-9a-z]*"}' % STATUS_CODE["success"]) + "\n")
@@ -252,6 +280,7 @@ if __name__ == "__main__":
                 user_login(user["mail"], user["password"])
                 f.write(check_api('start_project/', STATUS_CODE["project_not_exists"], "POST", {"pid": "test" + project["pid"]}, '{"status": %d}' % STATUS_CODE["project_not_exists"]) + "\n")
                 f.write(check_api('start_project/', STATUS_CODE["project_information_incomplete"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project_information_incomplete"]) + "\n")
+                f.write(check_api('edit_project/', STATUS_CODE["project price invalid"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) + 24 * 60 * 60, "details": "apex", "price": -100}}, '{"status": %d}' % STATUS_CODE["project price invalid"]) + "\n")
                 f.write(check_api('edit_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) + 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('start_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('edit_project/', STATUS_CODE["project_non_editable"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["project_non_editable"]) + "\n")
@@ -283,7 +312,8 @@ if __name__ == "__main__":
                 project_tmp = get_one_cursor_dict(cursor)
                 f.write(check_api('delete_project/', STATUS_CODE["success"], "POST", {"pid": project_tmp["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
 
-                f.write(check_api('get_project_info/', STATUS_CODE["project_not_exists"], "POST", {"pid": "test" + project["pid"], "currency_type": "CNY"}, '{"status": %d.*}' % STATUS_CODE["project_not_exists"]) + "\n")
+                f.write(check_api('get_project_info/', STATUS_CODE["project_not_exists"], "POST", {"pid": "test" + project["pid"], "currency_type": "CNY"}, '{"status": %d}' % STATUS_CODE["project_not_exists"]) + "\n")
+                f.write(check_api('get_project_info/', STATUS_CODE["wrong_currency_type"], "POST", {"pid": project["pid"], "currency_type": "testCNY"}, '{"status": %d}' % STATUS_CODE["wrong_currency_type"]) + "\n")
                 f.write(check_api('get_project_info/', STATUS_CODE["success"], "POST", {"pid": project["pid"], "currency_type": "CNY"}, '{"status": %d, "project_info": {"pid": "%s", "uid": "%s", .*}' % (STATUS_CODE["success"], project["pid"], project["uid"])) + "\n")
 
                 f.write(check_api('get_prepare_projects_list/', STATUS_CODE["success"], "POST", {"currency_type": "CNY", "page_info": {"page_size": 3, "page": 1}, "search": "q"}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")

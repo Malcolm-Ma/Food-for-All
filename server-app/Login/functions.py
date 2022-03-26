@@ -1,4 +1,3 @@
-from Common.common import *
 from DataBase.models import *
 
 regis_action = {"send_code": 0,

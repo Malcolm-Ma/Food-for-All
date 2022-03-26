@@ -1,5 +1,8 @@
 from .functions import *
-from .utils import *
+from .models import *
+import logging
+
+logger_standard = logging.getLogger('standard')
 
 COOKIE_KEY = "apex"
 COOKIE_EXPIRES = 7 * 24 * 60 * 60
@@ -16,36 +19,6 @@ CURRENCY2CID, CID2CURRENCY = create_currency_list()
 RID2CID = create_region_currency_list()
 EXCHANGE_RATE = create_exchange_rate()
 REGION2CURRENCY = dict([[RID2REGION[i], CID2CURRENCY[j]] for i,j in RID2CID.items()])
-
-STATUS_CODE = {"success": 0,
-               "user_not_logged_in": 100001,
-               "edit_user_info_fail": 100002,
-               "user_not_charity": 100003,
-               "user_already_logged_in": 100004,
-               "wrong_username": 100005,
-               "wrong_password": 100006,
-               "mail_already_registered": 100007,
-               "set_password_fail": 100008,
-               "mail_not_registered": 100009,
-               "user_not_match": 100010,
-               "create_project_fail": 200001,
-               "project_not_exists": 200002,
-               "user_not_project_owner": 200003,
-               "project_non_deletable": 200004,
-               "edit_project_fail": 200005,
-               "project_non_editable": 200006,
-               "project_information_incomplete": 200007,
-               "start_project_fail": 200008,
-               "project_non_startable": 200009,
-               "stop_project_fail": 200010,
-               "project_non_stopable": 200011,
-               "project_end_time_invalid": 200012,
-               "wrong_currency_type": 300001,
-               "mail_send_fail": 300002,
-               "code_verify_fail": 300003,
-               "wrong_action": 300004,
-               "request_parameters_wrong": 400001,
-               }
 
 def region2rid(region):
     if region in REGION2RID:
@@ -92,32 +65,8 @@ def check_verify_code(id_str, usefor_str, code, expires=VERIFY_CODE_EXPIRES):
         return True
     return False
 
-def check_request_method_decorator(method=("POST",)):
-    if type(method) == str:
-        method = [method]
-    def decorator(func):
-        @wraps(func)
-        def wrapped_function(*args, **kwargs):
-            request = args[0]
-            if request.method not in method:
-                return HttpResponseNotAllowed(method)
-            response = func(*args, **kwargs)
-            return response
-        return wrapped_function
-    return decorator
-
-def check_request_parameters_decorator(params=()):
-    def decorator(func):
-        @wraps(func)
-        def wrapped_function(*args, **kwargs):
-            if params:
-                request = args[0]
-                data = json.loads(request.body)
-                for i in params:
-                    if i not in data:
-                        response_data = {"status": STATUS_CODE["request_parameters_wrong"]}
-                        return HttpResponseBadRequest(json.dumps(response_data), content_type="application/json")
-            response = func(*args, **kwargs)
-            return response
-        return wrapped_function
-    return decorator
+def get_request_url(request):
+    url = request.META.get('HTTP_X_FORWARDED_FOR')
+    if not url:
+        url = request.META.get('REMOTE_ADDR')
+    return url

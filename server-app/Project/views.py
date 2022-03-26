@@ -3,10 +3,10 @@ import json
 from Login.functions import check_login
 from .functions import *
 import math
-from User.functions import get_user_decorator
-from Common.logging import *
+from Common.decorators import *
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST", "GET"])
 @get_user_decorator(force_login=False)
 def get_projects_list(request, user):
@@ -219,6 +219,7 @@ def get_projects_list(request, user):
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid", "currency_type"])
 @get_project_decorator()
@@ -233,7 +234,7 @@ def get_project_info(request, project):
     @apiParam {String} pid Pid of the project.
     @apiParam {String} currency_type Currency type. It should be included in the list provided by "currency_list/" interface.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 200002: project_not_exists)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [200002] project_not_exists, [300001] wrong_currency_type)
     @apiSuccess (Success 200 return) {Dict} project_info Dict of project information. Its sub-parameters are shown below.
     @apiSuccess (Success 200 return) {String} pid (Sub-parameter of project_info) Pid of the project.
     @apiSuccess (Success 200 return) {String} uid (Sub-parameter of project_info) Uid of the project's owner.
@@ -282,18 +283,17 @@ def get_project_info(request, project):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": "",
-                     "project_info": ""}
+    response_data = {"status": STATUS_CODE["success"], "project_info": ""}
     data = json.loads(request.body)
     currency_type = data["currency_type"]
     #pid = data["pid"]
     #project = get_project({"pid": pid})
     #if project:
     response_data["project_info"] = project.to_dict(currency_type=currency_type)
-    response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
 def create_project(request, user):
@@ -304,7 +304,7 @@ def create_project(request, user):
     @apiGroup Project
     @apiDescription api for creating project by charity user
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 100003: user_not_charity, 200001: create_project_fail)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [100003] user_not_charity, [200001] create_project_fail)
     @apiSuccess (Success 200 return) {String} pid Pid of the project just created.
 
     @apiSuccessExample {Json} Response-Success
@@ -315,18 +315,17 @@ def create_project(request, user):
     """
     #if request.method != "GET":
     #    return HttpResponseBadRequest()
-    response_data = {"status": "",
-                     "pid": ""}
+    response_data = {"status": STATUS_CODE["success"], "pid": ""}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    status, pid = user.create_project()
-    response_data["status"] = status
+    pid = user.create_project()
     response_data["pid"] = pid
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -341,7 +340,7 @@ def delete_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200004: project_non_deletable)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [200002] project_not_exists, [200003] user_not_project_owner, [200004] project_non_deletable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -354,7 +353,7 @@ def delete_project(request, user, project):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": ""}
+    response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
@@ -365,11 +364,11 @@ def delete_project(request, user, project):
     #if not project:
     #    response_data["status"] = STATUS_CODE["project_not_exists"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    status = user.delete_project(project)
-    response_data["status"] = status
+    user.delete_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid", "currency_type", "edit"])
 @get_user_decorator()
@@ -393,7 +392,7 @@ def edit_project(request, user, project):
     @apiParam {String} details (Sub-parameter of edit) Details of the project, containing rich text information.
     @apiParam {Float} price (Sub-parameter of edit) The single donation price of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200005: edit_project_fail, 200006: project_non_editable, 200012: project_end_time_invalid, 300001: wrong_currency_type)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [200002] project_not_exists, [200003] user_not_project_owner, [200005] edit_project_fail, [200006] project_non_editable, [200012] project_end_time_invalid, [200014] project price invalid, [300001] wrong_currency_type)
 
     @apiParamExample {Json} Sample Request
     {
@@ -416,7 +415,7 @@ def edit_project(request, user, project):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": ""}
+    response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
@@ -429,35 +428,29 @@ def edit_project(request, user, project):
     #    response_data["status"] = STATUS_CODE["project_not_exists"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     if project.uid != user.uid:
-        response_data["status"] = STATUS_CODE["user_not_project_owner"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        #response_data["status"] = STATUS_CODE["user_not_project_owner"]
+        #return HttpResponse(json.dumps(response_data), content_type="application/json")
+        raise ServerError("user_not_project_owner")
     if project.status != PROJECT_STATUS["prepare"]:
-        response_data["status"] = STATUS_CODE["project_non_editable"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        #response_data["status"] = STATUS_CODE["project_non_editable"]
+        #return HttpResponse(json.dumps(response_data), content_type="application/json")
+        raise ServerError("project_non_editable")
     edit_dict = {}
     for i in ("title", "intro", "background_image", "total_num", "end_time", "details", "price"):
         if i in data["edit"]:
             edit_dict[i] = data["edit"][i]
-    if "end_time" in edit_dict:
-        if edit_dict["end_time"] < int(time.time()):
-            response_data["status"] = STATUS_CODE["project_end_time_invalid"]
-            return HttpResponse(json.dumps(response_data), content_type="application/json")
     if "price" in edit_dict:
         cid = currency2cid(currency_type)
         if not cid:
-            response_data["status"] = STATUS_CODE["wrong_currency_type"]
-            return HttpResponse(json.dumps(response_data), content_type="application/json")
+            #response_data["status"] = STATUS_CODE["wrong_currency_type"]
+            #return HttpResponse(json.dumps(response_data), content_type="application/json")
+            raise ServerError("wrong_currency_type")
         edit_dict["price"] = edit_dict["price"] / EXCHANGE_RATE[cid]
-    background_image_url = project.background_image
-    if not project.update_from_fict(edit_dict):
-        response_data["status"] = STATUS_CODE["edit_project_fail"]
-    else:
-        if "background_image" in edit_dict:
-            remove_url_file(background_image_url, "img")
-        response_data["status"] = STATUS_CODE["success"]
+    project.update_from_fict(edit_dict)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -472,7 +465,7 @@ def start_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200007: project_information_incomplete, 200008: start_project_fail, 200009: project_non_startable)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [200002] project_not_exists, [200003] user_not_project_owner, [200007] project_information_incomplete, [200008] start_project_fail, [200009] project_non_startable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -485,7 +478,7 @@ def start_project(request, user, project):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": ""}
+    response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
@@ -496,22 +489,11 @@ def start_project(request, user, project):
     #if not project:
     #    response_data["status"] = STATUS_CODE["project_not_exists"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if project.uid != user.uid:
-        response_data["status"] = STATUS_CODE["user_not_project_owner"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if project.status != PROJECT_STATUS["prepare"]:
-        response_data["status"] = STATUS_CODE["project_non_startable"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if not (project.title and project.intro and project.details and project.total_num > 0 and project.end_time > int(time.time()) and project.price > 0):
-        response_data["status"] = STATUS_CODE["project_information_incomplete"]
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if not project.update_from_fict({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]}):
-        response_data["status"] = STATUS_CODE["start_project_fail"]
-    else:
-        response_data["status"] = STATUS_CODE["success"]
+    user.start_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
@@ -526,7 +508,7 @@ def stop_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 200002: project_not_exists, 200003: user_not_project_owner, 200010: stop_project_fail, 200011: project_non_stopable)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user_not_logged_in, [200002] project_not_exists, [200003] user_not_project_owner, [200010] stop_project_fail, [200011] project_non_stopable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -539,7 +521,7 @@ def stop_project(request, user, project):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": ""}
+    response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = stop_project_status["not_logged_in"]
@@ -550,20 +532,11 @@ def stop_project(request, user, project):
     #if not project:
     #    response_data["status"] = stop_project_status["project_not_exists"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    if project.uid != user.uid:
-        response_data["status"] = STATUS_CODE["user_not_project_owner"]
-    elif project.status != PROJECT_STATUS["ongoing"]:
-        response_data["status"] = STATUS_CODE["project_non_stopable"]
-    elif project.current_num >= project.total_num or project.end_time <= int(time.time()):
-        project.update_from_fict({"status": PROJECT_STATUS["finish"]})
-        response_data["status"] = STATUS_CODE["project_non_stopable"]
-    elif not project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time())}):
-        response_data["status"] = STATUS_CODE["stop_project_fail"]
-    else:
-        response_data["status"] = STATUS_CODE["success"]
+    user.stop_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["GET", "POST"])
 @get_user_decorator()
 def get_prepare_projects_list(request, user):

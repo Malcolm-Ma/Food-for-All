@@ -1,6 +1,7 @@
 import json
 from django.http import HttpResponse, HttpResponseBadRequest
 from .functions import *
+from Common.decorators import *
 
 @check_request_method_decorator(method=["GET"])
 def init_database(request):

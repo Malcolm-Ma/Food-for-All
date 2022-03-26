@@ -3,9 +3,10 @@ import json
 from Login.functions import check_login
 from .functions import *
 from Project.functions import get_all_projects
-from Common.logging import *
+from Common.decorators import *
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
 def get_user_info(request, user):
@@ -16,7 +17,7 @@ def get_user_info(request, user):
     @apiGroup User
     @apiDescription api to get information of user that already logged in
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in)
     @apiSuccess (Success 200 return) {Dict} user_info Dict of user information. Its sub-parameters are shown below.
     @apiSuccess (Success 200 return) {String} uid (Sub-parameter of user_info) Userid
     @apiSuccess (Success 200 return) {String} mail (Sub-parameter of user_info) Mail address of user (username)
@@ -72,7 +73,7 @@ def get_user_info(request, user):
     """
     #if request.method != "GET":
     #    return HttpResponseBadRequest()
-    response_data = {"status": "",
+    response_data = {"status": STATUS_CODE["success"],
                      "user_info": {"uid": "",
                                    "mail": "",
                                    "name": "",
@@ -87,16 +88,18 @@ def get_user_info(request, user):
                                    "share_mail_history": ","}}
     #user = check_login(request)
     #if user:
-    for i in response_data["user_info"]:
-        response_data["user_info"][i] = user.__getattribute__(i)
-    response_data["user_info"]["region"] = RID2REGION[response_data["user_info"]["region"]]
-    response_data["user_info"]["project"] = eval(response_data["user_info"]["project"])
-    response_data["user_info"]["donate_history"] = eval(response_data["user_info"]["donate_history"])
-    response_data["user_info"]["share_mail_history"] = eval(response_data["user_info"]["share_mail_history"])
-    response_data["status"] = STATUS_CODE["success"]
+    response_data["user_info"] = user.to_dict(fields=list(response_data["user_info"].keys()))
+    #for i in response_data["user_info"]:
+    #    response_data["user_info"][i] = user.__getattribute__(i)
+    #response_data["user_info"]["region"] = RID2REGION[response_data["user_info"]["region"]]
+    #response_data["user_info"]["project"] = eval(response_data["user_info"]["project"])
+    #response_data["user_info"]["donate_history"] = eval(response_data["user_info"]["donate_history"])
+    #response_data["user_info"]["share_mail_history"] = eval(response_data["user_info"]["share_mail_history"])
+    #response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
+@check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["name", "region", "currency_type", "avatar"])
 @get_user_decorator()
@@ -113,7 +116,7 @@ def edit_user(request, user):
     @apiParam {String} currency_type Default currency type of user.
     @apiParam {String} avatar Static avatar url of user. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter.
 
-    @apiSuccess (Success 200 return) {Int} status Status code (0: success, 100001: user_not_logged_in, 100002: edit_user_info_fail)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [100002] edit_user_info_fail, [300001] wrong_currency_type, [300006] wrong region name or code)
 
     @apiParamExample {Json} Sample Request
     {
@@ -129,7 +132,7 @@ def edit_user(request, user):
     """
     #if request.method != "POST":
     #    return HttpResponseBadRequest()
-    response_data = {"status": ""}
+    response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
     #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
@@ -139,22 +142,5 @@ def edit_user(request, user):
     for i in ("name", "region", "currency_type", "avatar"):
         if i in data:
             edit_dict[i] = data[i]
-    avatar_url = user.avatar
-    if not user.update_from_fict(edit_dict):
-        response_data["status"] = STATUS_CODE["edit_user_info_fail"]
-    else:
-        if "avatar" in edit_dict:
-            remove_url_file(avatar_url, "img")
-        if user.type == USER_TYPE["charity"]:
-            edit_dict = {}
-            if "name" in data:
-                edit_dict["charity"] = data["name"]
-            if "avatar" in data:
-                edit_dict["charity_avatar"] = data["avatar"]
-            if "region" in data:
-                edit_dict["region"] = data["region"]
-            if edit_dict:
-                projects = get_all_projects(user.uid)
-                projects.update(**edit_dict)
-        response_data["status"] = STATUS_CODE["success"]
+    user.update_from_fict(edit_dict)
     return HttpResponse(json.dumps(response_data), content_type="application/json")

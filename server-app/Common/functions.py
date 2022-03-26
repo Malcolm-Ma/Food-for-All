@@ -1,6 +1,6 @@
 import csv
 import os
-from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR
+from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR, STATUS_CODE
 import time
 from hashlib import md5
 import copy
