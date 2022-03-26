@@ -149,7 +149,7 @@ export default () => {
       </Grid>
 
 
-      <Grid item xs={3} display={display}>
+      <Grid item xs={6} display={display}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={4}>
             <Grid item xs={12}>

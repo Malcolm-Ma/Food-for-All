@@ -118,10 +118,9 @@ const columnsConfig = (payloads) => {
       key: 'action',
       render: (text, record) => {
         const {status} = record.status;
-        console.log(record);
         return (
           <Space size="middle">
-            <Button type="primary" onClick={showDrawer} disabled={status==="0"}>
+            <Button type="primary" onClick={() => showDrawer(record)} disabled={status==="0"}>
               Edit
             </Button>
             <Button type="primary" onClick={showModal} disabled={status!=="0"}>
@@ -141,7 +140,7 @@ export default () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [price, setPrice] = useState(100);
   const [donation, setDonation] = useState(10);
-
+  const [targetProject, setTargetProject] = useState({});
 
   const getProjectList = useCallback(async () => {
     try {
@@ -187,7 +186,12 @@ export default () => {
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [modalText, setModalText] = React.useState('Are you sure you want to terminate the project. Terminated projects cannot be continued.');
   //Edit popup window
-  const showDrawer = () => {
+
+  const showDrawer = (record) => {
+    console.log('record',record);
+    setTargetProject(record);
+    setPrice(record.price);
+    setDonation(record.total_num);
     drawSetVisible(true);
   };
 
@@ -303,8 +307,11 @@ export default () => {
               onFinish={onFinish}
               initialValues={{
                 currency: userInfo.currency_type,
-                price: 100,
-                donation: 10,
+                price: targetProject.price,
+                donation: targetProject.total_num,
+                title: targetProject.title,
+                projectTime: targetProject.end_time,
+                introduction: targetProject.introduction,
               }}
         >
           <Form.Item name="title" label="Title" rules={[{required: true, message: 'Please input the title'}]}>
