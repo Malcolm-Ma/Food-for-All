@@ -224,7 +224,7 @@ def get_projects_list(request, user):
 @get_project_decorator()
 def get_project(request, project):
     """
-    @api {POST} /get_project/ get project information
+    @api {POST} /get_project/ get project
     @apiVersion 1.0.0
     @apiName get_project
     @apiGroup Project
