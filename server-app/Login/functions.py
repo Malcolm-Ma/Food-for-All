@@ -64,11 +64,12 @@ def gen_verify_code(id_str, usefor_str, expires=VERIFY_CODE_EXPIRES):#, if_check
     #code2 = md5((str(dynamic_num - 1) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
     #return code1, code2
 
-def check_verify_code(id_str, usefor_str, code):#, expires=VERIFY_CODE_EXPIRES):
+def check_verify_code(id_str, usefor_str, code, remove=False):#, expires=VERIFY_CODE_EXPIRES):
     cache = caches[usefor_str]
     real_code = cache.get(id_str)
     if real_code == code:
-        #cache.delete(id_str)
+        if remove:
+            cache.delete(id_str)
         return True
     return False
     #if code in gen_verify_code(id_str, usefor_str, expires=expires, if_check=True):
