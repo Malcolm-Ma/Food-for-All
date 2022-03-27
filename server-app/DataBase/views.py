@@ -13,7 +13,7 @@ def init_database(request):
     else:
         return HttpResponseBadRequest()
     user_list = init_database_with_fake_data(user_num, project_num)
-    with open(os.path.join('../demo/test_backend_api', "init_database_user.csv"), 'w', newline='') as f:
+    with open(os.path.join(BASE_DIR, "../demo/test_backend_api", "init_database_user.csv"), 'w', newline='') as f:
         writer = csv.writer(f)
         for row in user_list:
             writer.writerow(row)
