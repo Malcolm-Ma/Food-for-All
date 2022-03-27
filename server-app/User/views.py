@@ -7,7 +7,7 @@ from Common.decorators import *
 @get_user_decorator()
 def get_user(request, user):
     """
-    @api {GET} /get_user/ get user information
+    @api {GET} /get_user/ get user
     @apiVersion 1.0.0
     @apiName get_user
     @apiGroup User
