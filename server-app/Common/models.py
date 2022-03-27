@@ -1,3 +1,8 @@
-from django.db import models
+from .functions import *
 
-# Create your models here.
+class ServerError(Exception):
+    def __init__(self, info):
+        self.code = STATUS_CODE[info]
+
+    def response(self):
+        return HttpResponse(json.dumps({"status": self.code}), content_type="application/json")
