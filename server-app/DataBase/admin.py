@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import User, Project
+from . models import DUser, DProject
 from django.db import models
 from django.forms import TextInput, Textarea
 
@@ -16,5 +16,5 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ['region', 'status']
     search_fields = ['title', 'intro', 'charity', 'details', "uid", "pid"]
 
-admin.site.register(User, UserAdmin)
-admin.site.register(Project, ProjectAdmin)
+admin.site.register(DUser, UserAdmin)
+admin.site.register(DProject, ProjectAdmin)

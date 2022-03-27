@@ -1,5 +1,4 @@
-from Project.functions import *
-from User.functions import *
+from .models import *
 from faker import Faker
 import random
 import requests
@@ -7,6 +6,7 @@ from collections import Counter
 import copy
 import shutil
 import hashlib
+from django.contrib.auth.hashers import make_password
 
 random.seed(int(time.time()))
 Faker.seed(int(time.time()))
@@ -16,8 +16,8 @@ resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "av
                  "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")]}
 
 def clear_database():
-    models.User.objects.all().delete()
-    models.Project.objects.all().delete()
+    DUser.objects.all().delete()
+    DProject.objects.all().delete()
     img_path_list = os.listdir(IMG_DIR)
     for i in img_path_list:
         if os.path.isfile(os.path.join(IMG_DIR, i)) and i.endswith(".jpg"):
@@ -58,9 +58,10 @@ def copy_random_img(img_type, path=IMG_DIR):
     return os.path.join(STATIC_URL, name)
 
 def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
+    password_ori = fk.password()
     fake_user = {"uid": "",
                  "mail": fk.safe_email(),
-                 "password": fk.password(),
+                 "password": make_password(password_ori),
                  "name": "",
                  "avatar": "" if random.choices([0, 1], weights=[10, 1], k=1)[0] else copy_random_img("avatar"),#download_random_img(random.randint(100, 200)),
                  "type": random.choice(user_type_list),
@@ -71,18 +72,21 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
                  "last_login_time": int(time.time()) - random.randint(0, 24 * 60 * 60),
                  "donate_history": "{}",
                  "share_mail_history": str([fk.safe_email(), fk.safe_email()])}
-    fake_user["uid"] = gen_uid(fake_user["mail"])
+    fake_user["uid"] = DUser.gen_uid(fake_user["mail"])
     if fake_user["type"] == USER_TYPE["charity"]:
         fake_user["name"] = fk.company()
     else:
         fake_user["name"] = fk.name()
-    models.User.objects.create(**fake_user)
-    return fake_user["uid"], fake_user["type"]
+    try:
+        DUser.objects.create(**fake_user)
+        return fake_user["uid"], fake_user["mail"], password_ori, fake_user["type"]
+    except:
+        return create_fake_user(user_type_list=user_type_list)
 
 def create_fake_project(uid, donate_history):
     donate_history = copy.deepcopy(donate_history)
-    user = get_user({"uid": uid})
-    fake_project = {"pid": gen_pid(user.mail),
+    user = DUser.get_user({"uid": uid})
+    fake_project = {"pid": DProject.gen_pid(user.mail),
                     "uid": user.uid,
                     "title": "",
                     "intro": "",
@@ -155,8 +159,8 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
-    models.Project.objects.create(**fake_project)
-    add_project(user, fake_project["pid"])
+    DProject.objects.create(**fake_project)
+    user.add_project_to_list(fake_project["pid"])
     if project_donate_dict:
         user_donate_history = eval(user.donate_history)
         user_donate_history[fake_project["pid"]] = project_donate_dict
@@ -165,15 +169,20 @@ def create_fake_project(uid, donate_history):
     return donate_history
 
 def init_database_with_fake_data(user_num=50, project_num=200):
-    clear_database()
-    guest_list = []
-    charity_list = []
-    for _ in range(user_num):
-        fake_user_uid, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
-        if fake_user_type == USER_TYPE["charity"]:
-            charity_list.append(fake_user_uid)
-        else:
-            guest_list.append(fake_user_uid)
+    for _ in range(5):
+        clear_database()
+        guest_list = []
+        charity_list = []
+        fake_user_info = [["uid", "username", "password", "type"]]
+        for _ in range(user_num):
+            fake_user_uid, fake_user_mail, fake_user_password, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
+            if fake_user_type == USER_TYPE["charity"]:
+                charity_list.append(fake_user_uid)
+            else:
+                guest_list.append(fake_user_uid)
+            fake_user_info.append([fake_user_uid, fake_user_mail, fake_user_password, fake_user_type])
+        if len(guest_list) != 0 and len(charity_list) != 0:
+            break
     owner_list = random.choices(charity_list, k=project_num)
     donate_history = {}
     for i in guest_list:
@@ -181,7 +190,8 @@ def init_database_with_fake_data(user_num=50, project_num=200):
     for i in range(project_num):
         donate_history = create_fake_project(owner_list[i], donate_history)
     for donor_uid in donate_history:
-        user = get_user({"uid": donor_uid})
+        user = DUser.get_user({"uid": donor_uid})
         user.donate_history = str(donate_history[donor_uid])
         user.project = str(list(donate_history[donor_uid].keys()))
         user.save(update_fields=["project", "donate_history"])
+    return fake_user_info
