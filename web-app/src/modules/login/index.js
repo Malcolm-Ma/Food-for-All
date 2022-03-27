@@ -24,7 +24,6 @@ import { useCallback, useEffect, useState } from "react";
 import { message } from 'antd';
 
 import actions from "src/actions";
-import { LOGIN_STATUS } from 'src/constants/constants';
 
 const theme = createTheme();
 
@@ -52,18 +51,16 @@ export default (props) => {
         username: data.get('email'),
         password: data.get('password'),
       }));
-      // login error
-      if (res.status && res.status !== LOGIN_STATUS['success']) {
-        setShowError(true);
-        setTimeout(() => setShowError(false), 3000);
-        return;
-      }
+      // Success actions
       if (_.get(res, 'uid', null)) {
         navigate('/', );
         message.success('Login successfully!');
       }
     } catch (e) {
       console.error(e);
+      // error actions
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
     }
   }, [dispatch, navigate]);
 
@@ -73,7 +70,7 @@ export default (props) => {
       navigate('/');
       message.warning('You have already logged in!');
     }
-  }, [navigate, preCheck]);
+  }, [navigate, preCheck, userInfo]);
 
   return (
     <div className="ffa-login">
