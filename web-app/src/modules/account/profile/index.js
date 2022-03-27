@@ -17,14 +17,14 @@ export default () => {
 
   const dispatch = useDispatch();
 
-  const {userInfo} = useSelector(state => state.user);
-  const { regionList, currencyList } = useSelector(state => state.global);
-  const currencyCode = currencyList.map(item => item.value);
-
   useEffect(() => {
     dispatch(actions.getRegionList()).catch(err => console.error(err));
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
+
+  const {userInfo} = useSelector(state => state.user);
+  const { regionList, currencyList } = useSelector(state => state.global);
+  const currencyCode = currencyList.map(item => item.value);
 
   const [nameColor, setNameColor] = useState(null);
   const [regionColor, setRegionColor] = useState(null);
@@ -35,6 +35,14 @@ export default () => {
   const [name, setName] = useState(userInfo.name);
   const [region, setRegion] = useState(userInfo.region);
   const [currency, setCurrency] = useState(userInfo.currency_type);
+
+  function getRegionName(value) {
+    return regionList.filter(
+      function(regionList){return regionList.value == value}
+    );
+  }
+
+  console.log('region', getRegionName(userInfo.region).map(item => item.label));
 
   const handleDisplay = () => {
     setNameColor(null);
@@ -168,7 +176,7 @@ export default () => {
 
             <Grid item xs={12}>
               <Autocomplete
-                defaultValue={userInfo.region}
+                defaultValue={getRegionName(userInfo.region).map(item => item.label)[0]}
                 disablePortal
                 fullWidth
                 id="region"
