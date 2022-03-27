@@ -13,5 +13,4 @@ export default {
   currencyList: '/currency_list/',
   logout: '/logout/',
   projectList: '/get_projects_list/',
-  stopProjext
 };

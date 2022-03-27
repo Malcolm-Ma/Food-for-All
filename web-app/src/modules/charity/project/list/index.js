@@ -137,7 +137,7 @@ export default () => {
 
   const getProjectList = useCallback(async () => {
     try {
-      const res = await actions.getProjectList();
+      const res = await actions.prepareProject();
       console.log('--res--\n', res);
       const {
         project_info: rawProjectInfo,
