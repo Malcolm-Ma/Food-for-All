@@ -82,8 +82,8 @@ STATUS_CODE = {"success": 0,
 
 main_url = "http://127.0.0.1:8000/"
 api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/',
-            'login/', 'regis/', 'logout/', 'reset_password/', 'get_user_info/', 'edit_user/',
-            'get_project_info/', 'edit_project/', 'get_projects_list/', 'get_prepare_projects_list/',
+            'login/', 'regis/', 'logout/', 'reset_password/', 'get_user/', 'edit_user/',
+            'get_project/', 'edit_project/', 'get_projects_list/', 'get_prepare_projects_list/',
             'create_project/', 'delete_project/', 'start_project/', 'stop_project/', ]
 url_dict = {}
 for api in api_list:
@@ -244,9 +244,9 @@ if __name__ == "__main__":
                 f.write(check_api('reset_password/', STATUS_CODE["email is not registered"], "POST", {"username": "test" + mail, "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["email is not registered"]) + "\n")
                 #100008, 300002 can't be test
 
-                f.write(check_api('get_user_info/', STATUS_CODE["user is not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('get_user/', STATUS_CODE["user is not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
                 user_login(user["mail"], user["password"])
-                f.write(check_api('get_user_info/', STATUS_CODE["success"], "GET", "", '{"status": %d, "user_info": {"uid": "%s", "mail": "%s", .*}' % (STATUS_CODE["success"], user["uid"], user["mail"])) + "\n")
+                f.write(check_api('get_user/', STATUS_CODE["success"], "GET", "", '{"status": %d, "user_info": {"uid": "%s", "mail": "%s", .*}' % (STATUS_CODE["success"], user["uid"], user["mail"])) + "\n")
 
                 f.write(check_api('edit_user/', STATUS_CODE["invalid currency type"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "testUSD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('edit_user/', STATUS_CODE["wrong region name or code"], "POST", {"name": "test", "region": "testAfghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["wrong region name or code"]) + "\n")
@@ -313,9 +313,9 @@ if __name__ == "__main__":
                 project_tmp = get_one_cursor_dict(cursor)
                 f.write(check_api('delete_project/', STATUS_CODE["success"], "POST", {"pid": project_tmp["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
 
-                f.write(check_api('get_project_info/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"], "currency_type": "CNY"}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
-                f.write(check_api('get_project_info/', STATUS_CODE["invalid currency type"], "POST", {"pid": project["pid"], "currency_type": "testCNY"}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
-                f.write(check_api('get_project_info/', STATUS_CODE["success"], "POST", {"pid": project["pid"], "currency_type": "CNY"}, '{"status": %d, "project_info": {"pid": "%s", "uid": "%s", .*}' % (STATUS_CODE["success"], project["pid"], project["uid"])) + "\n")
+                f.write(check_api('get_project/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"], "currency_type": "CNY"}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
+                f.write(check_api('get_project/', STATUS_CODE["invalid currency type"], "POST", {"pid": project["pid"], "currency_type": "testCNY"}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
+                f.write(check_api('get_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"], "currency_type": "CNY"}, '{"status": %d, "project_info": {"pid": "%s", "uid": "%s", .*}' % (STATUS_CODE["success"], project["pid"], project["uid"])) + "\n")
 
                 create_project()
                 f.write(check_api('get_prepare_projects_list/', STATUS_CODE["invalid currency type"], "POST", {"currency_type": "testCNY", "page_info": {"page_size": 3, "page": 1}, "search": ""}, '{"status": %d.*}' % STATUS_CODE["invalid currency type"]) + "\n")

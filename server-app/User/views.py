@@ -8,11 +8,11 @@ from Common.decorators import *
 @check_server_error_decorator()
 @check_request_method_decorator(method=["GET"])
 @get_user_decorator()
-def get_user_info(request, user):
+def get_user(request, user):
     """
-    @api {GET} /get_user_info/ get user information
+    @api {GET} /get_user/ get user information
     @apiVersion 1.0.0
-    @apiName get_user_info
+    @apiName get_user
     @apiGroup User
     @apiDescription api to get information of user that already logged in
 

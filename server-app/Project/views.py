@@ -230,11 +230,11 @@ def get_projects_list(request, user):
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["pid", "currency_type"])
 @get_project_decorator()
-def get_project_info(request, project):
+def get_project(request, project):
     """
-    @api {POST} /get_project_info/ get project information
+    @api {POST} /get_project/ get project information
     @apiVersion 1.0.0
-    @apiName get_project_info
+    @apiName get_project
     @apiGroup Project
     @apiDescription api to get project details
 
