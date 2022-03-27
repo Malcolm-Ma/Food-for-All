@@ -1,10 +1,16 @@
-from django.http import HttpResponse, HttpResponseBadRequest
-import json
 from Mail.functions import Mail
 from .functions import *
 from Common.decorators import *
 from User.functions import *
 from django.contrib.auth.hashers import make_password, check_password
+
+regis_action = {"send_code": 0,
+                "verify_code": 1,
+                "set_password": 2}
+
+reset_password_action = {"send_code": 0,
+                         "verify_code": 1,
+                         "set_password": 2}
 
 @api_logger_decorator()
 @check_server_error_decorator()
@@ -33,12 +39,8 @@ def login(request):
         'status': 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
     if check_login(request):
-        #response_data["status"] = STATUS_CODE["user is already logged in"]
-        #return HttpResponse(json.dumps(response_data), content_type="application/json")
         raise ServerError("user is already logged in")
     else:
         data = json.loads(request.body)
@@ -46,12 +48,8 @@ def login(request):
         password = data["password"]
         user = DUser.get_user({"mail": mail})
         if not user:
-            #response_data["status"] = STATUS_CODE["invalid username"]
-            #return HttpResponse(json.dumps(response_data), content_type="application/json")
             raise ServerError("invalid username")
         elif not check_password(password, user.password):
-            #response_data["status"] = STATUS_CODE["wrong password"]
-            #return HttpResponse(json.dumps(response_data), content_type="application/json")
             raise ServerError("wrong password")
         else:
             try:
@@ -129,14 +127,10 @@ def regis(request):
         'action': 2
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"],
                      "action": "",
                      }
     if check_login(request):
-        #response_data["status"] = STATUS_CODE["user is already logged in"]
-        #return HttpResponse(json.dumps(response_data), content_type="application/json")
         raise ServerError("user is already logged in")
     data = json.loads(request.body)
     mail = data["username"]
@@ -200,12 +194,7 @@ def logout(request, user):
         'status': 0
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #if not check_login(request):
-    #    response_data["status"] = STATUS_CODE["not_logged_in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     rep = HttpResponse(json.dumps(response_data), content_type="application/json")
     rep.delete_cookie(COOKIE_KEY)
     return rep
@@ -267,14 +256,11 @@ def reset_password(request, user):
         'action': 2
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "action": ""}
     data = json.loads(request.body)
     action = data["action"]
     mail = data["username"]
     response_data["action"] = action
-    #user = check_login(request)
     if user and mail != user.mail:
         response_data["status"] = STATUS_CODE["mismatch between logged in user and target user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")

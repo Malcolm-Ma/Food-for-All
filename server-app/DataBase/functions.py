@@ -1,5 +1,4 @@
-from Project.functions import *
-from User.functions import *
+from .models import *
 from faker import Faker
 import random
 import requests

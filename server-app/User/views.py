@@ -1,6 +1,3 @@
-from django.http import HttpResponse, HttpResponseBadRequest
-import json
-from Login.functions import check_login
 from .functions import *
 from Common.decorators import *
 
@@ -70,8 +67,6 @@ def get_user(request, user):
         }
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"],
                      "user_info": {"uid": "",
                                    "mail": "",
@@ -85,16 +80,7 @@ def get_user(request, user):
                                    "last_login_time": 0,
                                    "donate_history": "{}",
                                    "share_mail_history": ","}}
-    #user = check_login(request)
-    #if user:
     response_data["user_info"] = user.to_dict(fields=list(response_data["user_info"].keys()))
-    #for i in response_data["user_info"]:
-    #    response_data["user_info"][i] = user.__getattribute__(i)
-    #response_data["user_info"]["region"] = RID2REGION[response_data["user_info"]["region"]]
-    #response_data["user_info"]["project"] = eval(response_data["user_info"]["project"])
-    #response_data["user_info"]["donate_history"] = eval(response_data["user_info"]["donate_history"])
-    #response_data["user_info"]["share_mail_history"] = eval(response_data["user_info"]["share_mail_history"])
-    #response_data["status"] = STATUS_CODE["success"]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
@@ -129,13 +115,7 @@ def edit_user(request, user):
         "status": 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = STATUS_CODE["user is not logged in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
     edit_dict = {}
     for i in ("name", "region", "currency_type", "avatar"):

@@ -1,6 +1,5 @@
-from django.http import HttpResponse, HttpResponseBadRequest
-import json
-from .functions import *
+from Common.common import *
+from Common.utils import *
 from Common.decorators import *
 
 @api_logger_decorator()
@@ -25,8 +24,6 @@ def upload_img(request):
         "url": "static/default_avatar.1647454464799235.jpg"
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "url": ""}
     file_obj = request.FILES.get('img')
     if not file_obj:
@@ -58,8 +55,6 @@ def upload_doc(request):
         "url": "static/README.16474544716317701.md"
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "url": ""}
     file_obj = request.FILES.get('doc')
     if not file_obj:

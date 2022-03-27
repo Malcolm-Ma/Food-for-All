@@ -1,8 +1,4 @@
-from django.http import HttpResponse, HttpResponseBadRequest
-import json
-from Login.functions import check_login
 from .functions import *
-import math
 from Common.decorators import *
 
 @api_logger_decorator()
@@ -212,10 +208,6 @@ def get_projects_list(request, user):
                                          fields=("pid", "uid", "title", "intro", "region",
                                                  "charity", "charity_avatar", "background_image", "price",
                                                  "current_num", "total_num", "start_time", "end_time", "status"))
-    #elif not currency2cid(currency_type):
-    #    currency_type = "GBP"
-    #projects = get_filtered_projects(uid=uid, valid_only=valid_only)
-    #current_projects, filter_projects_num = get_current_projects_dict(projects, current_page, page_size, order, search, currency_type)
     response_data["search"] = search
     response_data["valid_only"] = valid_only
     response_data["currency_type"] = currency_type
@@ -288,14 +280,9 @@ def get_project(request, project):
         }
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "project_info": ""}
     data = json.loads(request.body)
     currency_type = data["currency_type"]
-    #pid = data["pid"]
-    #project = get_project({"pid": pid})
-    #if project:
     response_data["project_info"] = project.to_dict(currency_type=currency_type)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -320,13 +307,7 @@ def create_project(request, user):
         "pid": "fa00cb5f2e648afa9a39d99098c4fc84"
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "pid": ""}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = STATUS_CODE["user is not logged in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     pid = user.create_project()
     response_data["pid"] = pid
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -358,19 +339,7 @@ def delete_project(request, user, project):
         "status": 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = STATUS_CODE["user is not logged in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    #data = json.loads(request.body)
-    #pid = data["pid"]
-    #project = get_project({"pid": pid})
-    #if not project:
-    #    response_data["status"] = STATUS_CODE["project does not exist"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     user.delete_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -420,27 +389,12 @@ def edit_project(request, user, project):
         "status": 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = STATUS_CODE["user is not logged in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
-    #pid = data["pid"]
     currency_type = data["currency_type"]
-    #project = get_project({"pid": pid})
-    #if not project:
-    #    response_data["status"] = STATUS_CODE["project does not exist"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     if project.uid != user.uid:
-        #response_data["status"] = STATUS_CODE["user is not the owner of the project"]
-        #return HttpResponse(json.dumps(response_data), content_type="application/json")
         raise ServerError("user is not the owner of the project")
     if project.status != PROJECT_STATUS["prepare"]:
-        #response_data["status"] = STATUS_CODE["project is not editable"]
-        #return HttpResponse(json.dumps(response_data), content_type="application/json")
         raise ServerError("project is not editable")
     edit_dict = {}
     for i in ("title", "intro", "background_image", "total_num", "end_time", "details", "price"):
@@ -449,8 +403,6 @@ def edit_project(request, user, project):
     if "price" in edit_dict:
         cid = currency2cid(currency_type)
         if not cid:
-            #response_data["status"] = STATUS_CODE["invalid currency type"]
-            #return HttpResponse(json.dumps(response_data), content_type="application/json")
             raise ServerError("invalid currency type")
         edit_dict["price"] = edit_dict["price"] / EXCHANGE_RATE[cid]
     project.update_from_fict(edit_dict)
@@ -483,19 +435,7 @@ def start_project(request, user, project):
         "status": 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = STATUS_CODE["user is not logged in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    #data = json.loads(request.body)
-    #pid = data["pid"]
-    #project = get_project({"pid": pid})
-    #if not project:
-    #    response_data["status"] = STATUS_CODE["project does not exist"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     user.start_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -526,19 +466,7 @@ def stop_project(request, user, project):
         "status": 0
     }
     """
-    #if request.method != "POST":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
-    #user = check_login(request)
-    #if not user:
-    #    response_data["status"] = stop_project_status["not_logged_in"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
-    #data = json.loads(request.body)
-    #pid = data["pid"]
-    #project = get_project({"pid": pid})
-    #if not project:
-    #    response_data["status"] = stop_project_status["project does not exist"]
-    #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     user.stop_project(project)
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -653,8 +581,6 @@ def get_prepare_projects_list(request, user):
         "search": "qwer"
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"],
                      "project_info": {},
                      "page_info": {"page": 1,
@@ -663,8 +589,6 @@ def get_prepare_projects_list(request, user):
                      "currency_type": "GBP",
                      "search": ""}
     if user.type != USER_TYPE["charity"]:
-        #response_data["status"] = STATUS_CODE["operation is not available to individual user"]
-        #return HttpResponse(json.dumps(response_data), content_type="application/json")
         raise ServerError("operation is not available to individual user")
     if request.method == "GET":
         search = ""
@@ -684,8 +608,6 @@ def get_prepare_projects_list(request, user):
     projects_dict, batch_num = pq.filter(current_page, page_size, order, search, currency_type, fields=("pid", "uid", "title", "intro", "region",
                                              "charity", "charity_avatar", "background_image", "price",
                                              "current_num", "total_num", "start_time", "end_time", "status"))
-    #prepare_projects = get_prepare_projects(user.uid)
-    #current_projects, prepare_projects_num = get_current_projects_dict(prepare_projects, current_page, page_size, order, search, currency_type)
     response_data["search"] = search
     response_data["currency_type"] = currency2cid(currency_type)
     response_data["page_info"]["page"] = current_page

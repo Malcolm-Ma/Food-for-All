@@ -1,13 +1,5 @@
 from DataBase.models import *
 
-regis_action = {"send_code": 0,
-                "verify_code": 1,
-                "set_password": 2}
-
-reset_password_action = {"send_code": 0,
-                         "verify_code": 1,
-                         "set_password": 2}
-
 def encode_cookie(request, uid, encode_key = COOKIE_ENCODE_KEY):
     random_str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     s = uid

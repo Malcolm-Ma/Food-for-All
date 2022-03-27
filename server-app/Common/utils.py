@@ -1,4 +1,4 @@
-from .common import *
+from Common.common import *
 
 file_dir = {"img": IMG_DIR,
             "doc": DOC_DIR}

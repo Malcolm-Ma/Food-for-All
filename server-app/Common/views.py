@@ -1,5 +1,3 @@
-import json
-from django.http import HttpResponse, HttpResponseBadRequest
 from .common import *
 from Common.decorators import *
 
@@ -51,8 +49,6 @@ def get_region_list(request):
         ]
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     region_list = [{"region": i, "code": j} for i, j in sorted(list(REGION2RID.items()), key=lambda x: x[0])]
     response_data = {"status": STATUS_CODE["success"], "region_list": region_list}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -101,8 +97,6 @@ def get_currency_list(request):
         ]
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     currency_list = [{"currency_type": i, "code": j} for i, j in sorted(list(CURRENCY2CID.items()), key=lambda x: x[0])]
     response_data = {"status": STATUS_CODE["success"], "currency_list": currency_list}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -138,7 +132,5 @@ def get_region2currency(request):
         }
     }
     """
-    #if request.method != "GET":
-    #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"], "region2currency": RID2CID}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
