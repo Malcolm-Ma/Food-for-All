@@ -290,9 +290,6 @@ export default () => {
         extra={
           <Space>
             <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={onClose} type="primary">
-              Submit
-            </Button>
           </Space>
         }>
         <DrawerDetail detailInfo={projectDetailInfo}/>
