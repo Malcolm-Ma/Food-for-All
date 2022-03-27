@@ -1,6 +1,6 @@
 import csv
 import os
-from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR, STATUS_CODE
+from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR, STATUS_CODE, VERIFY_CODE_EXPIRES, VERIFY_CODE_KEY_REGIS, VERIFY_CODE_KEY_RESET_PASSWORD
 import time
 from hashlib import md5
 import sys
@@ -10,6 +10,8 @@ import re
 import base64 as b64
 import json
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.core.cache import caches
+import string
 
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")

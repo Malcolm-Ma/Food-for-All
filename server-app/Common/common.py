@@ -10,10 +10,6 @@ COOKIE_PATH = "/"
 COOKIE_SALT = "apex"
 COOKIE_ENCODE_KEY = 80
 
-VERIFY_CODE_EXPIRES = 30 * 60
-VERIFY_CODE_KEY_REGIS = "regis"
-VERIFY_CODE_KEY_RESET_PASSWORD = "reset_password"
-
 REGION2RID, RID2REGION = create_region_list()
 CURRENCY2CID, CID2CURRENCY = create_currency_list()
 RID2CID = create_region_currency_list()
@@ -51,19 +47,6 @@ def cid2currency(cid):
         return cid
     else:
         return ""
-
-def gen_verify_code(id_str, usefor_str, expires=VERIFY_CODE_EXPIRES, if_check=False):
-    dynamic_num = int(time.time()) // expires
-    code1 = md5((str(dynamic_num) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
-    if not if_check:
-        return code1
-    code2 = md5((str(dynamic_num - 1) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
-    return code1, code2
-
-def check_verify_code(id_str, usefor_str, code, expires=VERIFY_CODE_EXPIRES):
-    if code in gen_verify_code(id_str, usefor_str, expires=expires, if_check=True):
-        return True
-    return False
 
 def get_request_url(request):
     url = request.META.get('HTTP_X_FORWARDED_FOR')
