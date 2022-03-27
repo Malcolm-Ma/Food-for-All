@@ -21,7 +21,7 @@ def login(request):
     @apiParam {String} username Username (mail address)
     @apiParam {String} password Password
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user_already_logged_in, [100005] wrong_username, [100006] wrong_password)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100005] invalid username, [100006] wrong password)
 
     @apiParamExample {Json} Sample Request
     {
@@ -37,22 +37,22 @@ def login(request):
     #    return HttpResponseBadRequest()
     response_data = {"status": STATUS_CODE["success"]}
     if check_login(request):
-        #response_data["status"] = STATUS_CODE["user_already_logged_in"]
+        #response_data["status"] = STATUS_CODE["user is already logged in"]
         #return HttpResponse(json.dumps(response_data), content_type="application/json")
-        raise ServerError("user_already_logged_in")
+        raise ServerError("user is already logged in")
     else:
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
         user = DUser.get_user({"mail": mail})
         if not user:
-            #response_data["status"] = STATUS_CODE["wrong_username"]
+            #response_data["status"] = STATUS_CODE["invalid username"]
             #return HttpResponse(json.dumps(response_data), content_type="application/json")
-            raise ServerError("wrong_username")
+            raise ServerError("invalid username")
         elif not check_password(password, user.password):
-            #response_data["status"] = STATUS_CODE["wrong_password"]
+            #response_data["status"] = STATUS_CODE["wrong password"]
             #return HttpResponse(json.dumps(response_data), content_type="application/json")
-            raise ServerError("wrong_password")
+            raise ServerError("wrong password")
         else:
             try:
                 user.update_from_fict({"last_login_time": int(time.time())})
@@ -85,7 +85,7 @@ def regis(request):
     @apiParam {String} name (Optional) User name. Only requested if action = 2.
     @apiParam {String} avatar (Optional) Static avatar url. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter. Only requested if action = 2.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user_already_logged_in, [100007] mail_already_registered, [300002] mail_send_fail, [300003] code_verify_fail, [300004] wrong_action, [100011] wrong user type, [100012] wrong parameters for user creation, [100013] user creation failed, [300001] wrong_currency_type, [300006] wrong region name or code)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100007] email is already registered, [300002] email delivery failed, [300003] captcha verification failed, [300004] invalid action, [100011] invalid user type, [100012] wrong parameters for user creation, [100013] user creation failed, [300001] invalid currency type, [300006] wrong region name or code)
     @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
 
     @apiParamExample {Json} Sample Request (action=0)
@@ -135,32 +135,32 @@ def regis(request):
                      "action": "",
                      }
     if check_login(request):
-        #response_data["status"] = STATUS_CODE["user_already_logged_in"]
+        #response_data["status"] = STATUS_CODE["user is already logged in"]
         #return HttpResponse(json.dumps(response_data), content_type="application/json")
-        raise ServerError("user_already_logged_in")
+        raise ServerError("user is already logged in")
     data = json.loads(request.body)
     mail = data["username"]
     action = data["action"]
     response_data["action"] = action
     if action == regis_action["send_code"]:
         if DUser.get_user({"mail": mail}):
-            response_data["status"] = STATUS_CODE["mail_already_registered"]
+            response_data["status"] = STATUS_CODE["email is already registered"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         code = gen_verify_code(mail, VERIFY_CODE_KEY_REGIS)
         try:
             Mail.regis_verify(mail, code, False)
         except:
-            response_data["status"] = STATUS_CODE["mail_send_fail"]
+            response_data["status"] = STATUS_CODE["email delivery failed"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif action == regis_action["verify_code"]:
         code = data["code"]
         if not check_verify_code(mail, VERIFY_CODE_KEY_REGIS, code):
-            response_data["status"] = STATUS_CODE["code_verify_fail"]
+            response_data["status"] = STATUS_CODE["captcha verification failed"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif action == regis_action["set_password"]:
         code = data["code"]
         if not check_verify_code(mail, VERIFY_CODE_KEY_REGIS, code):
-            response_data["status"] = STATUS_CODE["code_verify_fail"]
+            response_data["status"] = STATUS_CODE["captcha verification failed"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         create_info = {"mail": mail}
         for i in ("type", "region", "currency_type", "name", "avatar"):
@@ -178,7 +178,7 @@ def regis(request):
             logger_standard.warning("Send welcome mail failed.")
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
-        response_data["status"] = STATUS_CODE["wrong_action"]
+        response_data["status"] = STATUS_CODE["invalid action"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 @api_logger_decorator()
@@ -193,7 +193,7 @@ def logout(request, user):
     @apiGroup User
     @apiDescription api for user logout
 
-    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user_not_logged_in)
+    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user is not logged in)
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -228,7 +228,7 @@ def reset_password(request, user):
     @apiParam {String} code (Optional) Reset password code received by user mail. Only requested if action = 1 or 2.
     @apiParam {String} password (Optional) Password. Only requested if action = 2.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100008] set_password_fail, [100009] mail_not_registered, [100010] user_not_match, [300002] mail_send_fail, [300003] code_verify_fail, [300004] wrong_action)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100008] password setting failed, [100009] email is not registered, [100010] mismatch between logged in user and target user, [300002] email delivery failed, [300003] captcha verification failed, [300004] invalid action)
     @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
 
     @apiParamExample {Json} Sample Request (action=0)
@@ -276,38 +276,38 @@ def reset_password(request, user):
     response_data["action"] = action
     #user = check_login(request)
     if user and mail != user.mail:
-        response_data["status"] = STATUS_CODE["user_not_match"]
+        response_data["status"] = STATUS_CODE["mismatch between logged in user and target user"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     user = DUser.get_user({"mail": mail})
     if not user:
-        response_data["status"] = STATUS_CODE["mail_not_registered"]
+        response_data["status"] = STATUS_CODE["email is not registered"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     if action == reset_password_action["send_code"]:
         code = gen_verify_code(mail, VERIFY_CODE_KEY_RESET_PASSWORD)
         try:
             Mail.reset_password_verify(mail, code, False)
         except:
-            response_data["status"] = STATUS_CODE["mail_send_fail"]
+            response_data["status"] = STATUS_CODE["email delivery failed"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif action == reset_password_action["verify_code"]:
         code = data["code"]
         if not check_verify_code(mail, VERIFY_CODE_KEY_RESET_PASSWORD, code):
-            response_data["status"] = STATUS_CODE["code_verify_fail"]
+            response_data["status"] = STATUS_CODE["captcha verification failed"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif action == reset_password_action["set_password"]:
         code = data["code"]
         if not check_verify_code(mail, VERIFY_CODE_KEY_RESET_PASSWORD, code):
-            response_data["status"] = STATUS_CODE["code_verify_fail"]
+            response_data["status"] = STATUS_CODE["captcha verification failed"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         try:
             user.update_from_fict({"password": make_password(data["password"])})
         except ServerError as se:
-            raise ServerError("set_password_fail")
+            raise ServerError("password setting failed")
         try:
             Mail.reset_password_success(mail)
         except:
             logger_standard.warning("Send reset password success mail failed.")
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
-        response_data["status"] = STATUS_CODE["wrong_action"]
+        response_data["status"] = STATUS_CODE["invalid action"]
         return HttpResponse(json.dumps(response_data), content_type="application/json")

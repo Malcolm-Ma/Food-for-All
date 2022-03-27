@@ -42,7 +42,7 @@ class DUser(models.Model):
         allow_fields = ("mail", "password", "name", "avatar", "type", "region", "currency_type", "last_login_time", "share_mail_history")
         update_fields = [i for i in update_dict if i in allow_fields]
         if "type" in update_fields and update_dict["type"] not in USER_TYPE.values():
-            raise ServerError("wrong user type")
+            raise ServerError("invalid user type")
         if "region" in update_fields:
             update_dict["region"] = region2rid(update_dict["region"])
             if not update_dict["region"]:
@@ -50,7 +50,7 @@ class DUser(models.Model):
         if "currency_type" in update_fields:
             update_dict["currency_type"] = currency2cid(update_dict["currency_type"])
             if not update_dict["currency_type"]:
-                raise ServerError("wrong_currency_type")
+                raise ServerError("invalid currency type")
         if "share_mail_history" in update_fields:
             update_dict["share_mail_history"] = str(update_dict["share_mail_history"])
         avatar_url = self.avatar
@@ -74,7 +74,7 @@ class DUser(models.Model):
                     projects.update(**project_update_dict)
             return True
         except:
-            raise ServerError("edit_user_info_fail")
+            raise ServerError("user update failed")
 
     @staticmethod
     def create(create_dict):
@@ -82,7 +82,7 @@ class DUser(models.Model):
         if not set(must_fields) == set(create_dict.keys()):
             raise ServerError("wrong parameters for user creation")
         if create_dict["type"] not in USER_TYPE.values():
-            raise ServerError("wrong user type")
+            raise ServerError("invalid user type")
         default_dict = {"uid": "",
                         "project": "[]",
                         "regis_time": int(time.time()),
@@ -95,7 +95,7 @@ class DUser(models.Model):
             raise ServerError("wrong region name or code")
         create_dict["currency_type"] = currency2cid(create_dict["currency_type"])
         if not create_dict["currency_type"]:
-            raise ServerError("wrong_currency_type")
+            raise ServerError("invalid currency type")
         if create_dict["name"] == "":
             create_dict["name"] = create_dict["mail"]
         if create_dict["avatar"] != "" and not check_url_file_exist(create_dict["avatar"], "img"):
@@ -109,8 +109,8 @@ class DUser(models.Model):
 
     def create_project(self):
         if self.type != USER_TYPE["charity"]:
-            #return STATUS_CODE["user_not_charity"], -1
-            raise ServerError("user_not_charity")
+            #return STATUS_CODE["operation is not available to individual user"], -1
+            raise ServerError("operation is not available to individual user")
         create_dict = {}
         create_dict["uid"] = self.uid
         create_dict["title"] = ""
@@ -133,16 +133,16 @@ class DUser(models.Model):
             self.add_project_to_list(create_dict["pid"])
             return create_dict["pid"]
         except:
-            #return STATUS_CODE["create_project_fail"], -1
-            raise ServerError("create_project_fail")
+            #return STATUS_CODE["project creation failed"], -1
+            raise ServerError("project creation failed")
 
     def delete_project(self, project):
         if project.uid != self.uid:
-            #return STATUS_CODE["user_not_project_owner"]
-            raise ServerError("user_not_project_owner")
+            #return STATUS_CODE["user is not the owner of the project"]
+            raise ServerError("user is not the owner of the project")
         if project.status != PROJECT_STATUS["prepare"]:
-            #return STATUS_CODE["project_non_deletable"]
-            raise ServerError("project_non_deletable")
+            #return STATUS_CODE["project is not deletable"]
+            raise ServerError("project is not deletable")
         remove_url_file(project.background_image, "img")
         self.delete_project_from_list(project.pid)
         project.delete()
@@ -150,31 +150,31 @@ class DUser(models.Model):
 
     def start_project(self, project):
         if project.uid != self.uid:
-            raise ServerError("user_not_project_owner")
+            raise ServerError("user is not the owner of the project")
         if project.status != PROJECT_STATUS["prepare"]:
-            raise ServerError("project_non_startable")
+            raise ServerError("project has already started")
         if not (project.title and project.intro and project.details and project.total_num > 0 and project.end_time > int(time.time()) and project.price > 0):
-            raise ServerError("project_information_incomplete")
+            raise ServerError("project information is incomplete")
         try:
             project.update_from_fict({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]})
         except ServerError as se:
-            raise ServerError("start_project_fail")
+            raise ServerError("project start up failed")
 
     def stop_project(self, project):
         if project.uid != self.uid:
-            raise ServerError("user_not_project_owner")
+            raise ServerError("user is not the owner of the project")
         if project.status != PROJECT_STATUS["ongoing"]:
-            raise ServerError("project_non_stopable")
+            raise ServerError("project is not ongoing")
         if project.current_num >= project.total_num or project.end_time <= int(time.time()):
             try:
                 project.update_from_fict({"status": PROJECT_STATUS["finish"]})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
-            raise ServerError("project_non_stopable")
+            raise ServerError("project is not ongoing")
         try:
             project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time())})
         except ServerError as se:
-            raise ServerError("stop_project_fail")
+            raise ServerError("project stop failed")
 
     def add_project_to_list(self, pid):
         project = eval(self.project)
@@ -255,7 +255,7 @@ class DProject(models.Model):
             if cid:
                 project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
             else:
-                raise ServerError("wrong_currency_type")
+                raise ServerError("invalid currency type")
         return project_dict
 
     def auto_update_status(self):
@@ -272,7 +272,7 @@ class DProject(models.Model):
         if "status" in update_fields and update_dict["status"] not in PROJECT_STATUS.values():
             raise ServerError("project status invalid")
         if "end_time" in update_fields and update_dict["end_time"] < int(time.time()):
-            raise ServerError("project_end_time_invalid")
+            raise ServerError("project end time is invalid")
         if "price" in update_fields and update_dict["price"] <= 0:
             raise ServerError("project price invalid")
         if "donate_history" in update_fields:
@@ -286,7 +286,7 @@ class DProject(models.Model):
                 remove_url_file(background_image_url, "img")
             return True
         except:
-            raise ServerError("edit_project_fail")
+            raise ServerError("project update failed")
 
     @staticmethod
     def gen_pid(seq=""):
@@ -332,8 +332,6 @@ class DProjectQuery(object):
         projects_dict = {}
         allow_fields = ("pid", "uid", "title", "intro", "region", "charity", "charity_avatar", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history")
         fields = allow_fields if not fields else [i for i in fields if i in allow_fields]
-        if currency_type and "price" in fields and not currency2cid(currency_type):
-            return projects_dict
         for i in range(len(self.query)):
             projects_dict[str(i)] = self.query[i].to_dict(fields=fields, currency_type=currency_type)
         return projects_dict
@@ -363,7 +361,7 @@ class DProjectQuery(object):
 
     def order_by(self, order):
         if order not in self.order_list:
-            return ""
+            raise ServerError("project order invalid")
         if not self.query:
             return self.query
         if order == "progress":
@@ -378,20 +376,19 @@ class DProjectQuery(object):
             return self.query
         q = Q()
         for w in key_word.split():
-            q = q | Q(title__icontains=w) | Q(intro__icontains=w) | Q(charity__icontains=w)  # | Q(details__icontains = w)
+            q = q | Q(title__icontains=w) | Q(intro__icontains=w) | Q(charity__icontains=w) | Q(details__icontains = w)
         self.query = self.query.filter(q)
         return self.query
 
-    def filter(self, current_batch, batch_size, order, key_word, currency_type):
-        self.query.search(key_word)
-        self.query.order_by(order)
+    def filter(self, current_batch, batch_size, order, key_word, currency_type, fields=("pid", "uid", "title", "intro", "region",
+                                             "charity", "charity_avatar", "background_image", "price",
+                                             "current_num", "total_num", "start_time", "end_time", "status")):
+        self.search(key_word)
+        self.order_by(order)
         total_num = len(self.query)
         batch_num = math.ceil(total_num / batch_size)
         self.query = self.query[(current_batch - 1) * batch_size: min(current_batch * batch_size, total_num)]
-        projects_dict = self.to_dict(fields=("pid", "uid", "title", "intro", "region",
-                                             "charity", "charity_avatar", "background_image", "price",
-                                             "current_num", "total_num", "start_time", "end_time", "status"),
-                                             currency_type=currency_type)
+        projects_dict = self.to_dict(fields=fields, currency_type=currency_type)
         return projects_dict, batch_num
 
 class Param(models.Model):

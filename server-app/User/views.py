@@ -2,7 +2,6 @@ from django.http import HttpResponse, HttpResponseBadRequest
 import json
 from Login.functions import check_login
 from .functions import *
-from Project.functions import get_all_projects
 from Common.decorators import *
 
 @api_logger_decorator()
@@ -17,7 +16,7 @@ def get_user_info(request, user):
     @apiGroup User
     @apiDescription api to get information of user that already logged in
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in)
     @apiSuccess (Success 200 return) {Dict} user_info Dict of user information. Its sub-parameters are shown below.
     @apiSuccess (Success 200 return) {String} uid (Sub-parameter of user_info) Userid
     @apiSuccess (Success 200 return) {String} mail (Sub-parameter of user_info) Mail address of user (username)
@@ -116,7 +115,7 @@ def edit_user(request, user):
     @apiParam {String} currency_type Default currency type of user.
     @apiParam {String} avatar Static avatar url of user. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user_not_logged_in, [100002] edit_user_info_fail, [300001] wrong_currency_type, [300006] wrong region name or code)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [100002] user update failed, [300001] invalid currency type, [300006] wrong region name or code)
 
     @apiParamExample {Json} Sample Request
     {
@@ -135,7 +134,7 @@ def edit_user(request, user):
     response_data = {"status": STATUS_CODE["success"]}
     #user = check_login(request)
     #if not user:
-    #    response_data["status"] = STATUS_CODE["user_not_logged_in"]
+    #    response_data["status"] = STATUS_CODE["user is not logged in"]
     #    return HttpResponse(json.dumps(response_data), content_type="application/json")
     data = json.loads(request.body)
     edit_dict = {}

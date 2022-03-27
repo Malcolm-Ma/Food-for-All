@@ -40,7 +40,7 @@ def check_request_parameters_decorator(params=()):
                 data = json.loads(request.body)
                 for i in params:
                     if i not in data:
-                        response_data = {"status": STATUS_CODE["request_parameters_wrong"]}
+                        response_data = {"status": STATUS_CODE["invalid request parameters"]}
                         return HttpResponseBadRequest(json.dumps(response_data), content_type="application/json")
             response = func(*args, **kwargs)
             return response
@@ -69,9 +69,9 @@ def get_project_decorator(force_exist=True):
             project = DProject.get_project({"pid": pid})
             if not project and force_exist:
                 #response_data = {"status": ""}
-                #response_data["status"] = STATUS_CODE["project_not_exists"]
+                #response_data["status"] = STATUS_CODE["project does not exist"]
                 #return HttpResponse(json.dumps(response_data), content_type="application/json")
-                raise ServerError("project_not_exists")
+                raise ServerError("project does not exist")
             kwargs["project"] = project
             response = func(*args, **kwargs)
             return response
@@ -86,9 +86,9 @@ def get_user_decorator(force_login=True):
             user = check_login(request)
             if not user and force_login:
                 #response_data = {"status": ""}
-                #response_data["status"] = STATUS_CODE["user_not_logged_in"]
+                #response_data["status"] = STATUS_CODE["user is not logged in"]
                 #return HttpResponse(json.dumps(response_data), content_type="application/json")
-                raise ServerError("user_not_logged_in")
+                raise ServerError("user is not logged in")
             kwargs["user"] = user
             response = func(*args, **kwargs)
             return response
