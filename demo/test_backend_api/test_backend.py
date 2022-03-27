@@ -8,7 +8,8 @@ import pymysql
 from hashlib import md5
 import csv
 
-mail = "test@example.com"
+#mail = "ty_liang@foxmail.com"
+mail = input("Input email address you are using: ")
 password = "123456"
 reset_password = "111111"
 
@@ -78,6 +79,7 @@ STATUS_CODE = {"success": 0,
                "invalid request parameters": 400001,
                "unable to get image file from request": 400002,
                "unable to get document file from request": 400003,
+               "temporary ban due to too frequent login attempts": 400004,
                }
 
 main_url = "http://127.0.0.1:8000/"
@@ -179,10 +181,10 @@ def create_project():
     r = rs.get(url_dict["create_project/"], headers=headers)
     return r
 
-def gen_verify_code(id_str, usefor_str, expires=30 * 60):
-    dynamic_num = int(time.time()) // expires
-    code = md5((str(dynamic_num) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
-    return code
+#def gen_verify_code(id_str, usefor_str, expires=30 * 60):
+#    dynamic_num = int(time.time()) // expires
+#    code = md5((str(dynamic_num) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
+#    return code
 
 if __name__ == "__main__":
     with pymysql.connect(host=mysql_host, user=mysql_user, password=mysql_password, port=mysql_port, db=mysql_db) as db:
@@ -222,7 +224,8 @@ if __name__ == "__main__":
                 f.write(check_api('regis/', STATUS_CODE["email delivery failed"], "POST", {"username": "test", "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["email delivery failed"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["captcha verification failed"], "POST", {"username": mail, "action": 1, "code": "testtest"}, '{"status": %d, "action": 1}' % STATUS_CODE["captcha verification failed"]) + "\n")
-                code = gen_verify_code(mail, "regis")#input("Input registration verification code: ")
+                #code = gen_verify_code(mail, "regis")
+                code = input("Input registration verification code: ")
                 f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 1, "code": code}, '{"status": %d, "action": 1}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["wrong parameters for user creation"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": ""}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong parameters for user creation"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["invalid user type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 9}, '{"status": %d, "action": 2}' % STATUS_CODE["invalid user type"]) + "\n")
@@ -237,7 +240,8 @@ if __name__ == "__main__":
                 f.write(check_api('reset_password/', STATUS_CODE["mismatch between logged in user and target user"], "POST", {"username": user["mail"], "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["mismatch between logged in user and target user"]) + "\n")
                 f.write(check_api('reset_password/', STATUS_CODE["success"], "POST", {"username": mail, "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('reset_password/', STATUS_CODE["captcha verification failed"], "POST", {"username": mail, "action": 1, "code": "testtest"}, '{"status": %d, "action": 1}' % STATUS_CODE["captcha verification failed"]) + "\n")
-                code = gen_verify_code(mail, "reset_password")#input("Input reset password verification code: ")
+                #code = gen_verify_code(mail, "reset_password")
+                code = input("Input reset password verification code: ")
                 f.write(check_api('reset_password/', STATUS_CODE["success"], "POST", {"username": mail, "action": 1, "code": code}, '{"status": %d, "action": 1}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('reset_password/', STATUS_CODE["success"], "POST", {"username": mail, "action": 2, "code": code, "password": reset_password}, '{"status": %d, "action": 2}' % STATUS_CODE["success"]) + "\n")
                 user_logout()
@@ -328,3 +332,8 @@ if __name__ == "__main__":
                 f.write(check_api('get_projects_list/', STATUS_CODE["project order invalid"], "POST", {"order": "-testprogress", "currency_type": "CNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d}' % STATUS_CODE["project order invalid"]) + "\n")
                 f.write(check_api('get_projects_list/', STATUS_CODE["invalid currency type"], "POST", {"order": "-progress", "currency_type": "testCNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('get_projects_list/', STATUS_CODE["success"], "POST", {"order": "-progress", "currency_type": "CNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
+
+                for _ in range(10):
+                    user_login("test", "test")
+                f.write(check_api('login/', STATUS_CODE["temporary ban due to too frequent login attempts"], "POST", {"username": "test" + user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["temporary ban due to too frequent login attempts"]) + "\n")
+                

@@ -226,18 +226,31 @@ VERIFY_CODE_EXPIRES = 30 * 60
 VERIFY_CODE_KEY_REGIS = "regis_code"
 VERIFY_CODE_KEY_RESET_PASSWORD = "reset_password_code"
 
+MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED = 10
+MAX_FAILED_LOGIN_INTERVAL_ALLOWED = 5 * 60
+MAX_FAILED_LOGIN_ATTEMPTS_KEY = "login_attempt"
+LOGIN_FORBIDDEN_KEY = "login_forbidden"
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
+        'LOCATION': 'default'
     },
     VERIFY_CODE_KEY_REGIS: {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
+        'LOCATION': VERIFY_CODE_KEY_REGIS
     },
     VERIFY_CODE_KEY_RESET_PASSWORD: {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
+        'LOCATION': VERIFY_CODE_KEY_RESET_PASSWORD
+    },
+    MAX_FAILED_LOGIN_ATTEMPTS_KEY: {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': MAX_FAILED_LOGIN_ATTEMPTS_KEY
+    },
+    LOGIN_FORBIDDEN_KEY: {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': LOGIN_FORBIDDEN_KEY
     },
 }
 
@@ -283,4 +296,5 @@ STATUS_CODE = {"success": 0,
                "invalid request parameters": 400001,
                "unable to get image file from request": 400002,
                "unable to get document file from request": 400003,
+               "temporary ban due to too frequent login attempts": 400004,
                }

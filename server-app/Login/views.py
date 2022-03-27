@@ -13,9 +13,10 @@ reset_password_action = {"send_code": 0,
                          "set_password": 2}
 
 @api_logger_decorator()
-@check_server_error_decorator()
+@check_login_forbidden_decorator()
 @check_request_method_decorator(method=["POST"])
 @check_request_parameters_decorator(params=["username", "password"])
+@record_login_fail_decorator()
 def login(request):
     """
     @api {POST} /login/ user login
@@ -27,7 +28,7 @@ def login(request):
     @apiParam {String} username Username (mail address)
     @apiParam {String} password Password
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100005] invalid username, [100006] wrong password)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100005] invalid username, [100006] wrong password, [400004] temporary ban due to too frequent login attempts)
 
     @apiParamExample {Json} Sample Request
     {

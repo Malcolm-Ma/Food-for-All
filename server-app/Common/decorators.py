@@ -1,3 +1,5 @@
+import time
+
 from Login.functions import check_login
 from Common.common import *
 from DataBase.models import *
@@ -92,5 +94,42 @@ def get_user_decorator(force_login=True):
             kwargs["user"] = user
             response = func(*args, **kwargs)
             return response
+        return wrapped_function
+    return decorator
+
+def record_login_fail_decorator():
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            try:
+                response = func(*args, **kwargs)
+            except ServerError as se:
+                request = args[0]
+                cache_attempts = caches[MAX_FAILED_LOGIN_ATTEMPTS_KEY]
+                url = get_request_url(request)
+                login_attempts = [] if not cache_attempts.get(url) else cache_attempts.get(url)
+                login_attempts = [i for i in login_attempts if i > int(time.time()) - MAX_FAILED_LOGIN_INTERVAL_ALLOWED]
+                login_attempts.append(int(time.time()))
+                cache_attempts.set(url, login_attempts, timeout=MAX_FAILED_LOGIN_INTERVAL_ALLOWED)
+                if len(login_attempts) >= MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED:
+                    cache_forbidden = caches[LOGIN_FORBIDDEN_KEY]
+                    cache_forbidden.set(url, True, timeout=MAX_FAILED_LOGIN_INTERVAL_ALLOWED)
+                response = se.response()
+            return response
+        return wrapped_function
+    return decorator
+
+def check_login_forbidden_decorator():
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            request = args[0]
+            url = get_request_url(request)
+            cache_forbidden = caches[LOGIN_FORBIDDEN_KEY]
+            if cache_forbidden.get(url):
+                response_data = {"status": STATUS_CODE["temporary ban due to too frequent login attempts"]}
+                return HttpResponseBadRequest(json.dumps(response_data), content_type="application/json")
+            else:
+                return func(*args, **kwargs)
         return wrapped_function
     return decorator
