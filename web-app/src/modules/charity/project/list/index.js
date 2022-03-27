@@ -216,7 +216,8 @@ export default () => {
         "pid": projectId,
         "currency_type": _.get(projectInfo, 'currencyType'),
       });
-      setProjectDetailInfo(res.projectInfo);
+      console.log(res);
+      setProjectDetailInfo(_.get(res,'project_info'));
       console.log(projectDetailInfo);
     } catch (error) {
       console.log(error);

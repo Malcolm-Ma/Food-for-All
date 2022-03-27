@@ -3,10 +3,12 @@ import React from "react";
 import Text from "antd/es/typography/Text";
 import {Option} from "antd/es/mentions";
 import _ from "lodash";
+import {render} from "react-dom";
 export default (props) => {
   const { detailInfo } = props;
-  const percent = 15;
-  const title = detailInfo
+  const currentNum = _.get(detailInfo,'current_num');
+  const totalNum = _.get(detailInfo,'total_num');
+  const percent = _.floor((currentNum / totalNum) * 100, 0);
   return (
     <div>
       <Form layout="vertical" hideRequiredMark>
@@ -15,10 +17,8 @@ export default (props) => {
             <Form.Item
               name="title"
               label="Name"
+
             >
-              <Text>
-                Title
-              </Text>
             </Form.Item>
           </Col>
         </Row>
