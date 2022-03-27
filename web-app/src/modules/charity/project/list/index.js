@@ -7,30 +7,32 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import moment from "moment";
 import {
-  DatePicker,
   Button,
-  Form,
-  Input,
   Progress,
   Modal,
   Table,
   Space,
   Drawer,
-  Row,
-  Col,
-  Select, InputNumber,
+  Tag,
 } from "antd";
 
 import actions from "src/actions";
 import _ from "lodash";
+import {getProjectInfo} from "src/actions/projectActions";
 
-const { Option } = Select;
+import DrawerDetail from './ProjectDetail';
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  SyncOutlined
+} from "@ant-design/icons";
 
 // Column config of a table
 // Using either dataIndex or key to point out unique props
 const columnsConfig = (payloads) => {
 
   const {
+    projectInfo,
     drawVisible,
     modalVisible,
     confirmLoading,
@@ -65,10 +67,9 @@ const columnsConfig = (payloads) => {
       title: 'Price',
       key: 'price',
       render: (text, record) => {
-        const {price: price, region: region} = record;
+        const {price: price} = record;
         const realPrice = String(_.floor(price, 2));
-        const shortRegion = region.slice(0, 3);
-        return (realPrice + shortRegion);
+        return (realPrice + _.get(projectInfo, 'currencyType'));
       }
     },
     {
@@ -84,7 +85,7 @@ const columnsConfig = (payloads) => {
       key: 'start_time',
       render: (text, record) => {
         const {start_time: startTime} = record;
-        const timeOfStart = moment(startTime).format("YYYY-MM-DD");
+        const timeOfStart = moment(startTime * 1000).format("YYYY-MM-DD");
         return timeOfStart;
       }
     },
@@ -93,7 +94,7 @@ const columnsConfig = (payloads) => {
       key: 'end_time',
       render: (text, record) => {
         const {end_time: endTime} = record;
-        const timeOfEnd = moment(endTime).format("YYYY-MM-DD");
+        const timeOfEnd = moment(endTime * 1000).format("YYYY-MM-DD");
         return timeOfEnd;
       }
     },
@@ -104,13 +105,45 @@ const columnsConfig = (payloads) => {
     {
       title: 'Progress',
       key: 'Progress',
-      width: 160,
       render: (text, record) => {
         const {current_num: currentNum, total_num: totalNum} = record;
         const percent = _.floor((currentNum / totalNum) * 100, 0);
         return (
-          <Progress percent={percent}/>
+          <Progress percent={percent} type="circle" width={60}/>
         );
+      }
+    },
+    {
+      title: 'Tags',
+      key: 'tags',
+      render: (text, record) => {
+        const {status: status} = record;
+        switch (status) {
+          case 0:
+            return (
+              <div>
+                <Tag icon={<ClockCircleOutlined/>} color="warning">
+                  Prepare
+                </Tag>
+              </div>
+            );
+          case 1:
+            return (
+              <div>
+                <Tag icon={<SyncOutlined spin/>} color="processing">
+                  Outgoing
+                </Tag>
+              </div>
+            );
+          case 2:
+            return (
+              <div>
+                <Tag icon={<CheckCircleOutlined/>} color="success">
+                  Complete
+                </Tag>
+              </div>
+            );
+        }
       }
     },
     {
@@ -119,10 +152,10 @@ const columnsConfig = (payloads) => {
       width: 160,
       render: (text, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={showDrawer}>
-            Edit
+          <Button type="primary" onClick={() => showDrawer(record.pid)}>
+            Detail
           </Button>
-          <Button type="primary" onClick={showModal}>
+          <Button type="primary" onClick={() => showModal(record.pid)}>
             Stop
           </Button>
         </Space>
@@ -137,7 +170,7 @@ export default () => {
 
   const getProjectList = useCallback(async () => {
     try {
-      const res = await actions.prepareProject();
+      const res = await actions.getProjectList()
       console.log('--res--\n', res);
       const {
         project_info: rawProjectInfo,
@@ -164,14 +197,30 @@ export default () => {
     getProjectList().catch(err => console.error(err));
   }, [getProjectList]);
 
-  //
+  // projectDetailInfo state
+  const [projectDetailInfo, setProjectDetailInfo] = React.useState({});
+
+  const [deleteProjectInfo, setDeleteProjectInfo] = React.useState(0);
+  //project progress state
+  const [progressStatus, setProgressStatus] = React.useState("exception");
+
   const [drawVisible, drawSetVisible] = React.useState(false);
   //Edit button
   const [modalVisible, modalSetVisible] = React.useState(false);
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [modalText, setModalText] = React.useState('Are you sure you want to terminate the project. Terminated projects cannot be continued.');
   //Edit popup window
-  const showDrawer = () => {
+  const showDrawer = async (projectId) => {
+    try {
+      const res = await getProjectInfo({
+        "pid": projectId,
+        "currency_type": _.get(projectInfo, 'currencyType'),
+      });
+      setProjectDetailInfo(res.projectInfo);
+      console.log(projectDetailInfo);
+    } catch (error) {
+      console.log(error);
+    }
     drawSetVisible(true);
   };
 
@@ -179,33 +228,37 @@ export default () => {
     drawSetVisible(false);
   };
   //Below is the delete button pop-up warning box
-  const showModal = () => {
+  const showModal = async (projectId) => {
+    try {
+      const res = await getProjectInfo({
+        "pid": projectId,
+        "currency_type": _.get(projectInfo, 'currencyType'),
+      });
+      setDeleteProjectInfo(projectId);
+    } catch (error) {
+      console.log(error);
+    }
     modalSetVisible(true);
   };
 
   const handleOk = () => {
     setModalText('Terminating project.');
     setConfirmLoading(true);
-
+    actions.stopProject({
+      "pid": deleteProjectInfo,
+    });
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
-    }, 3000);
+    }, 2000);
   };
 
   const handleCancel = () => {
     console.log('Clicked cancel button');
     modalSetVisible(false);
   };
-  const selectAfter = (
-    <Select defaultValue="GBP" style={{ width: 60 }}>
-      <Option value="USD">$</Option>
-      <Option value="EUR">€</Option>
-      <Option value="GBP">£</Option>
-      <Option value="CNY">¥</Option>
-    </Select>
-  );
   const payloads = {
+    projectInfo,
     drawVisible,
     modalVisible,
     confirmLoading,
@@ -216,6 +269,7 @@ export default () => {
     handleOk,
     handleCancel,
   };
+
   return (
     <div>
       <Table
@@ -225,7 +279,7 @@ export default () => {
       />
       <Drawer
         className='ffa-home'
-        title="Edit Drawer"
+        title="Project Detail Info"
         placement="right"
         onClose={onClose}
         zIndex={10000}
@@ -240,73 +294,10 @@ export default () => {
             </Button>
           </Space>
         }>
-        <Form layout="vertical" hideRequiredMark>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="title"
-                label="Title"
-                rules={[{required: true, message: 'Please enter new title'}]}
-              >
-                <Input placeholder="Please enter title"/>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="introduction"
-                label="Introduction"
-                rules={[
-                  {
-                    required: true,
-                    message: 'please enter new introduction',
-                  },
-                ]}
-              >
-                <Input.TextArea rows={4} placeholder="please enter introduction"/>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="num"
-                label="Num"
-                rules={[{required: true, message: 'Please enter new num'}]}
-              >
-                <InputNumber min={1} max={10000000} style={{ width: '100%' }}/>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="price"
-                label="Price"
-                rules={[{required: true, message: 'Please enter new price'}]}
-              >
-                <InputNumber addonAfter={selectAfter} min={1} max={30} style={{ width: '100%' }}/>
-              </Form.Item>
-            </Col>
-
-          </Row>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="dateTime"
-                label="DateTime"
-                rules={[{required: true, message: 'Please choose the dateTime'}]}
-              >
-                <DatePicker.RangePicker
-                  style={{ width: '100%' }}
-                  getPopupContainer={trigger => trigger.parentElement}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+        <DrawerDetail detailInfo={projectDetailInfo}/>
       </Drawer>
       <Modal
-        title= "Stop Project"
+        title="Stop Project"
         visible={modalVisible}
         onOk={handleOk}
         confirmLoading={confirmLoading}
