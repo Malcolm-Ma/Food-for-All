@@ -222,6 +222,25 @@ LOGGING = {
     },
 }
 
+VERIFY_CODE_EXPIRES = 30 * 60
+VERIFY_CODE_KEY_REGIS = "regis_code"
+VERIFY_CODE_KEY_RESET_PASSWORD = "reset_password_code"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    },
+    VERIFY_CODE_KEY_REGIS: {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    },
+    VERIFY_CODE_KEY_RESET_PASSWORD: {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake'
+    },
+}
+
 RESOURCE_DIR = os.path.join(BASE_DIR, "Resource")
 
 APPEND_SLASH=False
