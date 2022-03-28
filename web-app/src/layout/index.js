@@ -3,6 +3,7 @@ import { Layout as AntdLayout } from 'antd';
 import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { useDispatch, useSelector } from "react-redux";
+import classNames from "classnames";
 
 import layoutConfig from 'src/configure/layout';
 import actions from "src/actions";
@@ -22,8 +23,8 @@ const Layout = (props) => {
 
   const { pathname } = location;
 
-  const sidebarHidingStatus = useMemo(() => _.some(
-    layoutConfig.hideSidebar,
+  const sidebarShowingStatus = useMemo(() => _.some(
+    layoutConfig.showSidebar,
     item => item.test(pathname)
   ), [pathname]);
 
@@ -36,21 +37,23 @@ const Layout = (props) => {
   }, [userInfo]);
 
   return (
-    <AntdLayout className="ffa-frame">
+    <div className="ffa-frame">
       {
         initStatus
           ? <>
             <Header />
-            <AntdLayout>
-              {!sidebarHidingStatus && <Sidebar />}
-              <AntdLayout className="frame-content">
-                <Main />
-              </AntdLayout>
+            <AntdLayout className={
+              classNames({
+                'frame-content-with-sidebar': sidebarShowingStatus,
+              })
+            }>
+              {sidebarShowingStatus && <Sidebar />}
+              <Main />
             </AntdLayout>
           </>
           : <div></div>
       }
-    </AntdLayout>
+    </div>
   );
 };
 
