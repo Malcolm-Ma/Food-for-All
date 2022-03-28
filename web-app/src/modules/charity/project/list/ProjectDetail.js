@@ -1,11 +1,8 @@
-import {Col, Form, Input, Row, Select, Space, DatePicker, Progress, Descriptions, Image} from "antd"
+import {Col, Form, Row, Progress, Descriptions, Image} from "antd"
 import React from "react";
-import Text from "antd/es/typography/Text";
-import {Option} from "antd/es/mentions";
 import _ from "lodash";
-import {Description} from "@mui/icons-material";
-import {render} from "react-dom";
-import moment from "moment";
+import moment from 'moment';
+import { SERVICE_BASE_URL } from "src/constants/constants";
 
 export default (props) => {
   const {detailInfo} = props;
@@ -43,7 +40,7 @@ export default (props) => {
               label="Picture"
             >
               <Image
-                src={_.get(detailInfo, 'background_image')}
+                src={SERVICE_BASE_URL + _.get(detailInfo, 'background_image')}
               />
             </Form.Item>
           </Col>

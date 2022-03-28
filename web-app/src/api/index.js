@@ -6,14 +6,12 @@
 import axios from "axios";
 import _ from 'lodash';
 
-import { STATUS_CODE } from 'src/constants/constants';
-
-const BASE_URL = 'http://localhost:8000'
+import { STATUS_CODE, SERVICE_BASE_URL } from 'src/constants/constants';
 
 export class Api {
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: BASE_URL,
+      baseURL: SERVICE_BASE_URL,
     });
 
     this.codeStatus = _.reduce(STATUS_CODE, (result, value, key) => {

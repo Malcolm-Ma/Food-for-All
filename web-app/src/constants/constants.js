@@ -33,3 +33,5 @@ export const STATUS_CODE = {
   WRONG_ACTION: 300004,
   REQUEST_PARAMETERS_WRONG: 400001,
 }
+
+export const SERVICE_BASE_URL = 'http://localhost:8000/'
