@@ -177,6 +177,7 @@ export default () => {
   const dispatch = useDispatch();
 
   const { regionMap } = useSelector(state => state.global);
+  const { userInfo } = useSelector(state => state.user);
 
   const tableWrapperRef = useRef(null);
 
@@ -185,7 +186,7 @@ export default () => {
   const getProjectList = useCallback(async () => {
     try {
       const res = await actions.getProjectList({
-        currency_type: "GBP",
+        currency_type: userInfo.currency_type || 'GBP',
         page_info: {
           page_size: 10000,
           page: 1
@@ -238,7 +239,10 @@ export default () => {
         "pid": projectId,
         "currency_type": _.get(projectInfo, 'currencyType'),
       });
-      setProjectDetailInfo(_.get(res, 'project_info'));
+      setProjectDetailInfo({
+        ..._.get(res, 'project_info'),
+        currencyType: _.get(projectInfo, 'currencyType'),
+      });
     } catch (error) {
       console.log(error);
     }
@@ -249,16 +253,8 @@ export default () => {
     drawSetVisible(false);
   };
   //Below is the delete button pop-up warning box
-  const showModal = async (projectId) => {
-    try {
-      const res = await getProjectInfo({
-        "pid": projectId,
-        "currency_type": _.get(projectInfo, 'currencyType'),
-      });
-      setDeleteProjectInfo(projectId);
-    } catch (error) {
-      console.log(error);
-    }
+  const showModal = (projectId) => {
+    setDeleteProjectInfo(projectId);
     modalSetVisible(true);
   };
 
@@ -271,7 +267,8 @@ export default () => {
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
-    }, 2000);
+    }, 500);
+    getProjectList();
   };
 
   const handleCancel = () => {
