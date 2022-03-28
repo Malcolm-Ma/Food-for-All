@@ -20,7 +20,7 @@ export default (props) => {
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item
-              label="Name"
+              label="Title"
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'title')}</Descriptions.Item>
@@ -67,7 +67,9 @@ export default (props) => {
               label="Price"
             >
               <Descriptions>
-                <Descriptions.Item>{String(_.floor(_.get(detailInfo, 'price'), 2))}</Descriptions.Item>
+                <Descriptions.Item>
+                  {_.floor(_.get(detailInfo, 'price'), 2) + ' ' + detailInfo.currencyType}
+                </Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
@@ -96,7 +98,9 @@ export default (props) => {
               label="Start Time"
             >
               <Descriptions>
-                <Descriptions.Item>{moment(_.get(detailInfo, 'start_time') * 1000).format("YYYY-MM-DD")}</Descriptions.Item>
+                <Descriptions.Item>
+                  {moment(_.get(detailInfo, 'start_time') * 1000).format("MMM DD, YYYY")}
+                </Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
@@ -105,7 +109,9 @@ export default (props) => {
               label="End Time"
             >
               <Descriptions>
-                <Descriptions.Item>{moment(_.get(detailInfo, 'end_time') * 1000).format("YYYY-MM-DD")}</Descriptions.Item>
+                <Descriptions.Item>
+                  {moment(_.get(detailInfo, 'end_time') * 1000).format("MMM DD, YYYY")}
+                </Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
