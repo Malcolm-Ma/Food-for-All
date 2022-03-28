@@ -14,11 +14,16 @@ import {
   Space,
   Drawer,
   Tag,
+  Select, InputNumber, Upload, message,
 } from "antd";
 
 import actions from "src/actions";
 import _ from "lodash";
 import { getProjectInfo } from "src/actions/projectActions";
+import {InboxOutlined} from "@ant-design/icons";
+import {useNavigate} from "react-router-dom";
+
+import EditDetail from "./EditDetail";
 
 import DrawerDetail from './ProjectDetail';
 import {
@@ -28,6 +33,8 @@ import {
 } from "@ant-design/icons";
 
 import './index.less';
+
+const { Option } = Select;
 
 // Column config of a table
 // Using either dataIndex or key to point out unique props
@@ -133,6 +140,7 @@ const columnsConfig = (payloads) => {
         return text;
       },
     },
+    // @Todo prepared project don't have start time
     {
       title: 'Start Time',
       key: 'start_time',
@@ -156,14 +164,15 @@ const columnsConfig = (payloads) => {
     {
       title: 'Action',
       key: 'action',
-      width: 160,
-      fixed: 'right',
       render: (text, record) => (
         <Space size="middle">
           <Button type="primary" onClick={() => showDrawer(record.pid)}>
             Detail
           </Button>
-          <Button type="primary" onClick={() => showModal(record.pid)}>
+          <Button type="primary" onClick={() => showDrawer(record)} disabled={status==="0"}>
+            Edit
+          </Button>
+          <Button type="primary" onClick={showModal}>
             Stop
           </Button>
         </Space>
@@ -174,17 +183,25 @@ const columnsConfig = (payloads) => {
 
 export default () => {
 
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
 
   const { regionMap } = useSelector(state => state.global);
+  const {currencyList} = useSelector(state => state.global);
   const { userInfo } = useSelector(state => state.user);
 
   const tableWrapperRef = useRef(null);
 
   const [projectInfo, setProjectInfo] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [price, setPrice] = useState(100);
+  const [donation, setDonation] = useState(10);
+  const [targetProject, setTargetProject] = useState({});
 
   const getProjectList = useCallback(async () => {
     try {
+      // const res = await actions.prepareProject();
       const res = await actions.getProjectList({
         currency_type: userInfo.currency_type || 'GBP',
         page_info: {
@@ -214,6 +231,11 @@ export default () => {
       console.error(e);
     }
   }, []);
+
+  useEffect(() => {
+    dispatch(actions.getUserInfo());
+    dispatch(actions.getCurrencyList());
+  }, [dispatch]);
 
   useEffect(() => {
     getProjectList().catch(err => console.error(err));
@@ -246,8 +268,14 @@ export default () => {
     } catch (error) {
       console.log(error);
     }
-    drawSetVisible(true);
-  };
+
+  // const showDrawer = (record) => {
+  //   console.log('record',record);
+  //   setTargetProject(record);
+  //   setPrice(record.price);
+  //   setDonation(record.total_num);
+  //   drawSetVisible(true);
+  // };
 
   const onClose = () => {
     drawSetVisible(false);
@@ -269,12 +297,14 @@ export default () => {
       setConfirmLoading(false);
     }, 500);
     getProjectList();
+    setIsModalVisible(false);
   };
 
   const handleCancel = () => {
     console.log('Clicked cancel button');
     modalSetVisible(false);
   };
+
   const payloads = {
     projectInfo,
     drawVisible,
@@ -301,6 +331,7 @@ export default () => {
       <Drawer
         className='ffa-home'
         title="Project Detail Info"
+        // title="Edit Project"
         placement="right"
         onClose={onClose}
         visible={drawVisible}
@@ -312,6 +343,7 @@ export default () => {
           </Space>
         }>
         <DrawerDetail detailInfo={projectDetailInfo} />
+        {/*<EditDetail targetProject={targetProject}/>*/}
       </Drawer>
       <Modal
         title="Stop Project"

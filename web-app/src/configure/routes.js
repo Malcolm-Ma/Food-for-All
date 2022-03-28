@@ -49,4 +49,20 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/account/profile',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
+    path: '/project/create/result',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create/Result.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
