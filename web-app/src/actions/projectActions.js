@@ -21,6 +21,6 @@ export const editProject = params => api.post(apiConfig.editProject, params);
 
 export const stopProject = params => api.post(apiConfig.stopProject, params);
 
-export const getProjectInfo = params => api.post(apiConfig.getProjectInfo, params);
+export const getProjectInfo = params => api.post(apiConfig.projectInfo, params);
 
-export const prepareProject = params => api.get(apiConfig.prepareProject, params);
+export const getPrepareProject = params => api.get(apiConfig.prepareProject, params);

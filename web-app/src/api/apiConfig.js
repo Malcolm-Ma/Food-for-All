@@ -13,7 +13,9 @@ export default {
   currencyList: '/currency_list/',
   logout: '/logout/',
   projectList: '/get_projects_list/',
+  projectInfo: '/get_project/',
+  editUser: '/edit_user/',
+  prepareProject: '/get_prepare_projects_list/',
   stopProject:'/stop_project/',
   getProjectInfo:'/get_project/',
-  prepareProject:'/prepare_project/',
 };

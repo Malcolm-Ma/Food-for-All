@@ -4,7 +4,6 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import React from 'react';
 import moment from "moment";
 import {
   Button,
@@ -14,18 +13,23 @@ import {
   Space,
   Drawer,
   Tag,
+  Switch,
+  Tooltip,
 } from "antd";
 
 import actions from "src/actions";
 import _ from "lodash";
 import { getProjectInfo } from "src/actions/projectActions";
+import { InboxOutlined } from "@ant-design/icons";
 
-import DrawerDetail from './ProjectDetail';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   SyncOutlined
 } from "@ant-design/icons";
+
+import EditDetail from "./EditDetail";
+import DrawerDetail from './ProjectDetail';
 
 import './index.less';
 
@@ -45,9 +49,10 @@ const columnsConfig = (payloads) => {
     handleOk,
     handleCancel,
     regionMap,
+    prepareMode,
   } = payloads;
 
-  return [
+  return _.compact([
     {
       title: 'Title',
       dataIndex: 'title',
@@ -60,6 +65,12 @@ const columnsConfig = (payloads) => {
       dataIndex: 'intro',
       ellipsis: true,
       width: 160,
+      render: value =>
+        <Tooltip title={value}>
+          <div style={{ float: 'left', maxWidth: '100%', cursor: 'pointer' }}>
+            {value.substring(0,12)+'...'}
+          </div>
+        </Tooltip>
     },
     {
       title: 'Status',
@@ -133,7 +144,8 @@ const columnsConfig = (payloads) => {
         return text;
       },
     },
-    {
+    // @Todo prepared project don't have start time
+    (!prepareMode && {
       title: 'Start Time',
       key: 'start_time',
       width: 130,
@@ -142,7 +154,7 @@ const columnsConfig = (payloads) => {
         const timeOfStart = moment(startTime * 1000).format("MMM DD, YYYY");
         return timeOfStart;
       }
-    },
+    }),
     {
       title: 'End Time',
       key: 'end_time',
@@ -156,20 +168,23 @@ const columnsConfig = (payloads) => {
     {
       title: 'Action',
       key: 'action',
-      width: 160,
-      fixed: 'right',
+      width: 200,
+      align: 'right',
       render: (text, record) => (
-        <Space size="middle">
-          <Button type="primary" onClick={() => showDrawer(record.pid)}>
+        <Space size={0}>
+          <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
             Detail
           </Button>
-          <Button type="primary" onClick={() => showModal(record.pid)}>
+          <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
+            Edit
+          </Button>
+          <Button type="link" onClick={showModal}>
             Stop
           </Button>
         </Space>
       ),
     },
-  ];
+  ]);
 }
 
 export default () => {
@@ -177,25 +192,47 @@ export default () => {
   const dispatch = useDispatch();
 
   const { regionMap } = useSelector(state => state.global);
+  const { currencyList } = useSelector(state => state.global);
   const { userInfo } = useSelector(state => state.user);
 
-  const tableWrapperRef = useRef(null);
-
   const [projectInfo, setProjectInfo] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [prepareMode, setPrepareMode] = useState(false);
+  const [drawerType, setDrawerType] = useState('');
+
+  // projectDetailInfo state
+  const [projectDetailInfo, setProjectDetailInfo] = useState({});
+
+  const [deleteProjectInfo, setDeleteProjectInfo] = useState(0);
+  //project progress state
+  const [progressStatus, setProgressStatus] = useState("exception");
+
+  const [drawVisible, drawSetVisible] = useState(false);
+  //Edit button
+  const [modalVisible, modalSetVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [modalText, setModalText] = useState('Are you sure you want to terminate the project. '
+    + 'Terminated projects cannot be continued.');
 
   const getProjectList = useCallback(async () => {
     try {
-      const res = await actions.getProjectList({
-        currency_type: userInfo.currency_type || 'GBP',
-        page_info: {
-          page_size: 10000,
-          page: 1
-        },
-        search: '',
-        order: '',
-        uid: '',
-        valid_only: '',
-      });
+      let res = {};
+      if (prepareMode) {
+        res = await actions.getPrepareProject();
+      } else {
+        res = await actions.getProjectList({
+          currency_type: userInfo.currency_type || 'GBP',
+          page_info: {
+            page_size: 10000,
+            page: 1
+          },
+          search: '',
+          order: '',
+          uid: '',
+          valid_only: '',
+        });
+      }
       const {
         project_info: rawProjectInfo,
         page_info: pageInfo,
@@ -213,27 +250,20 @@ export default () => {
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [prepareMode, userInfo.currency_type]);
+
+  useEffect(() => {
+    dispatch(actions.getCurrencyList());
+  }, [dispatch]);
 
   useEffect(() => {
     getProjectList().catch(err => console.error(err));
     dispatch(actions.getRegionList());
   }, [dispatch, getProjectList]);
 
-  // projectDetailInfo state
-  const [projectDetailInfo, setProjectDetailInfo] = React.useState({});
-
-  const [deleteProjectInfo, setDeleteProjectInfo] = React.useState(0);
-  //project progress state
-  const [progressStatus, setProgressStatus] = React.useState("exception");
-
-  const [drawVisible, drawSetVisible] = React.useState(false);
-  //Edit button
-  const [modalVisible, modalSetVisible] = React.useState(false);
-  const [confirmLoading, setConfirmLoading] = React.useState(false);
-  const [modalText, setModalText] = React.useState('Are you sure you want to terminate the project. Terminated projects cannot be continued.');
   //Edit popup window
-  const showDrawer = async (projectId) => {
+  const showDrawer = async (source, projectId) => {
+    setDrawerType(source);
     try {
       const res = await getProjectInfo({
         "pid": projectId,
@@ -243,11 +273,11 @@ export default () => {
         ..._.get(res, 'project_info'),
         currencyType: _.get(projectInfo, 'currencyType'),
       });
+      drawSetVisible(true);
     } catch (error) {
       console.log(error);
     }
-    drawSetVisible(true);
-  };
+  }
 
   const onClose = () => {
     drawSetVisible(false);
@@ -269,12 +299,18 @@ export default () => {
       setConfirmLoading(false);
     }, 500);
     getProjectList();
+    setIsModalVisible(false);
   };
 
   const handleCancel = () => {
     console.log('Clicked cancel button');
     modalSetVisible(false);
   };
+
+  const handleModeChange = (checked) => {
+    setPrepareMode(checked);
+  };
+
   const payloads = {
     projectInfo,
     drawVisible,
@@ -282,6 +318,7 @@ export default () => {
     confirmLoading,
     modalText,
     regionMap,
+    prepareMode,
     showDrawer,
     onClose,
     showModal,
@@ -290,9 +327,12 @@ export default () => {
   };
 
   return (
-    <div>
+    <div className="project-list">
+      <div>
+        <Switch onChange={handleModeChange} />
+        <span>Prepare Mode</span>
+      </div>
       <Table
-        ref={tableWrapperRef}
         columns={columnsConfig(payloads)}
         rowKey={record => record.pid}
         dataSource={_.get(projectInfo, 'projectInfo', [])}
@@ -301,6 +341,7 @@ export default () => {
       <Drawer
         className='ffa-home'
         title="Project Detail Info"
+        // title="Edit Project"
         placement="right"
         onClose={onClose}
         visible={drawVisible}
@@ -311,7 +352,8 @@ export default () => {
             <Button onClick={onClose}>Cancel</Button>
           </Space>
         }>
-        <DrawerDetail detailInfo={projectDetailInfo} />
+        {drawerType === 'detail' && <DrawerDetail detailInfo={projectDetailInfo} />}
+        {drawerType === 'edit' && <EditDetail targetProject={projectDetailInfo}/>}
       </Drawer>
       <Modal
         title="Stop Project"
@@ -323,7 +365,6 @@ export default () => {
         <p>{modalText}</p>
       </Modal>
     </div>
-
   );
 
 };
