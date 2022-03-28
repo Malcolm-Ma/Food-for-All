@@ -1,14 +1,19 @@
-import {Col, Form, Row, Progress, Descriptions, Image} from "antd"
+import { Col, Form, Row, Progress, Descriptions, Image } from "antd"
 import React from "react";
 import _ from "lodash";
 import moment from 'moment';
 import { SERVICE_BASE_URL } from "src/constants/constants";
+import { useSelector } from "react-redux";
 
 export default (props) => {
-  const {detailInfo} = props;
+  const { detailInfo } = props;
+
+  const { regionMap } = useSelector(state => state.global);
+
   const currentNum = _.get(detailInfo, 'current_num');
   const totalNum = _.get(detailInfo, 'total_num');
   const percent = _.floor((currentNum / totalNum) * 100, 0);
+
   return (
     <div>
       <Form layout="vertical" hideRequiredMark>
@@ -30,6 +35,17 @@ export default (props) => {
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'intro')}</Descriptions.Item>
+              </Descriptions>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              label="Details"
+            >
+              <Descriptions>
+                <Descriptions.Item>{_.get(detailInfo, 'details')}</Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
@@ -100,7 +116,16 @@ export default (props) => {
               label="Region"
             >
               <Descriptions>
-                <Descriptions.Item>{_.get(detailInfo, 'region')}</Descriptions.Item>
+                <Descriptions.Item>{
+                  (() => {
+                    const region = _.get(detailInfo, 'region');
+                    const fullRegion = _.get(regionMap, region);
+                    if (fullRegion) {
+                      return `${fullRegion} (${region})`;
+                    }
+                    return region;
+                  })()
+                }</Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
@@ -109,7 +134,7 @@ export default (props) => {
               name="progress"
               label="Progress"
             >
-              <Progress percent={percent} width={60}/>
+              <Progress percent={percent} width={60} />
             </Form.Item>
           </Col>
         </Row>

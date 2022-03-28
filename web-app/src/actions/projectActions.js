@@ -2,10 +2,18 @@
  * @file project actions
  * @author Mingze Ma
  */
+
+import _ from 'lodash';
+
 import api from "src/api";
 import apiConfig from "src/api/apiConfig";
 
-export const getProjectList = params => api.get(apiConfig.projectList, params);
+export const getProjectList = params => {
+  if (_.isNil(params)) {
+    return api.get(apiConfig.projectList, params);
+  }
+  return api.post(apiConfig.projectList, params);
+};
 
 export const createProject = params => api.get(apiConfig.createProject, params);
 

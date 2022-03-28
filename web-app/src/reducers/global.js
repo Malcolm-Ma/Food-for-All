@@ -10,16 +10,18 @@ import {
 
 const initialState = {
   regionList: [],
+  regionMap: {},
   currencyList: [],
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case SET_REGION_LIST: {
-      const { regionList = [] } = action.payload;
+      const { regionList = [], regionMap } = action.payload;
       return {
         ...state,
         regionList,
+        regionMap,
       };
     }
     case SET_CURRENCY_LIST: {

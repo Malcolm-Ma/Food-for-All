@@ -2,9 +2,9 @@
  * @file Project list page
  * @author Mingze Ma
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import React from 'react';
-import 'antd/dist/antd.css';
 import moment from "moment";
 import {
   Button,
@@ -44,6 +44,7 @@ const columnsConfig = (payloads) => {
     showModal,
     handleOk,
     handleCancel,
+    regionMap,
   } = payloads;
 
   return [
@@ -59,56 +60,6 @@ const columnsConfig = (payloads) => {
       dataIndex: 'intro',
       ellipsis: true,
       width: 160,
-    },
-    {
-      title: 'Price',
-      key: 'price',
-      render: (text, record) => {
-        const { price: price } = record;
-        const realPrice = String(_.floor(price, 2));
-        return (realPrice + ' ' + _.get(projectInfo, 'currencyType'));
-      }
-    },
-    {
-      title: 'Donation Num',
-      dataIndex: 'current_num',
-      render: (text, record) => {
-        const { total_num: totalNum } = record;
-        return `${text} / ${totalNum}`;
-      }
-    },
-    {
-      title: 'Start Time',
-      key: 'start_time',
-      render: (text, record) => {
-        const { start_time: startTime } = record;
-        const timeOfStart = moment(startTime * 1000).format("MMM DD, YYYY");
-        return timeOfStart;
-      }
-    },
-    {
-      title: 'End Time',
-      key: 'end_time',
-      render: (text, record) => {
-        const { end_time: endTime } = record;
-        const timeOfEnd = moment(endTime * 1000).format("MMM DD, YYYY");
-        return timeOfEnd;
-      }
-    },
-    {
-      title: 'Region',
-      dataIndex: 'region',
-    },
-    {
-      title: 'Progress',
-      key: 'Progress',
-      render: (text, record) => {
-        const { current_num: currentNum, total_num: totalNum } = record;
-        const percent = _.floor((currentNum / totalNum) * 100, 0);
-        return (
-          <Progress percent={percent} type="circle" width={60} />
-        );
-      }
     },
     {
       title: 'Status',
@@ -144,6 +95,65 @@ const columnsConfig = (payloads) => {
       }
     },
     {
+      title: 'Price',
+      key: 'price',
+      render: (text, record) => {
+        const { price: price } = record;
+        const realPrice = String(_.floor(price, 2));
+        return (realPrice + ' ' + _.get(projectInfo, 'currencyType'));
+      }
+    },
+    {
+      title: 'Progress',
+      key: 'Progress',
+      render: (text, record) => {
+        const { current_num: currentNum, total_num: totalNum } = record;
+        const percent = _.floor((currentNum / totalNum) * 100, 0);
+        return (
+          <Progress percent={percent} type="circle" width={60} />
+        );
+      }
+    },
+    {
+      title: 'Donation Num',
+      dataIndex: 'current_num',
+      render: (text, record) => {
+        const { total_num: totalNum } = record;
+        return `${text} / ${totalNum}`;
+      }
+    },
+    {
+      title: 'Region',
+      dataIndex: 'region',
+      render: (text, record) => {
+        const fullRegionName = _.get(regionMap, text);
+        if (fullRegionName) {
+          return `${fullRegionName} (${text})`;
+        }
+        return text;
+      },
+    },
+    {
+      title: 'Start Time',
+      key: 'start_time',
+      width: 130,
+      render: (text, record) => {
+        const { start_time: startTime } = record;
+        const timeOfStart = moment(startTime * 1000).format("MMM DD, YYYY");
+        return timeOfStart;
+      }
+    },
+    {
+      title: 'End Time',
+      key: 'end_time',
+      width: 130,
+      render: (text, record) => {
+        const { end_time: endTime } = record;
+        const timeOfEnd = moment(endTime * 1000).format("MMM DD, YYYY");
+        return timeOfEnd;
+      }
+    },
+    {
       title: 'Action',
       key: 'action',
       width: 160,
@@ -164,12 +174,27 @@ const columnsConfig = (payloads) => {
 
 export default () => {
 
+  const dispatch = useDispatch();
+
+  const { regionMap } = useSelector(state => state.global);
+
+  const tableWrapperRef = useRef(null);
+
   const [projectInfo, setProjectInfo] = useState({});
 
   const getProjectList = useCallback(async () => {
     try {
-      const res = await actions.getProjectList()
-      console.log('--res--\n', res);
+      const res = await actions.getProjectList({
+        currency_type: "GBP",
+        page_info: {
+          page_size: 10000,
+          page: 1
+        },
+        search: '',
+        order: '',
+        uid: '',
+        valid_only: '',
+      });
       const {
         project_info: rawProjectInfo,
         page_info: pageInfo,
@@ -177,14 +202,12 @@ export default () => {
         ...otherProps
       } = res;
       const projectInfo = _.values(rawProjectInfo);
-      console.log('--projectInfo--\n', projectInfo);
       const result = {
         ...otherProps,
         projectInfo,
         pageInfo,
         currencyType,
       };
-      console.log('--result--\n', result);
       setProjectInfo(result);
     } catch (e) {
       console.error(e);
@@ -193,7 +216,8 @@ export default () => {
 
   useEffect(() => {
     getProjectList().catch(err => console.error(err));
-  }, [getProjectList]);
+    dispatch(actions.getRegionList());
+  }, [dispatch, getProjectList]);
 
   // projectDetailInfo state
   const [projectDetailInfo, setProjectDetailInfo] = React.useState({});
@@ -214,9 +238,7 @@ export default () => {
         "pid": projectId,
         "currency_type": _.get(projectInfo, 'currencyType'),
       });
-      console.log(res);
       setProjectDetailInfo(_.get(res, 'project_info'));
-      console.log(projectDetailInfo);
     } catch (error) {
       console.log(error);
     }
@@ -262,6 +284,7 @@ export default () => {
     modalVisible,
     confirmLoading,
     modalText,
+    regionMap,
     showDrawer,
     onClose,
     showModal,
@@ -272,10 +295,11 @@ export default () => {
   return (
     <div>
       <Table
+        ref={tableWrapperRef}
         columns={columnsConfig(payloads)}
         rowKey={record => record.pid}
         dataSource={_.get(projectInfo, 'projectInfo', [])}
-        scroll={{ x: 1300 }}
+        scroll={{ x: 1500 }}
       />
       <Drawer
         className='ffa-home'
