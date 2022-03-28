@@ -36,7 +36,7 @@ export default [
   {
     path: '/project/create',
     component: loadable({
-      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create'),
+      loader: () => import(/* webpackChunkName: 'project' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create'),
       loading: Loading,
     }),
     exact: true,
@@ -44,7 +44,7 @@ export default [
   {
     path: '/project/list',
     component: loadable({
-      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/list'),
+      loader: () => import(/* webpackChunkName: 'project' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/list'),
       loading: Loading,
     }),
     exact: true,
@@ -52,7 +52,7 @@ export default [
   {
     path: '/account/profile',
     component: loadable({
-      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
+      loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
       loading: Loading,
     }),
     exact: true,
@@ -60,7 +60,7 @@ export default [
   {
     path: '/project/create/result',
     component: loadable({
-      loader: () => import(/* webpackChunkName: 'register' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create/Result.js'),
+      loader: () => import(/* webpackChunkName: 'project' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create/Result.js'),
       loading: Loading,
     }),
     exact: true,

@@ -14,7 +14,7 @@ export default () => {
     navigate('/');
   };
 
-  return(
+  return (
     <Result
       status="success"
       title="Successfully Created Your Project!"

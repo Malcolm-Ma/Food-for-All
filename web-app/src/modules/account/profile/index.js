@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import actions from "src/actions";
 import {message} from 'antd';
+import _ from 'lodash';
 
 
 export default () => {
@@ -23,7 +24,7 @@ export default () => {
   }, [dispatch]);
 
   const {userInfo} = useSelector(state => state.user);
-  const { regionList, currencyList } = useSelector(state => state.global);
+  const { regionList, currencyList, regionMap } = useSelector(state => state.global);
   const currencyCode = currencyList.map(item => item.value);
 
   const [nameColor, setNameColor] = useState(null);
@@ -37,12 +38,11 @@ export default () => {
   const [currency, setCurrency] = useState(userInfo.currency_type);
 
   function getRegionName(value) {
-    return regionList.filter(
-      function(regionList){return regionList.value == value}
-    );
+    // return regionList.filter(
+    //   function(regionList){return regionList.value == value}
+    // );
+    return regionMap[value];
   }
-
-  console.log('region', getRegionName(userInfo.region).map(item => item.label));
 
   const handleDisplay = () => {
     setNameColor(null);
@@ -157,7 +157,7 @@ export default () => {
       </Grid>
 
 
-      <Grid item xs={6} display={display}>
+      {display !== 'none' && <Grid item xs={6}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={4}>
             <Grid item xs={12}>
@@ -175,8 +175,8 @@ export default () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Autocomplete
-                defaultValue={getRegionName(userInfo.region).map(item => item.label)[0]}
+              {!_.isEmpty(regionList) && <Autocomplete
+                defaultValue={getRegionName(userInfo.region)}
                 disablePortal
                 fullWidth
                 id="region"
@@ -193,7 +193,7 @@ export default () => {
                   color={regionColor}
                   focused
                 />}
-              />
+              />}
             </Grid>
 
             <Grid item xs={12}>
@@ -230,7 +230,7 @@ export default () => {
           </Grid>
         </form>
 
-      </Grid>
+      </Grid>}
     </Grid>
   );
 };

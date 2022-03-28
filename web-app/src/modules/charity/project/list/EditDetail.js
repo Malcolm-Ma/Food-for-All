@@ -23,30 +23,12 @@ export default (props) => {
   const { userInfo } = useSelector(state => state.user);
   const { currencyList } = useSelector(state => state.global);
 
-  const [detailInfo, setDetailInfo] = useState({});
-
   const [price, setPrice] = useState(100);
   const [donation, setDonation] = useState(10);
 
   useEffect(() => {
     dispatch(actions.getCurrencyList());
   }, [dispatch]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const { project_info: projectInfo } = actions.getProjectInfo({
-          pid: targetProject.pid,
-          currency_type: userInfo.currency_type,
-        });
-        setDetailInfo(projectInfo);
-        setPrice(projectInfo.price);
-        setDonation(projectInfo.donation);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, [targetProject.pid, userInfo.currency_type]);
 
   const disabledDate = (current) => {
     // Can not select days before today and today
@@ -121,11 +103,11 @@ export default (props) => {
             onFinish={onFinish}
             initialValues={{
               currency: userInfo.currency_type,
-              price: detailInfo.price,
-              donation: detailInfo.total_num,
-              title: detailInfo.title,
-              projectTime: moment(detailInfo.end_time * 1000),
-              introduction: detailInfo.intro,
+              price: targetProject.price,
+              donation: targetProject.total_num,
+              title: targetProject.title,
+              projectTime: moment(targetProject.end_time * 1000),
+              introduction: targetProject.intro,
             }}
       >
         <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please input the title' }]}>
