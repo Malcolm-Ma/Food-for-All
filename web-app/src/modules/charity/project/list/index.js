@@ -27,6 +27,8 @@ import {
   SyncOutlined
 } from "@ant-design/icons";
 
+import './index.less';
+
 // Column config of a table
 // Using either dataIndex or key to point out unique props
 const columnsConfig = (payloads) => {
@@ -280,10 +282,9 @@ export default () => {
         title="Project Detail Info"
         placement="right"
         onClose={onClose}
-        zIndex={10000}
         visible={drawVisible}
         bodyStyle={{ paddingBottom: 80 }}
-        width={600}
+        width={800}
         extra={
           <Space>
             <Button onClick={onClose}>Cancel</Button>
