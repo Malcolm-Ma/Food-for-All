@@ -8,9 +8,9 @@ import {useDispatch, useSelector} from "react-redux";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import actions from "src/actions";
-import {message} from 'antd';
+import {message, Tag} from 'antd';
 import _ from 'lodash';
-
+import {CheckCircleOutlined} from "@ant-design/icons";
 
 export default () => {
 
@@ -125,6 +125,25 @@ export default () => {
     display: 'none',
   });
 
+  const userTypeTags = () => {
+    const userType = _.get(userInfo, 'type');
+
+    if (userType === 1) {
+      return (
+        <Tag color="success">
+          Charity
+        </Tag>
+      );
+    }
+    if (userType === 0) {
+      return (
+        <Tag color="warning">
+          Donor
+        </Tag>
+      );
+    }
+  }
+
   return (
     <Grid container rowSpacing={2}>
       <Grid item xs={12}>
@@ -147,6 +166,7 @@ export default () => {
 
       <Grid item xs={12} display={editDisplay}>
         <Typography textAlign="left" >{name}</Typography>
+        {userTypeTags()}
       </Grid>
 
 
