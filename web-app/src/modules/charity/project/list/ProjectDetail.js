@@ -62,9 +62,9 @@ export default (props) => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
-              label="Price"
+              label="Price of each meal"
             >
               <Descriptions>
                 <Descriptions.Item>
@@ -73,18 +73,31 @@ export default (props) => {
               </Descriptions>
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
-              label="Donation Num"
+              label="Total price of meal"
+            >
+              <Descriptions>
+                <Descriptions.Item>
+                  {_.floor(_.get(detailInfo, 'price')* _.get(detailInfo,'current_num'), 2) + ' ' + detailInfo.currencyType}
+                </Descriptions.Item>
+              </Descriptions>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Donation number of meal"
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'current_num')}</Descriptions.Item>
               </Descriptions>
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
-              label="Total Num"
+              label="Total number of meal"
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'total_num')}</Descriptions.Item>

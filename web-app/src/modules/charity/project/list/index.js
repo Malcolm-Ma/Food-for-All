@@ -355,8 +355,8 @@ export default () => {
         scroll={{ x: 1500 }}
       />
       <Drawer
+        title="Project Detail Information"
         className='project-detail-drawer'
-        title="Project Detail Info"
         // title="Edit Project"
         placement="right"
         onClose={onClose}
