@@ -14,12 +14,14 @@ import {
   DatePicker,
   Upload,
   message,
-  Modal, Result,
+  Modal, Result, Image,
 } from 'antd';
 import actions from 'src/actions';
 import {InboxOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {useNavigate} from "react-router-dom";
+import {SERVICE_BASE_URL} from "src/constants/constants";
+import _ from "lodash";
 
 export default () => {
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ export default () => {
   const {Option} = Select;
   const [price, setPrice] = useState(100);
   const [donation, setDonation] = useState(10);
+  const [img, setImg] = useState(null);
 
   const handleUpload = async (file) => {
     console.log('--file--\n', file);
@@ -79,6 +82,13 @@ export default () => {
     </Form.Item>
   );
 
+  const imgView = (values) => {
+    console.log(values);
+    if (values.file.status === "done") {
+      setImg(SERVICE_BASE_URL + values.file.response.url);
+    }
+  };
+
   const onFinish = async (values) => {
     try {
       message.loading({content: 'Loading'}, key);
@@ -92,7 +102,7 @@ export default () => {
             edit: {
               title: values.title,
               intro: values.introduction,
-              background_image: "",
+              background_image: values.background_image[0].response.url,
               total_num: values.donation,
               end_time: moment(values.projectTime).unix(),
               details: values.details,
@@ -168,17 +178,24 @@ export default () => {
 
       <Form.Item label="Background Image">
         <Form.Item name="background_image" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
-          <Upload.Dragger name="files" action={handleUpload}>
+          <Upload.Dragger
+            maxCount={1}
+            name="files"
+            action={SERVICE_BASE_URL + 'upload_img/'}
+            onChange={imgView}
+          >
             <p className="ant-upload-drag-icon">
-              <InboxOutlined/>
+              <InboxOutlined />
             </p>
-            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-            <p className="ant-upload-hint">Support for a single or bulk upload.</p>
+            <p className="ant-upload-text">Click or drag file to this area to change the image</p>
+            <Image
+              preview={false}
+              src={img}
+            />
           </Upload.Dragger>
         </Form.Item>
       </Form.Item>
 
-      {/* @Todo add submit Success page*/}
       <Form.Item wrapperCol={{offset: 6}}>
         <Button type="primary" htmlType="submit">
           Submit
