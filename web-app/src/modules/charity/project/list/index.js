@@ -14,8 +14,9 @@ import {
   Drawer,
   Tag,
   Switch,
-  Tooltip,
 } from "antd";
+import Tooltip from '@mui/material/Tooltip';
+
 
 import actions from "src/actions";
 import _ from "lodash";
@@ -66,7 +67,7 @@ const columnsConfig = (payloads) => {
       ellipsis: true,
       width: 160,
       render: value =>
-        <Tooltip title={value}>
+        <Tooltip title={value} followCursor>
           <div style={{ float: 'left', maxWidth: '100%', cursor: 'pointer' }}>
             {value.substring(0,12)+'...'}
           </div>

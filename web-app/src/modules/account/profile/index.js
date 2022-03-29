@@ -8,9 +8,10 @@ import {useDispatch, useSelector} from "react-redux";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import actions from "src/actions";
-import {message, Tag} from 'antd';
+import {Image, message, Tag} from 'antd';
 import _ from 'lodash';
 import {CheckCircleOutlined} from "@ant-design/icons";
+import {SERVICE_BASE_URL} from "src/constants/constants";
 
 export default () => {
 
@@ -160,7 +161,7 @@ export default () => {
               </label>
             </Stack>
           }>
-          <Avatar sx={{ width: 200, height: 200 }}/>
+          <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
         </Badge>
       </Grid>
 
