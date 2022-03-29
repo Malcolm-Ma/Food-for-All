@@ -340,7 +340,7 @@ export default () => {
       />
       <Drawer
         className='ffa-home'
-        title="Project Detail Info"
+        title="Project Detail Information"
         // title="Edit Project"
         placement="right"
         onClose={onClose}
