@@ -60,7 +60,6 @@ export default () => {
   };
 
   const handleSubmit = async (event) => {
-    message.loading({content: 'Saving...'});
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
     console.log(data);
@@ -76,7 +75,8 @@ export default () => {
         setRegion(data.region);
         setCurrency(data.currency);
         handleCancel();
-        await message.success({content: 'Saved!', key});
+        dispatch(actions.getUserInfo());
+        message.success({content: 'Saved!', key});
       }
     } catch (e) {
       await message.error({content: 'Edit Error! ERROR INFO: '+e.name, key});
