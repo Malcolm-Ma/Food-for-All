@@ -21,6 +21,7 @@ from Project import views as project_views
 from Common import views as common_views
 from Upload import views as upload_views
 from DataBase import views as database_views
+from Statistics import views as statistics_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
