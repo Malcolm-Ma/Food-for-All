@@ -170,6 +170,7 @@ const columnsConfig = (payloads) => {
       key: 'action',
       width: 200,
       align: 'right',
+      fixed: 'right',
       render: (text, record) => (
         <Space size={0}>
           <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
@@ -178,8 +179,8 @@ const columnsConfig = (payloads) => {
           <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
             Edit
           </Button>
-          <Button type="link" onClick={showModal}>
-            Stop
+          <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+            {record.status === 0 ? 'Start' : 'Stop'}
           </Button>
         </Space>
       ),
@@ -204,7 +205,7 @@ export default () => {
   // projectDetailInfo state
   const [projectDetailInfo, setProjectDetailInfo] = useState({});
 
-  const [deleteProjectInfo, setDeleteProjectInfo] = useState(0);
+  const [operatingProject, setOperatingProject] = useState([]);
   //project progress state
   const [progressStatus, setProgressStatus] = useState("exception");
 
@@ -283,23 +284,38 @@ export default () => {
     drawSetVisible(false);
   };
   //Below is the delete button pop-up warning box
-  const showModal = (projectId) => {
-    setDeleteProjectInfo(projectId);
+  const showModal = (projectId, status) => {
+    setOperatingProject([projectId, status]);
     modalSetVisible(true);
   };
 
-  const handleOk = () => {
-    setModalText('Terminating project.');
-    setConfirmLoading(true);
-    actions.stopProject({
-      "pid": deleteProjectInfo,
-    });
+  const handleOk = async () => {
+    const [projectId, status] = operatingProject;
+    if (status === 0) {
+      // prepare mode
+      setModalText('Start project.');
+      setConfirmLoading(true);
+      // TODO change to start project
+      await actions.stopProject({
+        "pid": projectId,
+      });
+    }
+    if (status === 1) {
+      // ongoing mode
+      setModalText('Terminating project.');
+      setConfirmLoading(true);
+      // TODO change to start project
+      await actions.stopProject({
+        "pid": projectId,
+      });
+    }
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
     }, 500);
-    getProjectList();
     setIsModalVisible(false);
+    setOperatingProject([]);
+    getProjectList();
   };
 
   const handleCancel = () => {
