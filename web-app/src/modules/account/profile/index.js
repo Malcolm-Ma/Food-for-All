@@ -1,3 +1,6 @@
+// @Todo currency full name following the code in()
+// @Todo turn to page after create, change title
+// @Todo transform error info
 import React, {useEffect, useState} from "react";
 import {Avatar, Badge, Grid, styled, TextField} from '@mui/material';
 import Stack from '@mui/material/Stack';
