@@ -5,8 +5,9 @@
 
 
 export default {
-  hideSidebar: [
-    /^\/login/,
-    /^\/register/,
+  showSidebar: [
+    /^\/project/,
+    /^\/account/,
+    /^\/$/,
   ],
 };
