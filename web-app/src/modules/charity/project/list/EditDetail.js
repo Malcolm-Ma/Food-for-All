@@ -110,6 +110,7 @@ export default (props) => {
           title: targetProject.title,
           projectTime: moment(targetProject.end_time * 1000),
           introduction: targetProject.intro,
+          details: targetProject.details,
         }}
       >
         <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please input the title' }]}>
@@ -146,11 +147,11 @@ export default (props) => {
 
         <Form.Item name="introduction" label="Introduction"
                    rules={[{ required: true, message: 'Please write the introduction!' }]}>
-          <Input.TextArea />
+          <Input.TextArea rows={5}/>
         </Form.Item>
 
         <Form.Item name="details" label="Details">
-          <Input.TextArea />
+          <Input.TextArea rows={5}/>
         </Form.Item>
 
         <Form.Item label="Background Image">
