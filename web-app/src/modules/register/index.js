@@ -112,7 +112,7 @@ export default () => {
       console.error(e);
     }
     setLoading(false);
-  }, [activeStep, signUpInfo]);
+  }, [activeStep, navigate, signUpInfo]);
 
   const handleActiveComponentChange = useCallback((e, data) => {
     setSignUpInfo(prevState => ({

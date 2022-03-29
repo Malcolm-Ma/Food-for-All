@@ -27,7 +27,7 @@ const Sidebar = (props) => {
   }, []);
 
   return (
-    <Sider width={200}>
+    <Sider className="frame-sidebar" width={200}>
       <Menu
         mode="inline"
         defaultSelectedKeys={[DEFAULT_SELECTED_KEYS]}

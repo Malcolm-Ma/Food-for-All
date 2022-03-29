@@ -1,18 +1,17 @@
 import csv
 import os
-from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR
+from FoodForAll.settings import RESOURCE_DIR, BASE_DIR, STATIC_URL, IMG_DIR, DOC_DIR, STATUS_CODE, VERIFY_CODE_EXPIRES, VERIFY_CODE_KEY_REGIS, VERIFY_CODE_KEY_RESET_PASSWORD, MAX_FAILED_LOGIN_ATTEMPTS_KEY, LOGIN_FORBIDDEN_KEY, MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED, MAX_FAILED_LOGIN_INTERVAL_ALLOWED
 import time
 from hashlib import md5
-import copy
-import logging
 import sys
 from functools import wraps
 import random
 import re
 import base64 as b64
-from DataBase import models
 import json
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.core.cache import caches
+import string
 
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")
