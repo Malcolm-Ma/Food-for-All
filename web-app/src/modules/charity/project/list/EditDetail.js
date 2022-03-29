@@ -97,18 +97,20 @@ export default (props) => {
 
   return (
     <>
-      <Form labelCol={{ span: 6 }}
-            wrapperCol={{ span: 12 }}
-            name="nest-messages"
-            onFinish={onFinish}
-            initialValues={{
-              currency: userInfo.currency_type,
-              price: targetProject.price,
-              donation: targetProject.total_num,
-              title: targetProject.title,
-              projectTime: moment(targetProject.end_time * 1000),
-              introduction: targetProject.intro,
-            }}
+      <Form
+        className="project-detail-edit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 12 }}
+        name="nest-messages"
+        onFinish={onFinish}
+        initialValues={{
+          currency: userInfo.currency_type,
+          price: targetProject.price,
+          donation: targetProject.total_num,
+          title: targetProject.title,
+          projectTime: moment(targetProject.end_time * 1000),
+          introduction: targetProject.intro,
+        }}
       >
         <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please input the title' }]}>
           <Input />

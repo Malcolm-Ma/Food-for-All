@@ -15,7 +15,7 @@ export default (props) => {
   const percent = _.floor((currentNum / totalNum) * 100, 0);
 
   return (
-    <div>
+    <div className="project-detail">
       <Form layout="vertical" hideRequiredMark>
         <Row gutter={16}>
           <Col span={24}>

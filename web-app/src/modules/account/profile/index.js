@@ -60,7 +60,7 @@ export default () => {
   };
 
   const handleSubmit = async (event) => {
-    message.loading({content: 'Saving...'});
+    message.loading({content: 'Saving...'}, key);
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
     console.log(data);
