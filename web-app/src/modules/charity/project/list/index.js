@@ -169,21 +169,34 @@ const columnsConfig = (payloads) => {
       title: 'Action',
       key: 'action',
       width: 200,
-      align: 'right',
+      align: 'center',
       fixed: 'right',
-      render: (text, record) => (
-        <Space size={0}>
-          <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
-            Detail
-          </Button>
-          <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
-            Edit
-          </Button>
-          <Button type="link" onClick={() => showModal(record.pid, record.status)}>
-            {record.status === 0 ? 'Start' : 'Stop'}
-          </Button>
-        </Space>
-      ),
+      render: (text, record) => {
+        if (record.status !== 0)
+          return (
+            <Space size={0}>
+              <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                Detail
+              </Button>
+              <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                {record.status === 0 ? 'Start' : 'Stop'}
+              </Button>
+            </Space>
+          )
+        return (
+          <Space size={0}>
+            <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+              Detail
+            </Button>
+            <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
+              Edit
+            </Button>
+            <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+              {record.status === 0 ? 'Start' : 'Stop'}
+            </Button>
+          </Space>
+        )
+      },
     },
   ]);
 }
@@ -285,6 +298,14 @@ export default () => {
   };
   //Below is the delete button pop-up warning box
   const showModal = (projectId, status) => {
+    if (status === 0) {
+      // prepare mode
+      setModalText('Are you sure you want to start the project? Once the project starts, it can\'t be edited, it can only be stopped.');
+      }
+    if (status === 1) {
+      // ongoing mode
+      setModalText('Are you sure you want to terminate the project? The project cannot continue after termination.');
+    }
     setOperatingProject([projectId, status]);
     modalSetVisible(true);
   };
@@ -296,7 +317,7 @@ export default () => {
       setModalText('Start project.');
       setConfirmLoading(true);
       // TODO change to start project
-      await actions.stopProject({
+      await actions.startProject({
         "pid": projectId,
       });
     }

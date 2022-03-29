@@ -18,4 +18,5 @@ export default {
   prepareProject: '/get_prepare_projects_list/',
   stopProject:'/stop_project/',
   getProjectInfo:'/get_project/',
+  startProject:'/start_project/',
 };
