@@ -37,11 +37,11 @@ export default [
     child: [
       {
         title: 'Project List',
-        url: '/project/list',
+        url: '/charity/project/list',
       },
       {
         title: 'Create Project',
-        url: '/project/create',
+        url: '/charity/project/create',
       }
     ],
   },

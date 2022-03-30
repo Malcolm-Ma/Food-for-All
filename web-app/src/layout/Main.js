@@ -15,22 +15,24 @@ export default (props) => {
   const {} = props;
 
   return (
-    <Layout.Content className="ffa-main">
-    <Routes>
-        {
-          _.map(routesConfig, (route) => {
-            const { path, component: Component, ...otherProps } = route;
-            return (
-              <Route
-                key={path}
-                path={path}
-                element={<Component />}
-                {...otherProps}
-              />
-            );
-          })
-        }
-      </Routes>
-    </Layout.Content>
+    <Layout className="frame-content-main">
+      <Layout.Content className="ffa-main">
+        <Routes>
+          {
+            _.map(routesConfig, (route) => {
+              const { path, component: Component, ...otherProps } = route;
+              return (
+                <Route
+                  key={path}
+                  path={path}
+                  element={<Component />}
+                  {...otherProps}
+                />
+              );
+            })
+          }
+        </Routes>
+      </Layout.Content>
+    </Layout>
   );
 };
