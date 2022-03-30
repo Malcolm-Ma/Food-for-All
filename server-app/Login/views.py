@@ -1,4 +1,3 @@
-from Mail.functions import Mail
 from .functions import *
 from Common.decorators import *
 from User.functions import *
@@ -83,6 +82,7 @@ def regis(request):
     @apiParam {String} currency_type (Optional) Currency type. It should be included in the list provided by "currency_list/" interface. Only requested if action = 2.
     @apiParam {String} name (Optional) User name. Only requested if action = 2.
     @apiParam {String} avatar (Optional) Static avatar url. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter. Only requested if action = 2.
+    @apiParam {String} hide (Optional) Static avatar url. Whether the user is hiding personal information from other users. (0: no hide, 1: hide). If the user type is charity, then this field will be forced to be set to 0. Only requested if action = 2.
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100007] email is already registered, [300002] email delivery failed, [300003] captcha verification failed, [300004] invalid action, [100011] invalid user type, [100012] wrong parameters for user creation, [100013] user creation failed, [300001] invalid currency type, [300006] wrong region name or code)
     @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
@@ -121,6 +121,7 @@ def regis(request):
       "avatar": "",
       "type": 2,
       "code": "qwe123"
+      "hide": 0
     }
     @apiSuccessExample {Json} Response-Success (action=2)
     {
@@ -158,7 +159,7 @@ def regis(request):
             response_data["status"] = STATUS_CODE["captcha verification failed"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         create_info = {"mail": mail}
-        for i in ("type", "region", "currency_type", "name", "avatar"):
+        for i in ("type", "region", "currency_type", "name", "avatar", "hide"):
             if i in data:
                 create_info[i] = data[i]
         create_info["password"] = make_password(data["password"])
@@ -168,9 +169,9 @@ def regis(request):
             response_data["status"] = se.code
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         try:
-            Mail.welcome(mail)
+            Mail.welcome(mail, False)
         except:
-            logger_standard.warning("Send welcome mail failed.")
+            logger_standard.warning("Send welcome mail to {mail} failed.".format(mail=mail))
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
         response_data["status"] = STATUS_CODE["invalid action"]
@@ -188,7 +189,7 @@ def logout(request, user):
     @apiGroup User
     @apiDescription api for user logout
 
-    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user is not logged in)
+    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user has not logged in)
 
     @apiSuccessExample {Json} Response-Success
     {
@@ -291,9 +292,9 @@ def reset_password(request, user):
         except ServerError as se:
             raise ServerError("password setting failed")
         try:
-            Mail.reset_password_success(mail)
+            Mail.reset_password_success(mail, False)
         except:
-            logger_standard.warning("Send reset password success mail failed.")
+            logger_standard.warning("Send reset password success mail to {mail} failed.".format(mail=mail))
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
         response_data["status"] = STATUS_CODE["invalid action"]

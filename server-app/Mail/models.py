@@ -1,3 +1,88 @@
-from django.db import models
+from django.core.mail import send_mail
+from FoodForAll.settings import EMAIL_HOST_USER, VERIFY_CODE_EXPIRES
 
-# Create your models here.
+class Mail(object):
+    @staticmethod
+    def get_line(text, style=''):
+        if style == 'code':
+            return '<div style="text-align: center;"><b style="color: rgb(51, 51, 51);'\
+                   + ' font-size: x-large;"><u>' + text + '</u></b></div>'
+        else:
+            return '<div style="text-align: center;"><span style="color: rgb(51, 51, 51);'\
+                   + (' font-size: x-large;' if style == 'title' else '') + '">' + text + '</span></div>'
+
+    @staticmethod
+    def get_header():
+        return '<br>'\
+               + Mail.get_line('- Food For All by Apex08 -', 'title')\
+               + '<br>'\
+               + '<hr>'\
+               + '<br>'
+
+    @staticmethod
+    def get_footer():
+        return '<br>'\
+               + '<hr>'\
+               + Mail.get_line('© Food For All')\
+               + '<br>'
+
+    @staticmethod
+    def regis_verify(mail, code, fail_silently=True):
+        html_message = Mail.get_header()\
+                       + Mail.get_line('Thank you for signing up to Food For All!', 'title')\
+                       + Mail.get_line('Your verification code is:', 'title')\
+                       + Mail.get_line(code, 'code')\
+                       + '<br>'\
+                       + Mail.get_line('Please do not show the verification code to others.')\
+                       + Mail.get_line('The validity period is {minutes} minutes.'.format(minutes=str(int(VERIFY_CODE_EXPIRES/60))))\
+                       + Mail.get_line('Please complete verification before the code expires.')\
+                       + Mail.get_footer()
+        send_mail("Food For All - Verification Code", "", EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
+
+    @staticmethod
+    def welcome(mail, fail_silently=True):
+        html_message = Mail.get_header()\
+                       + Mail.get_line('Welcome to Food For All!', 'title')\
+                       + '<br>'\
+                       + Mail.get_line('Your registration is complete.')\
+                       + Mail.get_line('Now you have full access to our best features!')\
+                       + Mail.get_footer()
+        send_mail("Welcome to Food For All!", "", EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
+
+    @staticmethod
+    def reset_password_verify(mail, code, fail_silently=True):
+        html_message = Mail.get_header()\
+                       + Mail.get_line('You\'re trying to reset your password.', 'title')\
+                       + Mail.get_line('Your verification code is:', 'title')\
+                       + Mail.get_line(code, 'code')\
+                       + '<br>'\
+                       + Mail.get_line('Please do not show the verification code to others.')\
+                       + Mail.get_line('The validity period is {minutes} minutes.'.format(minutes=str(int(VERIFY_CODE_EXPIRES/60))))\
+                       + Mail.get_line('Please complete verification before the code expires.')\
+                       + Mail.get_line('If you don\'t expect for this email,')\
+                       + Mail.get_line('please reset your password ASAP.')\
+                       + Mail.get_footer()
+        send_mail("Food for All - Password Reset", "", EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
+
+    @staticmethod
+    def reset_password_success(mail, fail_silently=True):
+        html_message = Mail.get_header()\
+                       + Mail.get_line('You have reset your password!', 'title')\
+                       + '<br>'\
+                       + Mail.get_line('You might need to re-login to your account.')\
+                       + Mail.get_footer()
+        send_mail("Food For All - Reset Password Successful", "", EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
+
+    @staticmethod
+    def share(share_info, fail_silently=True): #to do
+        share_info["user_name"] = "" if not share_info["user_name"] else " " + share_info["user_name"]
+        share_info["donate_num"] = "" if not share_info["donate_num"] else " " + str(share_info["donate_num"]) + " meals"
+        html_message = Mail.get_header() \
+                       + Mail.get_line('Your friend{user_name} has just donated{donate_num} to the project "{project_name}"!'.format(user_name=share_info["user_name"], donate_num=share_info["donate_num"], project_name=share_info["project_name"]), 'title') \
+                       + Mail.get_line('The address of the project is:') \
+                       + Mail.get_line('{project_url}'.format(project_url=share_info["project_url"]), 'title') \
+                       + Mail.get_line('We would like to invite you to visit the project when you have time and participate in it!') \
+                       + '<br>'\
+                       + Mail.get_line('With best wishes and greetings to you.') \
+                       + Mail.get_footer()
+        send_mail("Food For All - Invitation to participate in charity projects!", "", EMAIL_HOST_USER, share_info["mail"], fail_silently=fail_silently, html_message=html_message)

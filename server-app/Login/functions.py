@@ -18,7 +18,7 @@ def encode_cookie(request, uid, encode_key = COOKIE_ENCODE_KEY):
         c += chr(ord(i) ^ encode_key)
     return b64.b64encode(c.encode()).decode()
 
-def decode_cookie(request, decode_key = COOKIE_ENCODE_KEY):
+def decode_cookie(request, decode_key=COOKIE_ENCODE_KEY):
     url = get_request_url(request)
     cookie = request.get_signed_cookie(COOKIE_KEY, default=None, salt=COOKIE_SALT + url)
     try:
@@ -39,6 +39,13 @@ def decode_cookie(request, decode_key = COOKIE_ENCODE_KEY):
     a = c[3::4][:length]
     return s, t, u, a
 
+def decode_password(encrypted_password, decode_key=PASSWORD_ENCODE_KEY):
+    encrypted_password = b64.b64decode(encrypted_password.encode()).decode()
+    password = ""
+    for i in encrypted_password:
+        password += chr(ord(i) ^ decode_key)
+    return password
+
 def check_login(request):
     s, t, u, a = decode_cookie(request, COOKIE_ENCODE_KEY)
     try:
@@ -54,7 +61,7 @@ def check_login(request):
 
 def gen_verify_code(id_str, usefor_str, expires=VERIFY_CODE_EXPIRES):#, if_check=False):
     cache = caches[usefor_str]
-    code = "".join(random.choices(string.digits + string.ascii_letters, k=6))
+    code = "".join(random.choices(string.digits + string.ascii_uppercase, k=6))
     cache.set(id_str, code, timeout=expires)
     return code
     #dynamic_num = int(time.time()) // expires

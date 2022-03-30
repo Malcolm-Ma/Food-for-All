@@ -298,7 +298,7 @@ def create_project(request, user):
     @apiGroup Project
     @apiDescription api for creating project by charity user
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [100003] operation is not available to individual user, [200001] project creation failed)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [100003] operation is not available to individual user, [200001] project creation failed)
     @apiSuccess (Success 200 return) {String} pid Pid of the project just created.
 
     @apiSuccessExample {Json} Response-Success
@@ -328,7 +328,7 @@ def delete_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200004] project is not deletable)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200004] project is not deletable)
 
     @apiParamExample {Json} Sample Request
     {
@@ -368,7 +368,7 @@ def edit_project(request, user, project):
     @apiParam {String} details (Sub-parameter of edit) Details of the project, containing rich text information.
     @apiParam {Float} price (Sub-parameter of edit) The single donation price of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200005] project update failed, [200006] project is not editable, [200012] project end time is invalid, [200014] project price invalid, [300001] invalid currency type)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200005] project update failed, [200006] project is not editable, [200012] project end time is invalid, [200014] project price invalid, [300001] invalid currency type)
 
     @apiParamExample {Json} Sample Request
     {
@@ -420,11 +420,11 @@ def start_project(request, user, project):
     @apiVersion 1.0.0
     @apiName start_project
     @apiGroup Project
-    @apiDescription api to start a project with complete information
+    @apiDescription api to start a prepared or suspended project
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200007] project information is incomplete, [200008] project start up failed, [200009] project has already started)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200007] project information is incomplete, [200008] project start up failed, [200009] project has already started, [200016] project is aiready finished)
 
     @apiParamExample {Json} Sample Request
     {
@@ -445,17 +445,48 @@ def start_project(request, user, project):
 @check_request_parameters_decorator(params=["pid"])
 @get_user_decorator()
 @get_project_decorator()
+def suspend_project(request, user, project):
+    """
+    @api {POST} /suspend_project/ suspend project
+    @apiVersion 1.0.0
+    @apiName suspend_project
+    @apiGroup Project
+    @apiDescription api to suspend an ongoing project
+
+    @apiParam {String} pid Pid of the project.
+
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200016] project is aiready finished, [200017] project is not ongoing, [200018] project suspension failed)
+
+    @apiParamExample {Json} Sample Request
+    {
+        "pid": "22fd90badc08090a9b01606dbee18ff1"
+    }
+    @apiSuccessExample {Json} Response-Success
+    {
+        "status": 0
+    }
+    """
+    response_data = {"status": STATUS_CODE["success"]}
+    user.suspend_project(project)
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@api_logger_decorator()
+@check_server_error_decorator()
+@check_request_method_decorator(method=["POST"])
+@check_request_parameters_decorator(params=["pid"])
+@get_user_decorator()
+@get_project_decorator()
 def stop_project(request, user, project):
     """
     @api {POST} /stop_project/ stop project
     @apiVersion 1.0.0
     @apiName stop_project
     @apiGroup Project
-    @apiDescription api to stop an ongoing project
+    @apiDescription api to stop an ongoing or suspended project
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user is not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200010] project stop failed, [200011] project is not ongoing)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200010] project stop failed, [200011] project is not ongoing or on hold, [200016] project is aiready finished)
 
     @apiParamExample {Json} Sample Request
     {
@@ -488,7 +519,7 @@ def get_prepare_projects_list(request, user):
     @apiParam {Int} page (Sub-parameter of page_info) Current page number.
     @apiParam {String} search The string to be retrieved. It should be set to "" when the search action has not occurred.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user is not logged in, [100003] operation is not available to individual user, [300001] invalid currency type)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [100003] operation is not available to individual user, [300001] invalid currency type)
     @apiSuccess (Success 200 return) {Dict} project_info Projects list. The keys of this dictionary are the order of the projects counting from 0 and the values are the information of the projects corresponding to their order. Its sub-parameters are shown below.
     @apiSuccess (Success 200 return) {String} pid (Sub-parameter of project_info) Pid of the project.
     @apiSuccess (Success 200 return) {String} title (Sub-parameter of project_info) Title of project.
