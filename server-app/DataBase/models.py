@@ -10,7 +10,8 @@ USER_TYPE = {"admin": 0,
 
 PROJECT_STATUS = {"prepare": 0,
                   "ongoing": 1,
-                  "finish": 2}
+                  "finish": 2,
+                  "pause": 3}
 
 class DUser(models.Model):
     uid = models.CharField(max_length=64, unique=True)
@@ -26,20 +27,27 @@ class DUser(models.Model):
     last_login_time = models.IntegerField()
     donate_history = models.TextField()
     share_mail_history = models.CharField(max_length=512)
+    hide = models.IntegerField()
 
-    def to_dict(self, fields=tuple()):
+    def to_dict(self, fields=tuple(), check_hide=False):
+        if self.type == USER_TYPE["charity"]:
+            check_hide = False
         user_dict = {}
-        allow_fields = ("uid", "mail", "name", "avatar", "type", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history")#, "password"
+        allow_fields = ("uid", "mail", "name", "avatar", "type", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history", "hide")#, "password"
         fields = allow_fields if not fields else [i for i in fields if i in allow_fields]
         for i in fields:
             user_dict[i] = self.__getattribute__(i)
         for i in ("project", "donate_history", "share_mail_history"):
             if i in fields:
                 user_dict[i] = eval(user_dict[i])
+        if check_hide and self.hide:
+            for i in ("mail", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history"):
+                if i in fields:
+                    user_dict[i] = "*"
         return user_dict
 
     def update_from_fict(self, update_dict):
-        allow_fields = ("mail", "password", "name", "avatar", "type", "region", "currency_type", "last_login_time", "share_mail_history")
+        allow_fields = ("mail", "password", "name", "avatar", "type", "region", "currency_type", "last_login_time", "share_mail_history", "hide")
         update_fields = [i for i in update_dict if i in allow_fields]
         if "type" in update_fields and update_dict["type"] not in USER_TYPE.values():
             raise ServerError("invalid user type")
@@ -53,6 +61,8 @@ class DUser(models.Model):
                 raise ServerError("invalid currency type")
         if "share_mail_history" in update_fields:
             update_dict["share_mail_history"] = str(update_dict["share_mail_history"])
+        if "hide" in update_fields and self.type == USER_TYPE["charity"]:
+            update_dict["hide"] = 0
         avatar_url = self.avatar
         try:
             for key in update_fields:
@@ -78,7 +88,7 @@ class DUser(models.Model):
 
     @staticmethod
     def create(create_dict):
-        must_fields = ["mail", "password", "type", "region", "currency_type", "name", "avatar"]
+        must_fields = ["mail", "password", "type", "region", "currency_type", "name", "avatar", "hide"]
         if not set(must_fields) == set(create_dict.keys()):
             raise ServerError("wrong parameters for user creation")
         if create_dict["type"] not in USER_TYPE.values():
@@ -90,6 +100,8 @@ class DUser(models.Model):
                         "donate_history": "{}",
                         "share_mail_history": "[]"}
         create_dict.update(default_dict)
+        create_dict["hide"] = 1 if create_dict["hide"] else 0
+        create_dict["hide"] = create_dict["hide"] if create_dict["type"] == USER_TYPE["charity"] else 0
         create_dict["region"] = region2rid(create_dict["region"])
         if not create_dict["region"]:
             raise ServerError("wrong region name or code")
@@ -151,16 +163,25 @@ class DUser(models.Model):
     def start_project(self, project):
         if project.uid != self.uid:
             raise ServerError("user is not the owner of the project")
-        if project.status != PROJECT_STATUS["prepare"]:
+        if project.status != PROJECT_STATUS["prepare"] and project.status != PROJECT_STATUS["pause"]:
             raise ServerError("project has already started")
         if not (project.title and project.intro and project.details and project.total_num > 0 and project.end_time > int(time.time()) and project.price > 0):
             raise ServerError("project information is incomplete")
+        if project.status == PROJECT_STATUS["pause"] and (project.current_num >= project.total_num or project.end_time <= int(time.time())):
+            try:
+                project.update_from_fict({"status": PROJECT_STATUS["finish"]})
+            except ServerError as se:
+                logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
+            raise ServerError("project is aiready finished")
+        update_dict = {"status": PROJECT_STATUS["ongoing"]}
+        if project.status == PROJECT_STATUS["prepare"]:
+            update_dict.update({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}"})
         try:
-            project.update_from_fict({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "status": PROJECT_STATUS["ongoing"]})
+            project.update_from_fict(update_dict)
         except ServerError as se:
             raise ServerError("project start up failed")
 
-    def stop_project(self, project):
+    def suspend_project(self, project):
         if project.uid != self.uid:
             raise ServerError("user is not the owner of the project")
         if project.status != PROJECT_STATUS["ongoing"]:
@@ -170,7 +191,23 @@ class DUser(models.Model):
                 project.update_from_fict({"status": PROJECT_STATUS["finish"]})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
-            raise ServerError("project is not ongoing")
+            raise ServerError("project is aiready finished")
+        try:
+            project.update_from_fict({"status": PROJECT_STATUS["pause"]})
+        except ServerError as se:
+            raise ServerError("project suspension failed")
+
+    def stop_project(self, project):
+        if project.uid != self.uid:
+            raise ServerError("user is not the owner of the project")
+        if project.status != PROJECT_STATUS["ongoing"] and project.status != PROJECT_STATUS["pause"]:
+            raise ServerError("project is not ongoing or on hold")
+        if project.current_num >= project.total_num or project.end_time <= int(time.time()):
+            try:
+                project.update_from_fict({"status": PROJECT_STATUS["finish"]})
+            except ServerError as se:
+                logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
+            raise ServerError("project is aiready finished")
         try:
             project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time())})
         except ServerError as se:
@@ -253,13 +290,13 @@ class DProject(models.Model):
         if currency_type and "price" in fields:
             cid = currency2cid(currency_type)
             if cid:
-                project_dict["price"] = project_dict["price"] * EXCHANGE_RATE[cid]
+                project_dict["price"] = round(project_dict["price"] * EXCHANGE_RATE[cid], 3)
             else:
                 raise ServerError("invalid currency type")
         return project_dict
 
     def auto_update_status(self):
-        if self.status == PROJECT_STATUS["ongoing"] and (self.end_time <= int(time.time()) or self.current_num >= self.total_num):
+        if (self.status == PROJECT_STATUS["ongoing"] or self.status == PROJECT_STATUS["pause"]) and (self.end_time <= int(time.time()) or self.current_num >= self.total_num):
             try:
                 self.status = PROJECT_STATUS["finish"]
                 self.save(update_fields=["status"])

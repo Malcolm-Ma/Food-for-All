@@ -40,6 +40,7 @@ urlpatterns = [
     path('create_project/', project_views.create_project),
     path('delete_project/', project_views.delete_project),
     path('start_project/', project_views.start_project),
+    path('suspend_project/', project_views.suspend_project),
     path('stop_project/', project_views.stop_project),
     path('upload_img/', upload_views.upload_img),
     path('upload_doc/', upload_views.upload_doc),

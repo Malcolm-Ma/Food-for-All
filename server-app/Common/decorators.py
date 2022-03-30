@@ -88,9 +88,9 @@ def get_user_decorator(force_login=True):
             user = check_login(request)
             if not user and force_login:
                 #response_data = {"status": ""}
-                #response_data["status"] = STATUS_CODE["user is not logged in"]
+                #response_data["status"] = STATUS_CODE["user has not logged in"]
                 #return HttpResponse(json.dumps(response_data), content_type="application/json")
-                raise ServerError("user is not logged in")
+                raise ServerError("user has not logged in")
             kwargs["user"] = user
             response = func(*args, **kwargs)
             return response
