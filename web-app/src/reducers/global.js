@@ -12,6 +12,7 @@ const initialState = {
   regionList: [],
   regionMap: {},
   currencyList: [],
+  currencyMap: {},
 };
 
 export default (state = initialState, action) => {

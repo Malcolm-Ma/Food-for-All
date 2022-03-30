@@ -16,7 +16,7 @@ const Header = (props) => {
   const navigate = useNavigate();
 
   return (
-    <AppBar className="frame-nav" position="sticky">
+    <AppBar className="frame-nav" position="fixed">
       <Toolbar>
         <Typography
           variant="h6"

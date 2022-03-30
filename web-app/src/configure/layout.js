@@ -6,8 +6,7 @@
 
 export default {
   showSidebar: [
-    /^\/project/,
+    /^\/charity/,
     /^\/account/,
-    /^\/$/,
   ],
 };
