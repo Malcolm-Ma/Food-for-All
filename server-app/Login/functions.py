@@ -54,7 +54,7 @@ def check_login(request):
 
 def gen_verify_code(id_str, usefor_str, expires=VERIFY_CODE_EXPIRES):#, if_check=False):
     cache = caches[usefor_str]
-    code = "".join(random.choices(string.digits + string.ascii_letters, k=6))
+    code = "".join(random.choices(string.digits + string.ascii_uppercase, k=6))
     cache.set(id_str, code, timeout=expires)
     return code
     #dynamic_num = int(time.time()) // expires

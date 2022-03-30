@@ -1,4 +1,3 @@
-from Mail.functions import Mail
 from .functions import *
 from Common.decorators import *
 from User.functions import *
@@ -158,7 +157,7 @@ def regis(request):
             response_data["status"] = STATUS_CODE["captcha verification failed"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         create_info = {"mail": mail}
-        for i in ("type", "region", "currency_type", "name", "avatar"):
+        for i in ("type", "region", "currency_type", "name", "avatar", "hide"):
             if i in data:
                 create_info[i] = data[i]
         create_info["password"] = make_password(data["password"])
@@ -188,7 +187,7 @@ def logout(request, user):
     @apiGroup User
     @apiDescription api for user logout
 
-    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user is not logged in)
+    @apiSuccess (Success 200 return) {Int} Status Status code ([0] success, [100001] user has not logged in)
 
     @apiSuccessExample {Json} Response-Success
     {
