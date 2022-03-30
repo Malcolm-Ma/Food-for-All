@@ -88,7 +88,7 @@ STATUS_CODE = {"success": 0,
                }
 
 main_url = "http://127.0.0.1:8000/"
-api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/',
+api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/', 'share_by_email/',
             'login/', 'regis/', 'logout/', 'reset_password/', 'get_user/', 'edit_user/',
             'get_project/', 'edit_project/', 'get_projects_list/', 'get_prepare_projects_list/',
             'create_project/', 'delete_project/', 'start_project/', 'suspend_project/', 'stop_project/', ]
@@ -350,6 +350,8 @@ if __name__ == "__main__":
                 f.write(check_api('get_projects_list/', STATUS_CODE["invalid currency type"], "POST", {"order": "-progress", "currency_type": "testCNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('get_projects_list/', STATUS_CODE["success"], "POST", {"order": "-progress", "currency_type": "CNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
 
+                f.write(check_api('share_by_email/', STATUS_CODE["success"], "POST", {"mail": [mail], "project_name": "qwer", "project_url": "http://127.0.0.1:3000", "donate_num": 3, "if_hide_personal_information": 0, "user_name": "test"}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
+                
                 for _ in range(10):
                     user_login("test", "test")
                 f.write(check_api('login/', STATUS_CODE["temporary ban due to too frequent login attempts"], "POST", {"username": "test" + user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["temporary ban due to too frequent login attempts"]) + "\n")

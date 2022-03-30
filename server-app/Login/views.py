@@ -169,9 +169,9 @@ def regis(request):
             response_data["status"] = se.code
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         try:
-            Mail.welcome(mail)
+            Mail.welcome(mail, False)
         except:
-            logger_standard.warning("Send welcome mail failed.")
+            logger_standard.warning("Send welcome mail to {mail} failed.".format(mail=mail))
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
         response_data["status"] = STATUS_CODE["invalid action"]
@@ -292,9 +292,9 @@ def reset_password(request, user):
         except ServerError as se:
             raise ServerError("password setting failed")
         try:
-            Mail.reset_password_success(mail)
+            Mail.reset_password_success(mail, False)
         except:
-            logger_standard.warning("Send reset password success mail failed.")
+            logger_standard.warning("Send reset password success mail to {mail} failed.".format(mail=mail))
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     else:
         response_data["status"] = STATUS_CODE["invalid action"]
