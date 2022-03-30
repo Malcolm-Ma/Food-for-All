@@ -29,7 +29,7 @@ export default () => {
 
   const {userInfo} = useSelector(state => state.user);
   const { regionList, currencyList, regionMap } = useSelector(state => state.global);
-  const currencyCode = currencyList.map(item => item.value);
+  const currencyCode = currencyList.map(item => item.label+" ("+item.value+")");
 
   const [nameColor, setNameColor] = useState(null);
   const [regionColor, setRegionColor] = useState(null);
