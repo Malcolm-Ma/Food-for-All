@@ -33,11 +33,12 @@ export const getRegionList = (params) => async (dispatch) => {
 export const getCurrencyList = (params) => async (dispatch) => {
   try {
     let { currency_list: currencyList } = await api.get(apiConfig.currencyList, params);
+    const currencyMap = reformatToMap(currencyList, 'code', 'currency_type');
     currencyList = reformatOptions(currencyList, 'currency_type', 'code');
     console.log('--currencyList--\n', currencyList);
     dispatch({
       type: SET_CURRENCY_LIST,
-      payload: { currencyList },
+      payload: { currencyList, currencyMap },
     });
     return currencyList;
   } catch (e) {
@@ -45,6 +46,7 @@ export const getCurrencyList = (params) => async (dispatch) => {
       type: SET_CURRENCY_LIST,
       payload: {
         currencyList: [],
+        currencyMap: {},
       },
     });
   }
