@@ -82,6 +82,7 @@ def regis(request):
     @apiParam {String} currency_type (Optional) Currency type. It should be included in the list provided by "currency_list/" interface. Only requested if action = 2.
     @apiParam {String} name (Optional) User name. Only requested if action = 2.
     @apiParam {String} avatar (Optional) Static avatar url. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter. Only requested if action = 2.
+    @apiParam {String} hide (Optional) Static avatar url. Whether the user is hiding personal information from other users. (0: no hide, 1: hide). If the user type is charity, then this field will be forced to be set to 0. Only requested if action = 2.
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100004] user is already logged in, [100007] email is already registered, [300002] email delivery failed, [300003] captcha verification failed, [300004] invalid action, [100011] invalid user type, [100012] wrong parameters for user creation, [100013] user creation failed, [300001] invalid currency type, [300006] wrong region name or code)
     @apiSuccess (Success 200 return) {Int} action Registration action (0: send_code, 1: verify_code, 2: set_password)
@@ -120,6 +121,7 @@ def regis(request):
       "avatar": "",
       "type": 2,
       "code": "qwe123"
+      "hide": 0
     }
     @apiSuccessExample {Json} Response-Success (action=2)
     {
