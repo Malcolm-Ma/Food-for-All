@@ -94,6 +94,12 @@ export default () => {
       const createProjectRes = await actions.createProject();
       console.log('createProjectRes\n', createProjectRes);
       if (createProjectRes !== null) {
+        let imgURL;
+        try {
+          imgURL = values.background_image[0].response.url;
+        } catch (e) {
+          imgURL = "";
+        }
         try {
           const editProjectRes = await actions.editProject({
             pid: createProjectRes.pid,
@@ -101,7 +107,7 @@ export default () => {
             edit: {
               title: values.title,
               intro: values.introduction,
-              background_image: values.background_image[0].response.url,
+              background_image: imgURL,
               total_num: values.donation,
               end_time: moment(values.projectTime).unix(),
               details: values.details,
@@ -109,7 +115,7 @@ export default () => {
             }
           });
           if (editProjectRes !== null) {
-            navigate('/project/create/result');
+            navigate('/charity/project/create/result');
             await message.success({content: 'Success!', key});
           }
         } catch (e) {

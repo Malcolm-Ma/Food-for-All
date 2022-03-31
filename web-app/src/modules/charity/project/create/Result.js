@@ -7,7 +7,7 @@ export default () => {
   const navigate = useNavigate();
 
   const toProjectList = () => {
-    navigate('/project/list');
+    navigate('/charity/project/list');
   };
 
   const toMain = () => {
@@ -21,7 +21,7 @@ export default () => {
       subTitle="Tips:Project needs to be activated by yourself!"
       extra={[
         <Button type="primary" key="activate" onClick={toProjectList}>
-          Activate Project
+          View Project
         </Button>,
         <Button key="back" onClick={toMain}>
           Back
