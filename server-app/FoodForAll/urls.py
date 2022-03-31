@@ -21,6 +21,7 @@ from Project import views as project_views
 from Common import views as common_views
 from Upload import views as upload_views
 from DataBase import views as database_views
+from Share import views as share_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,8 +41,10 @@ urlpatterns = [
     path('create_project/', project_views.create_project),
     path('delete_project/', project_views.delete_project),
     path('start_project/', project_views.start_project),
+    path('suspend_project/', project_views.suspend_project),
     path('stop_project/', project_views.stop_project),
     path('upload_img/', upload_views.upload_img),
     path('upload_doc/', upload_views.upload_doc),
+    path('share_by_email/', share_views.share_by_email),
     path('init_database/', database_views.init_database),
 ]

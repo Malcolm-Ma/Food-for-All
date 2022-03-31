@@ -8,6 +8,7 @@ import pymysql
 from hashlib import md5
 import csv
 
+#mail = "test@example.com"
 #mail = "ty_liang@foxmail.com"
 mail = input("Input email address you are using: ")
 password = "123456"
@@ -42,7 +43,7 @@ headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'}
 
 STATUS_CODE = {"success": 0,
-               "user is not logged in": 100001,
+               "user has not logged in": 100001,
                "user update failed": 100002,
                "operation is not available to individual user": 100003,
                "user is already logged in": 100004,
@@ -55,6 +56,7 @@ STATUS_CODE = {"success": 0,
                "invalid user type": 100011,
                "wrong parameters for user creation": 100012,
                "user creation failed": 100013,
+               "target user does not exist": 100014,
                "project creation failed": 200001,
                "project does not exist": 200002,
                "user is not the owner of the project": 200003,
@@ -65,11 +67,14 @@ STATUS_CODE = {"success": 0,
                "project start up failed": 200008,
                "project has already started": 200009,
                "project stop failed": 200010,
-               "project is not ongoing": 200011,
+               "project is not ongoing or on hold": 200011,
                "project end time is invalid": 200012,
                "project status invalid": 200013,
                "project price invalid": 200014,
                "project order invalid": 200015,
+               "project is aiready finished": 200016,
+               "project is not ongoing": 200017,
+               "project suspension failed": 200018,
                "invalid currency type": 300001,
                "email delivery failed": 300002,
                "captcha verification failed": 300003,
@@ -83,10 +88,10 @@ STATUS_CODE = {"success": 0,
                }
 
 main_url = "http://127.0.0.1:8000/"
-api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/',
+api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/', 'share_by_email/',
             'login/', 'regis/', 'logout/', 'reset_password/', 'get_user/', 'edit_user/',
             'get_project/', 'edit_project/', 'get_projects_list/', 'get_prepare_projects_list/',
-            'create_project/', 'delete_project/', 'start_project/', 'stop_project/', ]
+            'create_project/', 'delete_project/', 'start_project/', 'suspend_project/', 'stop_project/', ]
 url_dict = {}
 for api in api_list:
     url_dict[api] = os.path.join(main_url, api)
@@ -150,7 +155,7 @@ def check_wrong_request_params():
 def check_upload(api, key, file):
     if file:
         with open(file, "rb") as f:
-            r = rs.post(url_dict[api], headers=headers, files={key: f, 'Content-Type': 'multipart/form-data'})
+            r = rs.post(url_dict[api], headers=headers, files={"files": f, 'Content-Type': 'multipart/form-data'})
         if len(re.findall(r'{"status": 0, "url": "static/.+"}', r.text)) == 1:
             result = "Success"
         else:
@@ -217,7 +222,7 @@ if __name__ == "__main__":
                 f.write(check_api('login/', STATUS_CODE["user is already logged in"], "POST", {"username": user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["user is already logged in"]) + "\n")
 
                 f.write(check_api('logout/', STATUS_CODE["success"], "GET", "", '{"status": %d}' % STATUS_CODE["success"]) + "\n")
-                f.write(check_api('logout/', STATUS_CODE["user is not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('logout/', STATUS_CODE["user has not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
 
                 f.write(check_api('regis/', STATUS_CODE["invalid action"], "POST", {"username": user["mail"], "action": 4}, '{"status": %d, "action": 4}' % STATUS_CODE["invalid action"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["email is already registered"], "POST", {"username": user["mail"], "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["email is already registered"]) + "\n")
@@ -228,10 +233,10 @@ if __name__ == "__main__":
                 code = input("Input registration verification code: ")
                 f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 1, "code": code}, '{"status": %d, "action": 1}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('regis/', STATUS_CODE["wrong parameters for user creation"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": ""}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong parameters for user creation"]) + "\n")
-                f.write(check_api('regis/', STATUS_CODE["invalid user type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 9}, '{"status": %d, "action": 2}' % STATUS_CODE["invalid user type"]) + "\n")
-                f.write(check_api('regis/', STATUS_CODE["wrong region name or code"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "testCN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong region name or code"]) + "\n")
-                f.write(check_api('regis/', STATUS_CODE["invalid currency type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "testGBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["invalid currency type"]) + "\n")
-                f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2}, '{"status": %d, "action": 2}' % STATUS_CODE["success"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["invalid user type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 9, "hide": 0}, '{"status": %d, "action": 2}' % STATUS_CODE["invalid user type"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["wrong region name or code"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "testCN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2, "hide": 0}, '{"status": %d, "action": 2}' % STATUS_CODE["wrong region name or code"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["invalid currency type"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "testGBP", "name": "tyl", "avatar": "", "type": 2, "hide": 0}, '{"status": %d, "action": 2}' % STATUS_CODE["invalid currency type"]) + "\n")
+                f.write(check_api('regis/', STATUS_CODE["success"], "POST", {"username": mail, "action": 2, "code": code, "password": password, "region": "CN", "currency_type": "GBP", "name": "tyl", "avatar": "", "type": 2, "hide": 0}, '{"status": %d, "action": 2}' % STATUS_CODE["success"]) + "\n")
                 user_login(mail, password)
                 f.write(check_api('regis/', STATUS_CODE["user is already logged in"], "POST", {"username": mail, "action": 0}, '{"status": %d.*}' % STATUS_CODE["user is already logged in"]) + "\n")
                 #100013 can't be test
@@ -248,18 +253,19 @@ if __name__ == "__main__":
                 f.write(check_api('reset_password/', STATUS_CODE["email is not registered"], "POST", {"username": "test" + mail, "action": 0}, '{"status": %d, "action": 0}' % STATUS_CODE["email is not registered"]) + "\n")
                 #100008, 300002 can't be test
 
-                f.write(check_api('get_user/', STATUS_CODE["user is not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('get_user/', STATUS_CODE["user has not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(user["mail"], user["password"])
+                f.write(check_api('get_user/', STATUS_CODE["target user does not exist"], "POST", {"uid": "test" + user["uid"]}, '{"status": %d}' % STATUS_CODE["target user does not exist"]) + "\n")
                 f.write(check_api('get_user/', STATUS_CODE["success"], "GET", "", '{"status": %d, "user_info": {"uid": "%s", "mail": "%s", .*}' % (STATUS_CODE["success"], user["uid"], user["mail"])) + "\n")
 
                 f.write(check_api('edit_user/', STATUS_CODE["invalid currency type"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "testUSD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('edit_user/', STATUS_CODE["wrong region name or code"], "POST", {"name": "test", "region": "testAfghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["wrong region name or code"]) + "\n")
                 f.write(check_api('edit_user/', STATUS_CODE["success"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
                 user_logout()
-                f.write(check_api('edit_user/', STATUS_CODE["user is not logged in"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('edit_user/', STATUS_CODE["user has not logged in"], "POST", {"name": "test", "region": "Afghanistan", "currency_type": "USD", "avatar": ""}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 #100002 can't be test
 
-                f.write(check_api('create_project/', STATUS_CODE["user is not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('create_project/', STATUS_CODE["user has not logged in"], "GET", "", '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(mail, reset_password)
                 f.write(check_api('create_project/', STATUS_CODE["operation is not available to individual user"], "GET", "", '{"status": %d}' % STATUS_CODE["operation is not available to individual user"]) + "\n")
                 user_logout()
@@ -274,14 +280,14 @@ if __name__ == "__main__":
                 f.write(check_api('edit_project/', STATUS_CODE["invalid currency type"], "POST", {"pid": project["pid"], "currency_type": "CNYTEST", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) + 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('edit_project/', STATUS_CODE["project end time is invalid"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["project end time is invalid"]) + "\n")
                 user_logout()
-                f.write(check_api('edit_project/', STATUS_CODE["user is not logged in"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('edit_project/', STATUS_CODE["user has not logged in"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(mail, reset_password)
                 f.write(check_api('edit_project/', STATUS_CODE["user is not the owner of the project"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["user is not the owner of the project"]) + "\n")
                 #200005 can't be test
 
                 f.write(check_api('start_project/', STATUS_CODE["user is not the owner of the project"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not the owner of the project"]) + "\n")
                 user_logout()
-                f.write(check_api('start_project/', STATUS_CODE["user is not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('start_project/', STATUS_CODE["user has not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(user["mail"], user["password"])
                 f.write(check_api('start_project/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"]}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
                 f.write(check_api('start_project/', STATUS_CODE["project information is incomplete"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project information is incomplete"]) + "\n")
@@ -290,23 +296,34 @@ if __name__ == "__main__":
                 f.write(check_api('start_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
                 f.write(check_api('edit_project/', STATUS_CODE["project is not editable"], "POST", {"pid": project["pid"], "currency_type": "CNY", "edit": {"title": "apex", "intro": "apex", "background_image": "", "total_num": 80, "end_time": int(time.time()) - 24 * 60 * 60, "details": "apex", "price": 100}}, '{"status": %d}' % STATUS_CODE["project is not editable"]) + "\n")
                 f.write(check_api('start_project/', STATUS_CODE["project has already started"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project has already started"]) + "\n")
-                #200008 can't be test
+                #200008, 200016 can't be test
 
+                f.write(check_api('suspend_project/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"]}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
+                user_logout()
+                f.write(check_api('suspend_project/', STATUS_CODE["user has not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
+                user_login(mail, reset_password)
+                f.write(check_api('suspend_project/', STATUS_CODE["user is not the owner of the project"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not the owner of the project"]) + "\n")
+                user_logout()
+                user_login(user["mail"], user["password"])
+                f.write(check_api('suspend_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
+                f.write(check_api('suspend_project/', STATUS_CODE["project is not ongoing"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project is not ongoing"]) + "\n")
+                #200016, 200018 can't be test
+                
                 f.write(check_api('stop_project/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"]}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
                 user_logout()
-                f.write(check_api('stop_project/', STATUS_CODE["user is not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('stop_project/', STATUS_CODE["user has not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(mail, reset_password)
                 f.write(check_api('stop_project/', STATUS_CODE["user is not the owner of the project"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not the owner of the project"]) + "\n")
                 user_logout()
                 user_login(user["mail"], user["password"])
                 f.write(check_api('stop_project/', STATUS_CODE["success"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
-                f.write(check_api('stop_project/', STATUS_CODE["project is not ongoing"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project is not ongoing"]) + "\n")
-                #200010 can't be test
+                f.write(check_api('stop_project/', STATUS_CODE["project is not ongoing or on hold"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project is not ongoing or on hold"]) + "\n")
+                #200010, 200016 can't be test
 
                 f.write(check_api('delete_project/', STATUS_CODE["project does not exist"], "POST", {"pid": "test" + project["pid"]}, '{"status": %d}' % STATUS_CODE["project does not exist"]) + "\n")
                 f.write(check_api('delete_project/', STATUS_CODE["project is not deletable"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["project is not deletable"]) + "\n")
                 user_logout()
-                f.write(check_api('delete_project/', STATUS_CODE["user is not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('delete_project/', STATUS_CODE["user has not logged in"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(mail, reset_password)
                 f.write(check_api('delete_project/', STATUS_CODE["user is not the owner of the project"], "POST", {"pid": project["pid"]}, '{"status": %d}' % STATUS_CODE["user is not the owner of the project"]) + "\n")
                 user_logout()
@@ -325,7 +342,7 @@ if __name__ == "__main__":
                 f.write(check_api('get_prepare_projects_list/', STATUS_CODE["invalid currency type"], "POST", {"currency_type": "testCNY", "page_info": {"page_size": 3, "page": 1}, "search": ""}, '{"status": %d.*}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('get_prepare_projects_list/', STATUS_CODE["success"], "POST", {"currency_type": "CNY", "page_info": {"page_size": 3, "page": 1}, "search": "q"}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
                 user_logout()
-                f.write(check_api('get_prepare_projects_list/', STATUS_CODE["user is not logged in"], "POST", {"currency_type": "CNY", "page_info": {"page_size": 3, "page": 1}, "search": "q"}, '{"status": %d}' % STATUS_CODE["user is not logged in"]) + "\n")
+                f.write(check_api('get_prepare_projects_list/', STATUS_CODE["user has not logged in"], "POST", {"currency_type": "CNY", "page_info": {"page_size": 3, "page": 1}, "search": "q"}, '{"status": %d}' % STATUS_CODE["user has not logged in"]) + "\n")
                 user_login(mail, reset_password)
                 f.write(check_api('get_prepare_projects_list/', STATUS_CODE["operation is not available to individual user"], "POST", {"currency_type": "CNY", "page_info": {"page_size": 3, "page": 1}, "search": "q"}, '{"status": %d}' % STATUS_CODE["operation is not available to individual user"]) + "\n")
 
@@ -333,6 +350,8 @@ if __name__ == "__main__":
                 f.write(check_api('get_projects_list/', STATUS_CODE["invalid currency type"], "POST", {"order": "-progress", "currency_type": "testCNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d}' % STATUS_CODE["invalid currency type"]) + "\n")
                 f.write(check_api('get_projects_list/', STATUS_CODE["success"], "POST", {"order": "-progress", "currency_type": "CNY", "page_info": {"page_size": 5, "page": 1}, "search": "", "valid_only": 1, "uid": ""}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
 
+                f.write(check_api('share_by_email/', STATUS_CODE["success"], "POST", {"mail": [mail], "project_name": "qwer", "project_url": "http://127.0.0.1:3000", "donate_num": 3, "if_hide_personal_information": 0, "user_name": "test"}, '{"status": %d.*}' % STATUS_CODE["success"]) + "\n")
+                
                 for _ in range(10):
                     user_login("test", "test")
                 f.write(check_api('login/', STATUS_CODE["temporary ban due to too frequent login attempts"], "POST", {"username": "test" + user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["temporary ban due to too frequent login attempts"]) + "\n")

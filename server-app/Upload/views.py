@@ -25,7 +25,7 @@ def upload_img(request):
     }
     """
     response_data = {"status": STATUS_CODE["success"], "url": ""}
-    file_obj = request.FILES.get('img')
+    file_obj = request.FILES.get('files')
     if not file_obj:
         raise ServerError("unable to get image file from request")
     file_name = gen_file_name(file_obj.name, "img")
@@ -56,7 +56,7 @@ def upload_doc(request):
     }
     """
     response_data = {"status": STATUS_CODE["success"], "url": ""}
-    file_obj = request.FILES.get('doc')
+    file_obj = request.FILES.get('files')
     if not file_obj:
         raise ServerError("unable to get document file from request")
     file_name = gen_file_name(file_obj.name, "doc")

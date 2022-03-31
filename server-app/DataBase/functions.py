@@ -71,12 +71,14 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
                  "regis_time": int(time.time()) - random.randint(30 * 24 * 60 * 60, 365 * 24 * 60 * 60),
                  "last_login_time": int(time.time()) - random.randint(0, 24 * 60 * 60),
                  "donate_history": "{}",
-                 "share_mail_history": str([fk.safe_email(), fk.safe_email()])}
+                 "share_mail_history": str([fk.safe_email(), fk.safe_email()]),
+                 "hide": 0}
     fake_user["uid"] = DUser.gen_uid(fake_user["mail"])
     if fake_user["type"] == USER_TYPE["charity"]:
         fake_user["name"] = fk.company()
     else:
         fake_user["name"] = fk.name()
+        fake_user["hide"] = random.choices([0, 1], k=1)[0]
     try:
         DUser.objects.create(**fake_user)
         return fake_user["uid"], fake_user["mail"], password_ori, fake_user["type"]
@@ -101,7 +103,7 @@ def create_fake_project(uid, donate_history):
                     "details": "",
                     "price": random.random() * 1.5 + 1.5,
                     "donate_history": "{}",
-                    "status": random.choices(list(PROJECT_STATUS.values()), weights=[2, 12, 6], k=1)[0]}
+                    "status": random.choices(list(PROJECT_STATUS.values()), weights=[2, 12, 5, 1], k=1)[0]}
     content = fk.texts(random.randint(3, 8))
     fake_project["title"] = content[0][:random.randint(30, 50)]
     fake_project["intro"] = content[0]
@@ -137,7 +139,7 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
-    elif fake_project["status"] == PROJECT_STATUS["ongoing"]:
+    elif fake_project["status"] == PROJECT_STATUS["ongoing"] or fake_project["status"] == PROJECT_STATUS["pause"]:
         fake_project["current_num"] = random.randint(0, fake_project["total_num"] - 1)
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 30 * 24 * 60 * 60)
         fake_project["end_time"] = random.randint(int(time.time()) + 5 * 24 * 60 * 60, int(time.time()) + 365 * 24 * 60 * 60)

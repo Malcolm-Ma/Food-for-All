@@ -14,20 +14,19 @@ import {
   Drawer,
   Tag,
   Switch,
+  Tooltip, message,
 } from "antd";
-import Tooltip from '@mui/material/Tooltip';
-
 
 import actions from "src/actions";
 import _ from "lodash";
-import { getProjectInfo } from "src/actions/projectActions";
-import { InboxOutlined } from "@ant-design/icons";
+import {getProjectInfo} from "src/actions/projectActions";
 
 import {
   CheckCircleOutlined,
+  SyncOutlined,
   ClockCircleOutlined,
-  SyncOutlined
-} from "@ant-design/icons";
+  MinusCircleOutlined,
+} from '@ant-design/icons';
 
 import EditDetail from "./EditDetail";
 import DrawerDetail from './ProjectDetail';
@@ -40,15 +39,8 @@ const columnsConfig = (payloads) => {
 
   const {
     projectInfo,
-    drawVisible,
-    modalVisible,
-    confirmLoading,
-    modalText,
     showDrawer,
-    onClose,
     showModal,
-    handleOk,
-    handleCancel,
     regionMap,
     prepareMode,
   } = payloads;
@@ -67,9 +59,9 @@ const columnsConfig = (payloads) => {
       ellipsis: true,
       width: 160,
       render: value =>
-        <Tooltip title={value} followCursor>
-          <div style={{ float: 'left', maxWidth: '100%', cursor: 'pointer' }}>
-            {value.substring(0,12)+'...'}
+        <Tooltip title={value}>
+          <div style={{float: 'left', maxWidth: '100%', cursor: 'pointer'}}>
+            {value.substring(0, 12) + '...'}
           </div>
         </Tooltip>
     },
@@ -77,12 +69,12 @@ const columnsConfig = (payloads) => {
       title: 'Status',
       key: 'tags',
       render: (text, record) => {
-        const { status: status } = record;
+        const {status: status} = record;
         switch (status) {
           case 0:
             return (
               <div>
-                <Tag icon={<ClockCircleOutlined />} color="warning">
+                <Tag icon={<ClockCircleOutlined/>} color="warning">
                   Prepare
                 </Tag>
               </div>
@@ -90,16 +82,24 @@ const columnsConfig = (payloads) => {
           case 1:
             return (
               <div>
-                <Tag icon={<SyncOutlined spin />} color="processing">
-                  Outgoing
+                <Tag icon={<SyncOutlined spin/>} color="processing">
+                  Ongoing
                 </Tag>
               </div>
             );
           case 2:
             return (
               <div>
-                <Tag icon={<CheckCircleOutlined />} color="success">
+                <Tag icon={<CheckCircleOutlined/>} color="success">
                   Complete
+                </Tag>
+              </div>
+            );
+          case 3:
+            return (
+              <div>
+                <Tag icon={<MinusCircleOutlined/>} color="warning">
+                  Pause
                 </Tag>
               </div>
             );
@@ -110,7 +110,7 @@ const columnsConfig = (payloads) => {
       title: 'Price',
       key: 'price',
       render: (text, record) => {
-        const { price: price } = record;
+        const {price: price} = record;
         const realPrice = String(_.floor(price, 2));
         return (realPrice + ' ' + _.get(projectInfo, 'currencyType'));
       }
@@ -119,10 +119,10 @@ const columnsConfig = (payloads) => {
       title: 'Progress',
       key: 'Progress',
       render: (text, record) => {
-        const { current_num: currentNum, total_num: totalNum } = record;
+        const {current_num: currentNum, total_num: totalNum} = record;
         const percent = _.floor((currentNum / totalNum) * 100, 0);
         return (
-          <Progress percent={percent} type="circle" width={60} />
+          <Progress percent={percent} type="circle" width={60}/>
         );
       }
     },
@@ -130,8 +130,18 @@ const columnsConfig = (payloads) => {
       title: 'Donation Num',
       dataIndex: 'current_num',
       render: (text, record) => {
-        const { total_num: totalNum } = record;
+        const {total_num: totalNum} = record;
         return `${text} / ${totalNum}`;
+      }
+    },
+    {
+      title: 'Total price of meal',
+      key: 'total_price',
+      render: (text, record) => {
+        const {price: price, current_num: currentNum} = record;
+        const realPrice = _.floor(price, 2);
+        const totalPrice = String(realPrice*currentNum) + ' ' + projectInfo.currencyType;
+        return  totalPrice;
       }
     },
     {
@@ -140,7 +150,7 @@ const columnsConfig = (payloads) => {
       render: (text, record) => {
         const fullRegionName = _.get(regionMap, text);
         if (fullRegionName) {
-          return `${fullRegionName} (${text})`;
+          return `${fullRegionName}`;
         }
         return text;
       },
@@ -151,7 +161,7 @@ const columnsConfig = (payloads) => {
       key: 'start_time',
       width: 130,
       render: (text, record) => {
-        const { start_time: startTime } = record;
+        const {start_time: startTime} = record;
         const timeOfStart = moment(startTime * 1000).format("MMM DD, YYYY");
         return timeOfStart;
       }
@@ -161,7 +171,7 @@ const columnsConfig = (payloads) => {
       key: 'end_time',
       width: 130,
       render: (text, record) => {
-        const { end_time: endTime } = record;
+        const {end_time: endTime} = record;
         const timeOfEnd = moment(endTime * 1000).format("MMM DD, YYYY");
         return timeOfEnd;
       }
@@ -169,22 +179,67 @@ const columnsConfig = (payloads) => {
     {
       title: 'Action',
       key: 'action',
-      width: 200,
-      align: 'right',
-      render: (text, record) => (
-        <Space size={0}>
-          <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
-            Detail
-          </Button>
-          <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
-            Edit
-          </Button>
-          <Button type="link" onClick={showModal}>
-            Stop
-          </Button>
-        </Space>
-      ),
-    },
+      width: 210,
+      align: 'center',
+      fixed: 'right',
+      render: (text, record) => {
+        switch (record.status) {
+
+        }
+        if (record.status === 1) {
+          return (
+            <Space size={0}>
+              <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                Detail
+              </Button>
+              <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                Pause
+              </Button>
+              <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                Stop
+              </Button>
+            </Space>
+          )
+        } else if (record.status === 2) {
+          return (
+            <Space size={0}>
+              <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                Detail
+              </Button>
+            </Space>
+          )
+        } else if (record.status === 0) {
+          {
+            return (
+              <Space size={0}>
+                <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                  Detail
+                </Button>
+                <Button type="link" onClick={() => showDrawer('edit', record.pid)} disabled={record.status !== 0}>
+                  Edit
+                </Button>
+                <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                  Start
+                </Button>
+              </Space>
+            )
+          }
+        } else {
+          {
+            return (
+              <Space size={0}>
+                <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                  Detail
+                </Button>
+                <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                  Continue
+                </Button>
+              </Space>
+            )
+          }
+        }
+      },
+    }
   ]);
 }
 
@@ -192,12 +247,11 @@ export default () => {
 
   const dispatch = useDispatch();
 
-  const { regionMap } = useSelector(state => state.global);
-  const { currencyList } = useSelector(state => state.global);
-  const { userInfo } = useSelector(state => state.user);
+  const {regionMap} = useSelector(state => state.global);
+  const {currencyList} = useSelector(state => state.global);
+  const {userInfo} = useSelector(state => state.user);
 
   const [projectInfo, setProjectInfo] = useState({});
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [prepareMode, setPrepareMode] = useState(false);
   const [drawerType, setDrawerType] = useState('');
@@ -205,9 +259,7 @@ export default () => {
   // projectDetailInfo state
   const [projectDetailInfo, setProjectDetailInfo] = useState({});
 
-  const [deleteProjectInfo, setDeleteProjectInfo] = useState(0);
-  //project progress state
-  const [progressStatus, setProgressStatus] = useState("exception");
+  const [operatingProject, setOperatingProject] = useState([]);
 
   const [drawVisible, drawSetVisible] = useState(false);
   //Edit button
@@ -284,23 +336,50 @@ export default () => {
     drawSetVisible(false);
   };
   //Below is the delete button pop-up warning box
-  const showModal = (projectId) => {
-    setDeleteProjectInfo(projectId);
+  const showModal = (projectId, status) => {
+    if (status === 0) {
+      // prepare mode
+      setModalText('Are you sure you want to start the project? Once the project starts, it can\'t be edited, it can only be stopped.');
+    }
+    if (status === 1) {
+      // ongoing mode
+      setModalText('Are you sure you want to terminate the project? The project cannot continue after termination.');
+    }
+    setOperatingProject([projectId, status]);
     modalSetVisible(true);
   };
 
-  const handleOk = () => {
-    setModalText('Terminating project.');
-    setConfirmLoading(true);
-    actions.stopProject({
-      "pid": deleteProjectInfo,
-    });
+  const handleOk = async () => {
+    const [projectId, status] = operatingProject;
+    if (status === 0) {
+      // prepare mode
+      setModalText('Start project.');
+      setConfirmLoading(true);
+      // TODO change to start project
+      await actions.startProject({
+        "pid": projectId,
+      });
+    }
+    if (status === 1) {
+      // ongoing mode
+      setModalText('Terminating project.');
+      setConfirmLoading(true);
+      // TODO change to start project
+      try {
+        await actions.stopProject({
+          "pid": projectId,
+        });
+      } catch (error) {
+        modalSetVisible(false);
+        message.error(error.name)
+      }
+    }
     setTimeout(() => {
       modalSetVisible(false);
       setConfirmLoading(false);
-    }, 500);
+    }, 200);
+    setOperatingProject([]);
     getProjectList();
-    setIsModalVisible(false);
   };
 
   const handleCancel = () => {
@@ -330,30 +409,30 @@ export default () => {
   return (
     <div className="project-list">
       <div className="mode-switch">
-        <Switch onChange={handleModeChange} />
+        <Switch onChange={handleModeChange}/>
         <span>Prepare Mode</span>
       </div>
       <Table
         columns={columnsConfig(payloads)}
         rowKey={record => record.pid}
         dataSource={_.get(projectInfo, 'projectInfo', [])}
-        scroll={{ x: 1500 }}
+        scroll={{x: 1500}}
       />
       <Drawer
+        title="Project Detail Information"
         className='project-detail-drawer'
-        title="Project Detail Info"
         // title="Edit Project"
         placement="right"
         onClose={onClose}
         visible={drawVisible}
-        bodyStyle={{ paddingBottom: 80 }}
+        bodyStyle={{paddingBottom: 80}}
         width={800}
         extra={
           <Space>
             <Button onClick={onClose}>Cancel</Button>
           </Space>
         }>
-        {drawerType === 'detail' && <DrawerDetail detailInfo={projectDetailInfo} />}
+        {drawerType === 'detail' && <DrawerDetail detailInfo={projectDetailInfo}/>}
         {drawerType === 'edit' && <EditDetail targetProject={projectDetailInfo}/>}
       </Drawer>
       <Modal
@@ -367,5 +446,4 @@ export default () => {
       </Modal>
     </div>
   );
-
 };
