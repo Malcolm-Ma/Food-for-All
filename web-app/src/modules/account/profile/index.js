@@ -1,3 +1,6 @@
+// @Todo currency full name following the code in()
+// @Todo turn to page after create, change title
+// @Todo transform error info
 import React, {useEffect, useState} from "react";
 import {Avatar, Badge, Grid, styled, TextField} from '@mui/material';
 import Stack from '@mui/material/Stack';
@@ -8,9 +11,10 @@ import {useDispatch, useSelector} from "react-redux";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import actions from "src/actions";
-import {message} from 'antd';
+import {Image, message, Tag} from 'antd';
 import _ from 'lodash';
-
+import {CheckCircleOutlined} from "@ant-design/icons";
+import {SERVICE_BASE_URL} from "src/constants/constants";
 
 export default () => {
 
@@ -25,7 +29,7 @@ export default () => {
 
   const {userInfo} = useSelector(state => state.user);
   const { regionList, currencyList, regionMap } = useSelector(state => state.global);
-  const currencyCode = currencyList.map(item => item.value);
+  const currencyCode = currencyList.map(item => item.label+" ("+item.value+")");
 
   const [nameColor, setNameColor] = useState(null);
   const [regionColor, setRegionColor] = useState(null);
@@ -60,7 +64,6 @@ export default () => {
   };
 
   const handleSubmit = async (event) => {
-    message.loading({content: 'Saving...'}, key);
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
     console.log(data);
@@ -76,7 +79,8 @@ export default () => {
         setRegion(data.region);
         setCurrency(data.currency);
         handleCancel();
-        await message.success({content: 'Saved!', key});
+        dispatch(actions.getUserInfo());
+        message.success({content: 'Saved!', key});
       }
     } catch (e) {
       await message.error({content: 'Edit Error! ERROR INFO: '+e.name, key});
@@ -125,6 +129,25 @@ export default () => {
     display: 'none',
   });
 
+  const userTypeTags = () => {
+    const userType = _.get(userInfo, 'type');
+
+    if (userType === 1) {
+      return (
+        <Tag color="success">
+          Charity
+        </Tag>
+      );
+    }
+    if (userType === 0) {
+      return (
+        <Tag color="warning">
+          Donor
+        </Tag>
+      );
+    }
+  }
+
   return (
     <Grid container rowSpacing={2}>
       <Grid item xs={12}>
@@ -141,12 +164,13 @@ export default () => {
               </label>
             </Stack>
           }>
-          <Avatar sx={{ width: 200, height: 200 }}/>
+          <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
         </Badge>
       </Grid>
 
       <Grid item xs={12} display={editDisplay}>
         <Typography textAlign="left" >{name}</Typography>
+        {userTypeTags()}
       </Grid>
 
 
