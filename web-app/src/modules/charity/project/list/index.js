@@ -2,8 +2,8 @@
  * @file Project list page
  * @author Mingze Ma
  */
-import {useCallback, useEffect, useRef, useState} from "react";
-import {useDispatch, useSelector} from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import moment from "moment";
 import {
   Button,
