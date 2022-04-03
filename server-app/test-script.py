@@ -1,19 +1,13 @@
 """
-Terminal> python manage.py shell
-Python Console> exec(open("test-script.py").read())
+PyCharm Terminal      > python manage.py shell
+(Interactive Console) > exec(open("test-script.py").read())
 """
-from DataBase.models import DUser
-from DataBase.models import DProject
+from Statistics.functions import Statistics
 
 
-duser = DUser()
-user = duser.get_user({
-    "uid": "d46ddb48e346692f861e3773d1c505fe"
-})
-user_dict = user.to_dict()
+pid = "4e4d85238551a40d98b2f320fb3eb2aa"
+uid1 = "d46ddb48e346692f861e3773d1c505fe"  # type == 1
+uid2 = "a964964d43975d779d774ce866b371d4"  # type == 2
 
-dproject = DProject()
-project = dproject.get_project({
-    "pid": "4e4d85238551a40d98b2f320fb3eb2aa"
-})
-project_dict = project.to_dict()
+user_dict = Statistics.get_user_dict(uid1)
+print(Statistics.get_donation_sum(user_dict))
