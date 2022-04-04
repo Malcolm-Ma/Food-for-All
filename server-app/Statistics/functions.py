@@ -1,27 +1,85 @@
 from DataBase.models import DProject
 from DataBase.models import DUser
 from datetime import datetime
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 import time
 
 
 class Statistics(object):
     @staticmethod
+    def export_statistics(identity):
+        # Takes pid or uid.
+        try:
+            d = Statistics.get_project_dict(identity)
+        except AttributeError:
+            d = Statistics.get_user_dict(identity)
+        pp = PdfPages('report.pdf')
+        if 'pid' in d:
+            overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+            x_iter = range(len(monthly_sum[0]))
+            fig = plt.figure()
+            plt.grid(axis="y")
+            for x, y in zip(x_iter, monthly_sum[1]):
+                plt.text(x, y, round(y, 2), ha='center', va='bottom')
+            plt.title("Monthly Collection")
+            plt.xlabel('Total: ' + str(round(overall_sum, 2)) + ' GBP')
+            plt.xticks(x_iter, monthly_sum[0])
+            plt.ylabel('/GBP')
+            plt.bar(x_iter, monthly_sum[1])
+            pp.savefig(fig)
+
+            completeness = Statistics.get_completeness(d)
+            x_iter = range(len(completeness[0]))
+            fig = plt.figure()
+            plt.grid(True)
+            for x, y in zip(x_iter, completeness[1]):
+                plt.text(x, y, round(y, 2), ha='left', va='top')
+            plt.title("Collection Completeness")
+            plt.xticks(x_iter, completeness[0])
+            plt.ylim(-0.1, 1.1)
+            plt.plot(x_iter, completeness[1])
+            pp.savefig(fig)
+
+            region_dist = Statistics.get_region_distribution(d)
+            fig = plt.figure()
+            plt.title("Country/Region Distribution")
+            plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
+            pp.savefig(fig)
+        else:
+            overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+            x_iter = range(len(monthly_sum[0]))
+            fig = plt.figure()
+            plt.grid(axis="y")
+            for x, y in zip(x_iter, monthly_sum[1]):
+                plt.text(x, y, round(y, 2), ha='center', va='bottom')
+            plt.title("Monthly Donation")
+            plt.xlabel('Total: ' + str(round(overall_sum, 2)) + ' GBP')
+            plt.xticks(x_iter, monthly_sum[0])
+            plt.ylabel('/GBP')
+            plt.bar(x_iter, monthly_sum[1])
+            pp.savefig(fig)
+        pp.close()
+        return 0
+
+    @staticmethod
     def get_completeness(project_dict):
         # Get monthly completeness of a project.
         # Returns completeness: [year-month_list, completeness_list].
         overall_sum, monthly_sum = Statistics.get_donation_sum(project_dict)
-        x = project_dict['total_num']
+        target = project_dict['total_num']
         current_sum = 0
         completeness = []
         for i in range(len(monthly_sum[1])):
             current_sum += monthly_sum[1][i]
-            completeness.append(current_sum / project_dict['price'] / x)
+            completeness.append(current_sum / project_dict['price'] / target)
         completeness = [monthly_sum[0], completeness]
         return completeness
 
     @staticmethod
     def get_donation_sum(d):
-        # Get overall and consecutive monthly sum of donation of a project / received by a charity / made by a donor.
+        # Get overall and monthly sum of donation of a project/received by a charity/made by a donor.
+        # For project: from start_time to this month. For user: from first donation to this month.
         # Takes project_dict or user_dict.
         # Returns overall_sum: int, monthly_sum: [year-month_list, sum_list].
         overall_sum = 0
@@ -59,7 +117,11 @@ class Statistics(object):
                         else:
                             monthly_sum_dict[ym] = num * project_dict['price']
         monthly_sum = sorted(monthly_sum_dict.items(), key=lambda x: x[0])
-        start_ym = monthly_sum[0][0]
+        if 'pid' in d:
+            dt = datetime.fromtimestamp(d['start_time'])
+            start_ym = dt.strftime('%Y%m')
+        else:
+            start_ym = monthly_sum[0][0]
         dt = datetime.fromtimestamp(time.time())
         end_ym = dt.strftime('%Y%m')
         ym_list = []

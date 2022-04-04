@@ -9,6 +9,4 @@ pid = "4e4d85238551a40d98b2f320fb3eb2aa"
 uid1 = "d46ddb48e346692f861e3773d1c505fe"  # type == 1
 uid2 = "a964964d43975d779d774ce866b371d4"  # type == 2
 
-d = Statistics.get_project_dict(pid)
-region_dist = Statistics.get_region_distribution(d)
-print(sum(region_dist[1]))
+print(Statistics.export_statistics(pid))
