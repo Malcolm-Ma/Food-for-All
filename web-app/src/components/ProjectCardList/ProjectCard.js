@@ -90,9 +90,8 @@ export default function ShowProjectCard(props) {
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon href='donation'/>
-          </IconButton>
+          <Button endIcon={<MoreVertIcon />} href='donation'>
+          </Button>
         }
         title={
           <h6>
