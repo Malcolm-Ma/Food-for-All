@@ -8,67 +8,89 @@ import time
 
 class Statistics(object):
     @staticmethod
-    def export_statistics(id_):
+    def generate_report(id_):
         # External interface for exporting statistics to PDF.
-        # Edit the first line to alter target directory.
         # Takes pid or uid.
-        pp = PdfPages('report.pdf')
         try:
             d = Statistics.get_project_dict(id_)
-        except AttributeError:
-            d = Statistics.get_user_dict(id_)
-        if 'pid' in d:
+            pp = PdfPages(d['title'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+            completeness = Statistics.get_completeness(d)
+            region_dist = Statistics.get_region_distribution(d)
+
+            fig = plt.figure()
+            fig.clf()
+            fig.text(0.1, 0.75,
+                     'Project:    ' + d['title'] + ' (' + d['region'] + ')',
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.65,
+                     'Charity:    ' + d['charity'],
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.55,
+                     'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.45,
+                     'Progress:    ' + str(round(overall_sum, 2)) + ' / '
+                     + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
+                     + '(' + str(round(completeness[1][-1]) * 100) + '%)',
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.35,
+                     'Period:    ' + datetime.fromtimestamp(int(d['start_time'])).strftime('%Y/%m/%d') + ' - '
+                     + datetime.fromtimestamp(int(d['end_time'])).strftime('%Y/%m/%d'),
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.25,
+                     'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
+                     fontsize=14, ha='left', va='center')
+            pp.savefig(fig)
+
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
             plt.grid(axis="y")
             for x, y in zip(x_iter, monthly_sum[1]):
                 plt.text(x, y, round(y, 2), ha='center', va='bottom')
             plt.title("Monthly Donation")
-            plt.xlabel('Total: ' + str(round(overall_sum, 2)) + ' GBP')
-            plt.xticks(x_iter, monthly_sum[0], rotation=45)
+            plt.xticks(x_iter, monthly_sum[0], rotation=30)
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
             pp.savefig(fig)
 
-            completeness = Statistics.get_completeness(d)
             x_iter = range(len(completeness[0]))
             fig = plt.figure()
             plt.grid(True)
             for x, y in zip(x_iter, completeness[1]):
                 plt.text(x, y, round(y, 2), ha='left', va='top')
             plt.title("Collection Completeness")
-            plt.xticks(x_iter, completeness[0], rotation=45)
+            plt.xticks(x_iter, completeness[0], rotation=30)
             plt.ylim(-0.1, 1.1)
             plt.plot(x_iter, completeness[1])
             pp.savefig(fig)
 
-            region_dist = Statistics.get_region_distribution(d)
             fig = plt.figure()
             plt.title("Country/Region Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
-        else:
+        except AttributeError:
+            d = Statistics.get_user_dict(id_)
+            pp = PdfPages(d['name'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+            region_dist = Statistics.get_region_distribution(d)
+
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
             plt.grid(axis="y")
             for x, y in zip(x_iter, monthly_sum[1]):
                 plt.text(x, y, round(y, 2), ha='center', va='bottom')
             plt.title("Monthly Donation")
-            plt.xlabel('Total: ' + str(round(overall_sum, 2)) + ' GBP')
-            plt.xticks(x_iter, monthly_sum[0], rotation=45)
+            plt.xticks(x_iter, monthly_sum[0], rotation=30)
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
             pp.savefig(fig)
 
-            region_dist = Statistics.get_region_distribution(d)
             fig = plt.figure()
             plt.title("Country/Region Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
         pp.close()
-        return 0
 
     @staticmethod
     def get_completeness(project_dict):
@@ -79,7 +101,7 @@ class Statistics(object):
         completeness = []
         for i in range(len(monthly_sum[1])):
             current_sum += monthly_sum[1][i]
-            completeness.append(current_sum / project_dict['price'] / project_dict['total_num'])
+            completeness.append(current_sum / project_dict['total_num'] / project_dict['price'])
         completeness = [monthly_sum[0], completeness]
         return completeness
 
@@ -95,8 +117,7 @@ class Statistics(object):
             for uid, sub_dict in d['donate_history'].items():
                 for timestamp, num in sub_dict.items():
                     overall_sum += num * d['price']
-                    dt = datetime.fromtimestamp(int(timestamp))
-                    ym = dt.strftime('%Y%m')
+                    ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                     if ym in monthly_sum_dict.keys():
                         monthly_sum_dict[ym] += num * d['price']
                     else:
@@ -108,8 +129,7 @@ class Statistics(object):
                     for uid, sub_sub_dict in sub_dict.items():
                         for timestamp, num in sub_sub_dict.items():
                             overall_sum += num * price
-                            dt = datetime.fromtimestamp(int(timestamp))
-                            ym = dt.strftime('%Y%m')
+                            ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                             if ym in monthly_sum_dict.keys():
                                 monthly_sum_dict[ym] += num * price
                             else:
@@ -117,20 +137,17 @@ class Statistics(object):
                 elif d['type'] == 2:
                     for timestamp, num in sub_dict.items():
                         overall_sum += num * price
-                        dt = datetime.fromtimestamp(int(timestamp))
-                        ym = dt.strftime('%Y%m')
+                        ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                         if ym in monthly_sum_dict.keys():
                             monthly_sum_dict[ym] += num * price
                         else:
                             monthly_sum_dict[ym] = num * price
         monthly_sum = sorted(monthly_sum_dict.items(), key=lambda x: x[0])
         if 'pid' in d:
-            dt = datetime.fromtimestamp(d['start_time'])
-            start_ym = dt.strftime('%Y%m')
+            start_ym = datetime.fromtimestamp(d['start_time']).strftime('%Y%m')
         else:
             start_ym = monthly_sum[0][0]
-        dt = datetime.fromtimestamp(time.time())
-        end_ym = dt.strftime('%Y%m')
+        end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m')
         ym_list = []
         sum_list = []
         for ym in range(int(start_ym), int(end_ym) + 1):
@@ -155,10 +172,10 @@ class Statistics(object):
             for uid, sub_dict in d['donate_history'].items():
                 user_dict = Statistics.get_user_dict(uid)
                 region = user_dict['region']
-                user_sum = 0
+                user_num_sum = 0
                 for timestamp, num in sub_dict.items():
-                    user_sum += num
-                user_ratio = user_sum / d['current_num']
+                    user_num_sum += num
+                user_ratio = user_num_sum / d['current_num']
                 if region in region_dist_dict.keys():
                     region_dist_dict[region] += user_ratio
                 else:
@@ -168,14 +185,13 @@ class Statistics(object):
                 projects_sum = 0
                 for pid, sub_dict in d['donate_history'].items():
                     project_dict = Statistics.get_project_dict(pid)
-                    price = project_dict['price']
-                    projects_sum += project_dict['current_num'] * price
+                    projects_sum += project_dict['current_num'] * project_dict['price']
                     for uid, sub_sub_dict in sub_dict.items():
                         user_dict = Statistics.get_user_dict(uid)
                         region = user_dict['region']
                         user_sum = 0
                         for timestamp, num in sub_sub_dict.items():
-                            user_sum += num * price
+                            user_sum += num * project_dict['price']
                         if region in region_dist_dict.keys():
                             region_dist_dict[region] += user_sum
                         else:
@@ -186,11 +202,11 @@ class Statistics(object):
                 for pid, sub_dict in d['donate_history'].items():
                     project_dict = Statistics.get_project_dict(pid)
                     region = Statistics.get_user_dict(project_dict['uid'])['region']
-                    project_sum = 0
+                    project_num_sum = 0
                     for timestamp, num in sub_dict.items():
-                        project_sum += num
+                        project_num_sum += num
                     overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-                    project_ratio = project_sum * project_dict['price'] / overall_sum
+                    project_ratio = project_num_sum * project_dict['price'] / overall_sum
                     if region in region_dist_dict.keys():
                         region_dist_dict[region] += project_ratio
                     else:
