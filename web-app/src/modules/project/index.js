@@ -7,7 +7,7 @@ import {forwardRef, useCallback, useEffect, useState} from 'react';
 // material
 import {Container, Stack, Typography} from '@mui/material';
 // components
-import {ProjectList} from '/Users/donghangting/Desktop/Team/project/web-app/src/components/ProjectCardList';
+import {ProjectList} from 'src/components/ProjectCardList';
 //
 import _ from "lodash";
 // material
