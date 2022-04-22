@@ -73,4 +73,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/account/charityProfile',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/charityProfile'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
