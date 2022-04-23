@@ -61,8 +61,14 @@ export default () => {
 
   return (
     <Grid container rowSpacing={2}>
-      <Grid item xs={12}>
+      <Grid item xs={3}>
         <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+      </Grid>
+
+      <Grid item xs={9}>
+        {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
+          user
+        </Grid>}
       </Grid>
 
       <Grid item xs={12} display={editDisplay}>
