@@ -3,12 +3,22 @@
  * @author Mingze Ma
  */
 
+import {} from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+
+import Hero from "./Hero";
+import theme from "./theme";
+
+import './index.less';
+
 export default (props) => {
   const {} = props;
 
   return (
-    <div className="ffa-home">
-      hello food for all!
-    </div>
+    <ThemeProvider theme={theme}>
+      <div className="ffa-home">
+        <Hero />
+      </div>
+    </ThemeProvider>
   );
 };
