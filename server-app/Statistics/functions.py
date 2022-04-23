@@ -9,14 +9,24 @@ import time
 class Statistics(object):
     @staticmethod
     def generate_report(id_):
-        # External interface for exporting statistics to PDF.
+        # External interface for generating PDF report.
         # Takes pid or uid.
         try:
             d = Statistics.get_project_dict(id_)
-            pp = PdfPages(d['title'] + '.pdf')
+            pp = PdfPages('DOC/pdf_report/' + d['title'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             completeness = Statistics.get_completeness(d)
             region_dist = Statistics.get_region_distribution(d)
+
+            fig = plt.figure()
+            fig.clf()
+            fig.text(0.5, 0.55,
+                     'Food For All by Apex08',
+                     fontsize=20, ha='center', va='center')
+            fig.text(0.5, 0.4,
+                     '- Project Report -',
+                     fontsize=16, ha='center', va='center')
+            pp.savefig(fig)
 
             fig = plt.figure()
             fig.clf()
@@ -62,7 +72,7 @@ class Statistics(object):
             plt.grid(True)
             for x, y in zip(x_iter, completeness[1]):
                 plt.text(x, y, round(y, 2), ha='left', va='top')
-            plt.title("Collection Completeness")
+            plt.title("Project Completeness")
             plt.xticks(x_iter, completeness[0], rotation=30)
             plt.ylim(-0.1, 1.1)
             plt.plot(x_iter, completeness[1])
@@ -74,9 +84,19 @@ class Statistics(object):
             pp.savefig(fig)
         except AttributeError:
             d = Statistics.get_user_dict(id_)
-            pp = PdfPages(d['name'] + '.pdf')
+            pp = PdfPages('DOC/pdf_report/' + d['name'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             region_dist = Statistics.get_region_distribution(d)
+
+            fig = plt.figure()
+            fig.clf()
+            fig.text(0.5, 0.55,
+                     'Food For All by Apex08',
+                     fontsize=20, ha='center', va='center')
+            fig.text(0.5, 0.4,
+                     '- User Report -',
+                     fontsize=16, ha='center', va='center')
+            pp.savefig(fig)
 
             fig = plt.figure()
             fig.clf()
@@ -135,8 +155,8 @@ class Statistics(object):
 
     @staticmethod
     def get_donation_sum(d):
-        # Get overall and monthly sum of collection/donation.
-        # For project: from start_time to this month. For user: from first collection/donation to this month.
+        # Get overall and monthly sum of donation.
+        # For project: from start_time to this month. For user: from first donation to this month.
         # Takes project_dict or user_dict.
         # Returns overall_sum: int, monthly_sum: [year-month_list, sum_list].
         overall_sum = 0
@@ -193,7 +213,7 @@ class Statistics(object):
 
     @staticmethod
     def get_region_distribution(d):
-        # Get region distribution of collection/donation.
+        # Get region distribution of donation.
         # Returns region_dist: [region_list, ratio_list].
         region_dist_dict = {}
         if 'pid' in d:
