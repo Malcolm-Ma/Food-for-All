@@ -56,6 +56,7 @@ export default () => {
   const [region, setRegion] = useState(userInfo.region);
   const [currency, setCurrency] = useState(userInfo.currency_type);
   const [history, setHistory] = useState([]);
+  const [lock, setLock] = useState(false);
 
   function getRegionName(value) {
     // return regionList.filter(
@@ -162,6 +163,14 @@ export default () => {
           Donor
         </Tag>
       );
+    }
+  }
+
+  const switchHide = () => {
+    if(lock) {
+      setLock(false);
+    } else {
+      setLock(true);
     }
   }
 
@@ -289,122 +298,124 @@ export default () => {
   // console.log(rows);
 
   return (
-    <Grid container rowSpacing={2}>
-      <Grid item xs={3} rowSpacing={2}>
-        <Grid item xs={12}>
-          <Badge
-            overlap="circular"
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            badgeContent={
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <label htmlFor="icon-button-file">
-                  <Input accept="image/*" id="icon-button-file" type="file"/>
-                  <IconButton color="primary" aria-label="upload picture" component="span" >
-                    <PhotoCameraIcon variant="contained" fontSize="large"/>
-                  </IconButton>
-                </label>
-              </Stack>
-            }>
-            <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
-          </Badge>
-        </Grid>
+    <Grid container>
+      <Grid item xs={3}>
+        <Grid container rowSpacing={2}>
+          <Grid item xs={12}>
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              badgeContent={
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <label htmlFor="icon-button-file">
+                    <Input accept="image/*" id="icon-button-file" type="file"/>
+                    <IconButton color="primary" aria-label="upload picture" component="span" >
+                      <PhotoCameraIcon variant="contained" fontSize="large"/>
+                    </IconButton>
+                  </label>
+                </Stack>
+              }>
+              <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+            </Badge>
+          </Grid>
 
-        <Grid item xs={12} display={editDisplay}>
-          <Typography textAlign="left" >{name}</Typography>
-          {userTypeTags()}
-        </Grid>
-
-
-        <Grid item xs={12} display={editDisplay}>
-          <Button variant="contained" onClick={handleDisplay}>
-            Edit profile
-          </Button>
-        </Grid>
+          <Grid item xs={12} display={editDisplay}>
+            <Typography textAlign="left" >{name}</Typography>
+            {userTypeTags()}
+          </Grid>
 
 
-        {display !== 'none' && <Grid item xs={6}>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={4}>
-              <Grid item xs={12}>
-                <TextField
-                  defaultValue={userInfo.name}
-                  required
-                  fullWidth
-                  id="name"
-                  label="Name"
-                  name="name"
-                  onChange={handleChange}
-                  color={nameColor}
-                  focused
-                />
-              </Grid>
+          <Grid item xs={12} display={editDisplay}>
+            <Button variant="contained" onClick={handleDisplay}>
+              Edit profile
+            </Button>
+          </Grid>
 
-              <Grid item xs={12}>
-                {!_.isEmpty(regionList) && <Autocomplete
-                  defaultValue={getRegionName(userInfo.region)}
-                  disablePortal
-                  fullWidth
-                  id="region"
-                  options={regionList}
-                  renderInput={(params) => <TextField
-                    {...params}
-                    label="Select Region"
-                    name="region"
-                    onSelect={handleChange}
-                    onClick={handleChange}
-                    onInput={handleChange}
+
+          {display !== 'none' && <Grid item xs={6}>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={4}>
+                <Grid item xs={12}>
+                  <TextField
+                    defaultValue={userInfo.name}
+                    required
+                    fullWidth
+                    id="name"
+                    label="Name"
+                    name="name"
                     onChange={handleChange}
-                    onBlur={handleChange}
-                    color={regionColor}
+                    color={nameColor}
                     focused
-                  />}
-                />}
-              </Grid>
+                  />
+                </Grid>
 
-              <Grid item xs={12}>
-                <Autocomplete
-                  defaultValue={userInfo.currency_type}
-                  disablePortal
-                  fullWidth
-                  id="currency"
-                  options={currencyCode}
-                  renderInput={(params) => <TextField
-                    {...params}
-                    label="Select Currency"
-                    name="currency"
-                    onSelect={handleChange}
-                    onClick={handleChange}
-                    onInput={handleChange}
-                    onChange={handleChange}
-                    onBlur={handleChange}
-                    color={currencyColor}
-                    focused
+                <Grid item xs={12}>
+                  {!_.isEmpty(regionList) && <Autocomplete
+                    defaultValue={getRegionName(userInfo.region)}
+                    disablePortal
+                    fullWidth
+                    id="region"
+                    options={regionList}
+                    renderInput={(params) => <TextField
+                      {...params}
+                      label="Select Region"
+                      name="region"
+                      onSelect={handleChange}
+                      onClick={handleChange}
+                      onInput={handleChange}
+                      onChange={handleChange}
+                      onBlur={handleChange}
+                      color={regionColor}
+                      focused
+                    />}
                   />}
-                />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Autocomplete
+                    defaultValue={userInfo.currency_type}
+                    disablePortal
+                    fullWidth
+                    id="currency"
+                    options={currencyCode}
+                    renderInput={(params) => <TextField
+                      {...params}
+                      label="Select Currency"
+                      name="currency"
+                      onSelect={handleChange}
+                      onClick={handleChange}
+                      onInput={handleChange}
+                      onChange={handleChange}
+                      onBlur={handleChange}
+                      color={currencyColor}
+                      focused
+                    />}
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <Button disabled={saveDisabled} variant="contained" type="submit">
+                    Save
+                  </Button>
+                </Grid>
+                <Grid item xs={7}>
+                  <Button variant="text" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={5}>
-                <Button disabled={saveDisabled} variant="contained" type="submit">
-                  Save
-                </Button>
-              </Grid>
-              <Grid item xs={7}>
-                <Button variant="text" onClick={handleCancel}>
-                  Cancel
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </Grid>}
+            </form>
+          </Grid>}
+        </Grid>
       </Grid>
 
-      <Divider orientation="vertical" flexItem>
-        {_.get(userInfo, 'hide') === 1 && <LockIcon/>}
-        {_.get(userInfo, 'hide') === 0 && <LockOpenIcon/>}
+      <Divider orientation="vertical" flexItem onClick={switchHide}>
+        {lock && <IconButton><LockOpenIcon/></IconButton>}
+        {!lock && <IconButton><LockIcon/></IconButton>}
       </Divider>
 
       <Grid item xs={8} rowSpacing={2}>
-        {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
-          <TableContainer sx={{ maxHeight: 500 }} component={Paper}>
+        {lock && <Grid item xs={12}>
+          <TableContainer sx={{ maxHeight: 1000 }} component={Paper}>
             <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
               <TableHead>
                 <TableRow>
