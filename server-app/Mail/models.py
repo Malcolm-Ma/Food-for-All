@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from FoodForAll.settings import EMAIL_HOST_USER, VERIFY_CODE_EXPIRES
 
+
 class Mail(object):
     @staticmethod
     def get_line(text, style=''):
@@ -79,7 +80,7 @@ class Mail(object):
         share_info["donate_num"] = "" if not share_info["donate_num"] else " " + str(share_info["donate_num"]) + " meal(s)"
         html_message = Mail.get_header()\
                        + Mail.get_line('Your friend{user_name} has just donated'.format(user_name=share_info["user_name"]), 'title')\
-                       + Mail.get_line('{donate_num} to the project "{project_name}".'.format(donate_num=share_info["donate_num"], project_name=share_info["project_name"]), 'title')\
+                       + Mail.get_line('{donate_num} to project "{project_name}".'.format(donate_num=share_info["donate_num"], project_name=share_info["project_name"]), 'title')\
                        + '<br>'\
                        + Mail.get_line('We sincerely look forward to your participation!')\
                        + Mail.get_line('Check it out now at: {project_url}'.format(project_url=share_info["project_url"]))\

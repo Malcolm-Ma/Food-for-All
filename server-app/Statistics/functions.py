@@ -20,25 +20,28 @@ class Statistics(object):
 
             fig = plt.figure()
             fig.clf()
-            fig.text(0.1, 0.75,
-                     'Project:    ' + d['title'] + ' (' + d['region'] + ')',
+            fig.text(0.1, 0.8,
+                     'Project:    ' + d['title'],
                      fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.65,
+            fig.text(0.1, 0.7,
                      'Charity:    ' + d['charity'],
                      fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.55,
+            fig.text(0.1, 0.6,
+                     'Location:    ' + d['region'],
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.5,
                      'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
                      fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.45,
+            fig.text(0.1, 0.4,
                      'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                      + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
                      + '(' + str(round(completeness[1][-1]) * 100) + '%)',
                      fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.35,
-                     'Period:    ' + datetime.fromtimestamp(int(d['start_time'])).strftime('%Y/%m/%d') + ' - '
-                     + datetime.fromtimestamp(int(d['end_time'])).strftime('%Y/%m/%d'),
+            fig.text(0.1, 0.3,
+                     'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
+                     + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
                      fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.25,
+            fig.text(0.1, 0.2,
                      'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
                      fontsize=14, ha='left', va='center')
             pp.savefig(fig)
@@ -66,7 +69,7 @@ class Statistics(object):
             pp.savefig(fig)
 
             fig = plt.figure()
-            plt.title("Country/Region Distribution")
+            plt.title("Location Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
         except AttributeError:
@@ -74,6 +77,31 @@ class Statistics(object):
             pp = PdfPages(d['name'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             region_dist = Statistics.get_region_distribution(d)
+
+            fig = plt.figure()
+            fig.clf()
+            fig.text(0.1, 0.8,
+                     'User:    ' + d['name'] + (' (charity)' if d['type'] == 1 else ' (guest)'),
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.7,
+                     'Email:    ' + d['mail'],
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.6,
+                     'Location:    ' + d['region'],
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.5,
+                     'Currency:    ' + d['currency_type'],
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.4,
+                     'Total Donation:    ' + str(round(overall_sum, 2)) + ' GBP',
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.3,
+                     'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
+                     fontsize=14, ha='left', va='center')
+            fig.text(0.1, 0.2,
+                     'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
+                     fontsize=14, ha='left', va='center')
+            pp.savefig(fig)
 
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
@@ -87,7 +115,7 @@ class Statistics(object):
             pp.savefig(fig)
 
             fig = plt.figure()
-            plt.title("Country/Region Distribution")
+            plt.title("Location Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
         pp.close()
@@ -134,7 +162,7 @@ class Statistics(object):
                                 monthly_sum_dict[ym] += num * price
                             else:
                                 monthly_sum_dict[ym] = num * price
-                elif d['type'] == 2:
+                else:
                     for timestamp, num in sub_dict.items():
                         overall_sum += num * price
                         ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
@@ -198,14 +226,14 @@ class Statistics(object):
                             region_dist_dict[region] = user_sum
                 for key in region_dist_dict.keys():
                     region_dist_dict[key] = region_dist_dict[key] / projects_sum
-            elif d['type'] == 2:
+            else:
+                overall_sum, monthly_sum = Statistics.get_donation_sum(d)
                 for pid, sub_dict in d['donate_history'].items():
                     project_dict = Statistics.get_project_dict(pid)
                     region = Statistics.get_user_dict(project_dict['uid'])['region']
                     project_num_sum = 0
                     for timestamp, num in sub_dict.items():
                         project_num_sum += num
-                    overall_sum, monthly_sum = Statistics.get_donation_sum(d)
                     project_ratio = project_num_sum * project_dict['price'] / overall_sum
                     if region in region_dist_dict.keys():
                         region_dist_dict[region] += project_ratio
