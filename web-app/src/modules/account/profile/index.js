@@ -29,6 +29,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from "@mui/material/Box";
 import log from "tailwindcss/lib/util/log";
+import moment from "moment";
 
 export default () => {
 
@@ -403,8 +404,8 @@ export default () => {
 
       <Grid container xs={8} rowSpacing={2}>
         {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
-          <TableContainer component={Paper}>
-            <Table aria-label="collapsible table">
+          <TableContainer sx={{ maxHeight: 500 }} component={Paper}>
+            <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
               <TableHead>
                 <TableRow>
                   <TableCell />
