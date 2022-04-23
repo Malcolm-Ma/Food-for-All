@@ -290,7 +290,7 @@ export default () => {
 
   return (
     <Grid container rowSpacing={2}>
-      <Grid container xs={3} rowSpacing={2}>
+      <Grid item xs={3} rowSpacing={2}>
         <Grid item xs={12}>
           <Badge
             overlap="circular"
@@ -402,7 +402,7 @@ export default () => {
         {_.get(userInfo, 'hide') === 0 && <LockOpenIcon/>}
       </Divider>
 
-      <Grid container xs={8} rowSpacing={2}>
+      <Grid item xs={8} rowSpacing={2}>
         {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
           <TableContainer sx={{ maxHeight: 500 }} component={Paper}>
             <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
