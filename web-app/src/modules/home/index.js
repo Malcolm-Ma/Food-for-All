@@ -3,11 +3,11 @@
  * @author Mingze Ma
  */
 
-import {} from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 
-import Hero from "./Hero";
 import theme from "./theme";
+import Hero from "./Hero";
+import Instruction from "./Instruction";
 
 import './index.less';
 
@@ -18,6 +18,7 @@ export default (props) => {
     <ThemeProvider theme={theme}>
       <div className="ffa-home">
         <Hero />
+        <Instruction />
       </div>
     </ThemeProvider>
   );
