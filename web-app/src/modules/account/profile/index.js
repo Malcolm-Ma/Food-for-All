@@ -172,7 +172,7 @@ export default () => {
     var his = [];
     for(var key in obj) {
       var temp = {};
-      temp.date = key;
+      temp.date = moment(key * 1000).format('YYYY-MM-DD HH:mm:ss').toString();
       temp.value = obj[key];
       his.push(temp);
     }
