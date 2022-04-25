@@ -74,6 +74,30 @@ export default [
     exact: true,
   },
   {
+    path: '/project',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'project' */ /* webpackMode: 'lazy' */ 'src/modules/project/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
+    path: '/share',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'share' */ /* webpackMode: 'lazy' */ 'src/modules/share/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
+    path: '/donation',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'donation' */ /* webpackMode: 'lazy' */ 'src/modules/donation/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
     path: '/account/charityProfile',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/charityProfile'),
