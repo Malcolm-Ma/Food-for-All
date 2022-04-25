@@ -9,7 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import * as React from 'react';
-import {styled} from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,21 +20,21 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import {red} from '@mui/material/colors';
+import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import _ from "lodash";
-import {SERVICE_BASE_URL} from "src/constants/constants";
+import { SERVICE_BASE_URL } from "src/constants/constants";
 import moment from "moment";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 
 const ExpandMore = styled((props) => {
-  const {expand, ...other} = props;
+  const { expand, ...other } = props;
   return <IconButton {...other} />;
-})(({theme, expand}) => ({
+})(({ theme, expand }) => ({
   transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
@@ -58,8 +58,7 @@ export default function ShowProjectCard(props) {
     setExpanded(!expanded);
   };
 
-  const {project} = props;
-  console.log(project);
+  const { project } = props;
 
   function stringToColor(string) {
     let hash = 0;
@@ -82,21 +81,19 @@ export default function ShowProjectCard(props) {
   }
 
   return (
-    <Card sx={{maxWidth: 345}}>
+    <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar sx={{bgcolor: stringToColor(_.get(project, 'region'))}} aria-label="recipe">
+          <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
             {_.get(project, 'region')}
           </Avatar>
         }
         action={
-          <Button endIcon={<MoreVertIcon />} href='donation'>
+          <Button endIcon={<MoreVertIcon />} href={`donation/${project.pid}`}>
           </Button>
         }
         title={
-          <h6>
-            {_.get(project, 'title')}
-          </h6>
+          <span className="card-header">{_.get(project, 'title')}</span>
         }
         subheader={moment(_.get(project, 'end_time') * 1000).format("MMM DD, YYYY")}
       />
@@ -135,14 +132,14 @@ export default function ShowProjectCard(props) {
             <Button onClick={handleClose} href='share'>Share</Button>
           </DialogActions>
         </Dialog>
-        <Button size="small" href='donation'>Donate</Button>
+        <Button size="small" href={`donation/${project.pid}`}>Donate</Button>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <ExpandMoreIcon/>
+          <ExpandMoreIcon />
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>

@@ -3,7 +3,7 @@
  * @author Mingze Ma
  */
 /**
-export default (props) => {
+ export default (props) => {
   const {} = props;
 
   return (
@@ -12,24 +12,25 @@ export default (props) => {
     </div>
   );
 }
-*/
+ */
 import PropTypes from 'prop-types';
 // material
 import { Grid } from '@mui/material';
 import ShowProjectCard from './ProjectCard';
-import {useState} from "react";
+import { useState } from "react";
+
+import './index.less';
 // ----------------------------------------------------------------------
 
 ProjectList.propTypes = {
   projects: PropTypes.array.isRequired
 };
 export default function ProjectList(props) {
-  const {projects} = props;
+  const { projects } = props;
   return (
     <Grid container spacing={3}>
       {projects.map((project, index) => (
         <Grid key={index} item xs={12} sm={6} md={3} alignItems="flex-start" zeroMinWidth>
-          {console.log(project)}
           <ShowProjectCard project={project} />
         </Grid>
       ))}

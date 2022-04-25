@@ -3,18 +3,18 @@
  * @author Mingze Ma
  */
 
-import {forwardRef, useCallback, useEffect, useState} from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 // material
-import {Container, Stack, Typography} from '@mui/material';
+import { Container, Stack, Typography } from '@mui/material';
 // components
-import {ProjectList} from 'src/components/ProjectCardList';
+import { ProjectList } from 'src/components/ProjectCardList';
 //
 import _ from "lodash";
 // material
-import {Box} from '@mui/material';
+import { Box } from '@mui/material';
 
 import actions from "src/actions";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // ----------------------------------------------------------------------
 
 export default (props) => {
@@ -23,7 +23,7 @@ export default (props) => {
   const dispatch = useDispatch();
   const [projectInfo, setProjectInfo] = useState({});
   const [prepareMode, setPrepareMode] = useState(false);
-  const {userInfo} = useSelector(state => state.user);
+  const { userInfo } = useSelector(state => state.user);
 
   const getProjectList = useCallback(async () => {
     try {
@@ -68,12 +68,12 @@ export default (props) => {
   }, [dispatch, getProjectList]);
 
   return (
-    <div>
+    <div className="project">
       <Box>
         <h1>ProjectList</h1>
         <Box>
           <Container>
-            <ProjectList projects={_.get(projectInfo, 'projectInfo', [])}/>
+            <ProjectList projects={_.get(projectInfo, 'projectInfo', [])} />
           </Container>
         </Box>
       </Box>
