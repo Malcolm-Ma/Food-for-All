@@ -1,14 +1,17 @@
 // @Todo currency full name following the code in()
 // @Todo turn to page after create, change title
 // @Todo transform error info
-import React, {useEffect, useState} from "react";
-import {Avatar, Badge, Grid, styled, TextField} from '@mui/material';
+import React, {useCallback, useEffect, useState} from "react";
+import {Avatar, Badge, Divider, Grid, styled, TextField} from '@mui/material';
 import {useDispatch, useSelector} from "react-redux";
 import Typography from "@mui/material/Typography";
 import actions from "src/actions";
 import {Tag} from 'antd';
 import _ from 'lodash';
 import {SERVICE_BASE_URL} from "src/constants/constants";
+import Box from "@mui/material/Box";
+import {ProjectList} from "src/components/ProjectCardList";
+import Container from "@mui/material/Container";
 
 export default () => {
 
@@ -20,25 +23,44 @@ export default () => {
   }, [dispatch]);
 
   const {userInfo} = useSelector(state => state.user);
-  const { regionList, currencyList, regionMap } = useSelector(state => state.global);
-  const currencyCode = currencyList.map(item => item.label+" ("+item.value+")");
+  const [projectInfo, setProjectInfo] = useState({});
 
-  const [nameColor, setNameColor] = useState(null);
-  const [regionColor, setRegionColor] = useState(null);
-  const [currencyColor, setCurrencyColor] = useState(null);
-  const [saveDisabled, setSaveDisabled] = useState(true);
-  const [display, setDisplay] = useState("none");
-  const [editDisplay, setEditDisplay] = useState(null);
-  const [name, setName] = useState(userInfo.name);
-  const [region, setRegion] = useState(userInfo.region);
-  const [currency, setCurrency] = useState(userInfo.currency_type);
+  const getProjectList = useCallback(async () => {
+    try{
+      let res = {};
+      res = await actions.getProjectList({
+        currency_type: userInfo.currency_type,
+        page_info: {
+          page_size: 10000,
+          page: 1
+        },
+        search: '',
+        order: '',
+        uid: userInfo.uid,
+        valid_only: 0
+      });
+      const {
+        project_info: rawProjectInfo,
+        page_info: pageInfo,
+        currency_type: currencyType,
+        ...otherProps
+      } = res;
+      const projectInfo = _.values(rawProjectInfo);
+      const result = {
+        ...otherProps,
+        projectInfo,
+        pageInfo,
+        currencyType,
+      };
+      setProjectInfo(result);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [userInfo.currency_type])
 
-  function getRegionName(value) {
-    // return regionList.filter(
-    //   function(regionList){return regionList.value == value}
-    // );
-    return regionMap[value];
-  }
+  useEffect(() => {
+    getProjectList().catch(err => console.error(err));
+  }, [getProjectList]);
 
   const userTypeTags = () => {
     const userType = _.get(userInfo, 'type');
@@ -62,20 +84,34 @@ export default () => {
   return (
     <Grid container rowSpacing={2}>
       <Grid item xs={3}>
-        <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+        <Grid container rowSpacing={2}>
+          <Grid item xs={3}>
+            <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+          </Grid>
+          <Grid item xs={9}>
+            {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
+              user
+            </Grid>}
+          </Grid>
+          <Grid item xs={12}>
+            <Typography textAlign="left" >{userInfo.name}</Typography>
+            {userTypeTags()}
+          </Grid>
+        </Grid>
       </Grid>
 
-      <Grid item xs={9}>
-        {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
-          user
-        </Grid>}
-      </Grid>
+      <Divider orientation="vertical" flexItem/>
 
-      <Grid item xs={12} display={editDisplay}>
-        <Typography textAlign="left" >{name}</Typography>
-        {userTypeTags()}
+      <Grid item xs={8} rowSpacing={2}>
+        <Box>
+          <h1>Project</h1>
+          <Box>
+            <Container>
+              <ProjectList projects={_.get(projectInfo, 'projectInfo', [])}/>
+            </Container>
+          </Box>
+        </Box>
       </Grid>
-
     </Grid>
   );
 };

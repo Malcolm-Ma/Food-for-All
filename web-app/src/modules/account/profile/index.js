@@ -408,10 +408,10 @@ export default () => {
         </Grid>
       </Grid>
 
-      <Divider orientation="vertical" flexItem onClick={switchHide}>
-        {lock && <IconButton><LockOpenIcon/></IconButton>}
-        {!lock && <IconButton><LockIcon/></IconButton>}
-      </Divider>
+      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem onClick={switchHide}>
+          {lock && <IconButton><LockOpenIcon/></IconButton>}
+          {!lock && <IconButton><LockIcon/></IconButton>}
+        </Divider>}
 
       <Grid item xs={8} rowSpacing={2}>
         {lock && <Grid item xs={12}>
