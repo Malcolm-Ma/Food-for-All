@@ -90,7 +90,7 @@ export default [
     exact: true,
   },
   {
-    path: '/donation',
+    path: '/donation/:pid',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'donation' */ /* webpackMode: 'lazy' */ 'src/modules/donation/index.js'),
       loading: Loading,
