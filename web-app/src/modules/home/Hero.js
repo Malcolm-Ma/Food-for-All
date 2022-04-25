@@ -40,7 +40,7 @@ export default () => {
         variant="contained"
         size="large"
         component="a"
-        href="/premium-themes/onepirate/sign-up/"
+        href="/project"
         sx={{ minWidth: 200 }}
       >
         Donate Now
