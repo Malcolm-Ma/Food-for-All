@@ -116,7 +116,7 @@ export default () => {
           size="large"
           variant="contained"
           component="a"
-          href="/premium-themes/onepirate/sign-up/"
+          href="/project"
           sx={{ mt: 8 }}
         >
           Get started

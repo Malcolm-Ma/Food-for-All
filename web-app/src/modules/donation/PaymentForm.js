@@ -162,6 +162,7 @@ export default (props) => {
                   height="24px"
                 />
               }
+              href="/share"
             >
               DONATE BY PAYPAL
             </Button>
