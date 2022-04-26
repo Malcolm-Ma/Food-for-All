@@ -135,7 +135,7 @@ export default function ShowProjectCard(props) {
             <Button onClick={handleClose} href='share'>Share</Button>
           </DialogActions>
         </Dialog>
-        <Button size="small" href={`donation/${project.pid}`}>Donate</Button>
+        <Button size="small" href={`/donation/${project.pid}`}>Donate</Button>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
