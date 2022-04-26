@@ -38,7 +38,7 @@ export default (props) => {
             page: 1
           },
           search: '',
-          order: '',
+          order: 'charity',
           uid: '',
           valid_only: '',
         });

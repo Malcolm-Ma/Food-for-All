@@ -30,6 +30,7 @@ import { SERVICE_BASE_URL } from "src/constants/constants";
 import moment from "moment";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
+import {useSelector} from "react-redux";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -84,12 +85,14 @@ export default function ShowProjectCard(props) {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
-            {_.get(project, 'region')}
-          </Avatar>
+          <IconButton href={`/account/charity_profile/${_.get(project, 'uid')}`}>
+            <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
+              {_.get(project, 'region')}
+            </Avatar>
+          </IconButton>
         }
         action={
-          <Button endIcon={<MoreVertIcon />} href={`donation/${project.pid}`}>
+          <Button endIcon={<MoreVertIcon />} href={`/donation/${project.pid}`}>
           </Button>
         }
         title={
