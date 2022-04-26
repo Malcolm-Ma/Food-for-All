@@ -12,55 +12,50 @@ import {SERVICE_BASE_URL} from "src/constants/constants";
 import Box from "@mui/material/Box";
 import {ProjectList} from "src/components/ProjectCardList";
 import Container from "@mui/material/Container";
+import {useParams} from "react-router-dom";
 
-export default () => {
+export default (props) => {
 
-  const dispatch = useDispatch();
+  const { uid } = useParams();
 
-  useEffect(() => {
-    dispatch(actions.getRegionList()).catch(err => console.error(err));
-    dispatch(actions.getCurrencyList()).catch(err => console.error(err));
-  }, [dispatch]);
-
-  const {userInfo} = useSelector(state => state.user);
+  const [userInfo, setUserInfo] = useState({});
   const [projectInfo, setProjectInfo] = useState({});
 
-  const getProjectList = useCallback(async () => {
-    try{
-      let res = {};
-      res = await actions.getProjectList({
-        currency_type: userInfo.currency_type,
-        page_info: {
-          page_size: 10000,
-          page: 1
-        },
-        search: '',
-        order: '',
-        uid: userInfo.uid,
-        valid_only: 0
-      });
-      const {
-        project_info: rawProjectInfo,
-        page_info: pageInfo,
-        currency_type: currencyType,
-        ...otherProps
-      } = res;
-      const projectInfo = _.values(rawProjectInfo);
-      const result = {
-        ...otherProps,
-        projectInfo,
-        pageInfo,
-        currencyType,
-      };
-      setProjectInfo(result);
-    } catch (e) {
-      console.log(e);
-    }
-  }, [userInfo.currency_type])
-
-  useEffect(() => {
-    getProjectList().catch(err => console.error(err));
-  }, [getProjectList]);
+  useEffect(async () => {
+    let userRes = await actions.getUserInfoById({
+      'uid': uid
+    });
+    setUserInfo(userRes['user_info']);
+    userRes = userRes['user_info'];
+    console.log(userRes);
+    let res = {};
+    res = await actions.getProjectList({
+      currency_type: 'GBP',
+      page_info: {
+        page_size: 10000,
+        page: 1
+      },
+      search: '',
+      order: '',
+      uid: userRes.uid,
+      valid_only: 0
+    });
+    console.log(res);
+    const {
+      project_info: rawProjectInfo,
+      page_info: pageInfo,
+      currency_type: currencyType,
+      ...otherProps
+    } = res;
+    const projectInfo = _.values(rawProjectInfo);
+    const result = {
+      ...otherProps,
+      projectInfo,
+      pageInfo,
+      currencyType,
+    };
+    setProjectInfo(result);
+  }, [uid]);
 
   const userTypeTags = () => {
     const userType = _.get(userInfo, 'type');

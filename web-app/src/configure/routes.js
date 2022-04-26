@@ -98,9 +98,9 @@ export default [
     exact: true,
   },
   {
-    path: '/account/charity_profile',
+    path: '/account/charity_profile/:uid',
     component: loadable({
-      loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/charityProfile'),
+      loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/charityProfile/index.js'),
       loading: Loading,
     }),
     exact: true,

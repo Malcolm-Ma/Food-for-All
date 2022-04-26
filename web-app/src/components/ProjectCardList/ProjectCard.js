@@ -60,7 +60,6 @@ export default function ShowProjectCard(props) {
   };
 
   const { project } = props;
-  const {userInfo} = useSelector(state => state.user);
 
   function stringToColor(string) {
     let hash = 0;
@@ -86,7 +85,7 @@ export default function ShowProjectCard(props) {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <IconButton href={`/account/charity_profile/${userInfo.uid}`}>
+          <IconButton href={`/account/charity_profile/${_.get(project, 'uid')}`}>
             <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
               {_.get(project, 'region')}
             </Avatar>
