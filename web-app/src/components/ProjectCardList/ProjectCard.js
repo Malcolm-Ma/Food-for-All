@@ -19,18 +19,13 @@ import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import _ from "lodash";
 import { SERVICE_BASE_URL } from "src/constants/constants";
 import moment from "moment";
 import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
-import {useSelector} from "react-redux";
+import { TwitterShareButton } from 'react-twitter-embed';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -115,7 +110,22 @@ export default function ShowProjectCard(props) {
         <Button size="small" onClick={handleClickOpen}>Share</Button>
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Share</DialogTitle>
+          <DialogContent dividers={true}>
+            <Typography variant="h6" sx={{pb: 2}}>
+              Share By Twitter
+            </Typography>
+            <TwitterShareButton
+              url={`${window.location.href}/${_.get(project, 'pid')}`}
+              options={{
+                size: 'large',
+                text: 'Apex - Food For All',
+              }}
+            />
+          </DialogContent>
           <DialogContent>
+            <Typography variant="h6">
+              Share By Email
+            </Typography>
             <DialogContentText>
               Please input the email of the friend you want to share,
               we will send the project information to your friend.
