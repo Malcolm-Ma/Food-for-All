@@ -1,3 +1,4 @@
+from Common.common import rid2region
 from DataBase.models import DProject
 from DataBase.models import DUser
 from datetime import datetime
@@ -8,6 +9,24 @@ import time
 
 class Statistics(object):
     @staticmethod
+    def fold_pie(data, threshold=0.025):
+        # Takes [[key], [value]].
+        f_key = []
+        f_value = []
+        sum_of_others = 0
+        for i in range(len(data[0])):
+            if data[1][i] >= threshold:
+                f_key.append(data[0][i])
+                f_value.append(data[1][i])
+            else:
+                sum_of_others += data[1][i]
+        if sum_of_others:
+            f_key.append('Others')
+            f_value.append(sum_of_others)
+        f_data = [f_key, f_value]
+        return f_data
+
+    @staticmethod
     def generate_report(id_):
         # External interface for generating PDF report.
         # Takes pid or uid.
@@ -16,7 +35,7 @@ class Statistics(object):
             pp = PdfPages('DOC/pdf_report/' + d['title'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             completeness = Statistics.get_completeness(d)
-            region_dist = Statistics.get_region_distribution(d)
+            region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
 
             fig = plt.figure()
             fig.clf()
@@ -37,7 +56,7 @@ class Statistics(object):
                      'Charity:    ' + d['charity'],
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.6,
-                     'Location:    ' + d['region'],
+                     'Location:    ' + rid2region(d['region']),
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.5,
                      'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
@@ -86,7 +105,7 @@ class Statistics(object):
             d = Statistics.get_user_dict(id_)
             pp = PdfPages('DOC/pdf_report/' + d['name'] + '.pdf')
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-            region_dist = Statistics.get_region_distribution(d)
+            region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
 
             fig = plt.figure()
             fig.clf()
@@ -107,7 +126,7 @@ class Statistics(object):
                      'Email:    ' + d['mail'],
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.6,
-                     'Location:    ' + d['region'],
+                     'Location:    ' + rid2region(d['region']),
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.5,
                      'Currency:    ' + d['currency_type'],
@@ -219,7 +238,7 @@ class Statistics(object):
         if 'pid' in d:
             for uid, sub_dict in d['donate_history'].items():
                 user_dict = Statistics.get_user_dict(uid)
-                region = user_dict['region']
+                region = rid2region(user_dict['region'])
                 user_num_sum = 0
                 for timestamp, num in sub_dict.items():
                     user_num_sum += num
@@ -236,7 +255,7 @@ class Statistics(object):
                     projects_sum += project_dict['current_num'] * project_dict['price']
                     for uid, sub_sub_dict in sub_dict.items():
                         user_dict = Statistics.get_user_dict(uid)
-                        region = user_dict['region']
+                        region = rid2region(user_dict['region'])
                         user_sum = 0
                         for timestamp, num in sub_sub_dict.items():
                             user_sum += num * project_dict['price']
@@ -250,7 +269,7 @@ class Statistics(object):
                 overall_sum, monthly_sum = Statistics.get_donation_sum(d)
                 for pid, sub_dict in d['donate_history'].items():
                     project_dict = Statistics.get_project_dict(pid)
-                    region = Statistics.get_user_dict(project_dict['uid'])['region']
+                    region = rid2region(project_dict['region'])
                     project_num_sum = 0
                     for timestamp, num in sub_dict.items():
                         project_num_sum += num
