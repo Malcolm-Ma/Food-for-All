@@ -1,7 +1,7 @@
 // @Todo currency full name following the code in()
 // @Todo turn to page after create, change title
 // @Todo transform error info
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Avatar, Badge, Collapse, Divider, Grid, styled, TextField} from '@mui/material';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -30,6 +30,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from "@mui/material/Box";
 import log from "tailwindcss/lib/util/log";
 import moment from "moment";
+import ReactEcharts from "echarts-for-react"
 
 export default () => {
 
@@ -297,6 +298,69 @@ export default () => {
   // rows.push(createData("123",1,2,3, '0a1605393836a7babeaa3d9afdcd9280'));
   // console.log(rows);
 
+  const option = {
+    title: {
+      text: 'Stacked Line'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: 'Email',
+        type: 'line',
+        stack: 'Total',
+        data: [120, 132, 101, 134, 90, 230, 210]
+      },
+      {
+        name: 'Union Ads',
+        type: 'line',
+        stack: 'Total',
+        data: [220, 182, 191, 234, 290, 330, 310]
+      },
+      {
+        name: 'Video Ads',
+        type: 'line',
+        stack: 'Total',
+        data: [150, 232, 201, 154, 190, 330, 410]
+      },
+      {
+        name: 'Direct',
+        type: 'line',
+        stack: 'Total',
+        data: [320, 332, 301, 334, 390, 330, 320]
+      },
+      {
+        name: 'Search Engine',
+        type: 'line',
+        stack: 'Total',
+        data: [820, 932, 901, 934, 1290, 1330, 1320]
+      }
+    ]
+  };
+
   return (
     <Grid container>
       <Grid item xs={3}>
@@ -408,13 +472,14 @@ export default () => {
         </Grid>
       </Grid>
 
-      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem onClick={switchHide}>
+      <Divider orientation="vertical" flexItem onClick={switchHide}>
           {lock && <IconButton><LockOpenIcon/></IconButton>}
           {!lock && <IconButton><LockIcon/></IconButton>}
-        </Divider>}
+        </Divider>
 
       <Grid item xs={8} rowSpacing={2}>
-        {lock && <Grid item xs={12}>
+        {/*Donor*/}
+        {lock && _.get(userInfo, 'type') !== 1 && <Grid item xs={12}>
           <TableContainer sx={{ maxHeight: 1000 }} component={Paper}>
             <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
               <TableHead>
@@ -434,6 +499,15 @@ export default () => {
             </Table>
           </TableContainer>
         </Grid>}
+
+        {/*Charity*/}
+        {lock && _.get(userInfo, 'type') === 1 && <Grid item xs={12}>
+          <ReactEcharts
+            option={option}
+          />
+        </Grid>}
+
+
       </Grid>
 
     </Grid>
