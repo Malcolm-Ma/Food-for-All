@@ -32,6 +32,7 @@ import log from "tailwindcss/lib/util/log";
 import moment from "moment";
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 import { useNavigate } from 'react-router-dom';
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export default () => {
 
@@ -62,6 +63,7 @@ export default () => {
   const [history, setHistory] = useState([]);
   const [lock, setLock] = useState(false);
   const [avatar, setAvatar] = useState(_.get(userInfo, 'avatar'));
+  const [loading, setLoading] = useState(true);
   const orginAvatar = avatar;
 
   function getRegionName(value) {
@@ -284,6 +286,7 @@ export default () => {
       return rows;
     }
     setHistory(await setRows());
+    setLoading(false);
   }, []);
 
   const changeAvatar = async (event) => {
@@ -413,9 +416,9 @@ export default () => {
         </Grid>
       </Grid>
 
-      <Divider orientation="vertical" flexItem onClick={switchHide}>
-          {lock && <IconButton><LockOpenIcon/></IconButton>}
-          {!lock && <IconButton><LockIcon/></IconButton>}
+      <Divider orientation="vertical" flexItem>
+          {lock && <LoadingButton onClick={switchHide}><LockOpenIcon/></LoadingButton>}
+          {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
         </Divider>
 
       <Grid item xs={8} rowSpacing={2}>
@@ -447,10 +450,7 @@ export default () => {
           {/*  option={option}*/}
           {/*/>*/}
         </Grid>}
-
-
       </Grid>
-
     </Grid>
   );
 };
