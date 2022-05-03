@@ -80,11 +80,8 @@ export default function ShowProjectCard(props) {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <IconButton href={`/account/charity_profile/${_.get(project, 'uid')}`}>
-            <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
-              {_.get(project, 'region')}
-            </Avatar>
-          </IconButton>
+          <Avatar src = {SERVICE_BASE_URL + _.get(project, 'charity_avatar')} aria-label="recipe">
+          </Avatar>
         }
         action={
           <Button endIcon={<MoreVertIcon />} href={`/donation/${project.pid}`}>
