@@ -9,5 +9,6 @@ export default {
     /^\/charity/,
     /^\/account/,
     /^\/income/,
+    /^\/account\/profile/,
   ],
 };
