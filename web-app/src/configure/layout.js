@@ -7,6 +7,8 @@
 export default {
   showSidebar: [
     /^\/charity/,
+    /^\/account/,
+    /^\/income/,
     /^\/account\/profile/,
   ],
 };
