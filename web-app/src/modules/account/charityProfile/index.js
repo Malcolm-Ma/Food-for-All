@@ -78,10 +78,10 @@ export default (props) => {
 
   return (
     <Grid container rowSpacing={2}>
-      <Grid item xs={3}>
+      <Grid item xs={1.5}>
         <Grid container rowSpacing={2}>
           <Grid item xs={3}>
-            <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+            <Avatar sx={{ width: 100, height: 100 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
           </Grid>
           <Grid item xs={9}>
             {_.get(userInfo, 'type') === 2 && <Grid item xs={12}>
@@ -97,9 +97,8 @@ export default (props) => {
 
       <Divider orientation="vertical" flexItem/>
 
-      <Grid item xs={8} rowSpacing={2}>
+      <Grid item xs={10} rowSpacing={2}>
         <Box>
-          <h1>Project</h1>
           <Box>
             <Container>
               <ProjectList projects={_.get(projectInfo, 'projectInfo', [])}/>
