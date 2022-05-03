@@ -2,13 +2,13 @@ export default [
   //stacked line
   {
     title: {
-      text: 'Stacked Line'
+      text: 'Donation Line'
     },
     tooltip: {
       trigger: 'axis'
     },
     legend: {
-      data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine']
+      data: ['Project A', 'Project B', 'Project C', 'Project D', 'Project E']
     },
     grid: {
       left: '3%',
@@ -65,7 +65,7 @@ export default [
   //pie
   {
     title: {
-      text: 'Referer of a Website',
+      text: 'Donation Location',
       subtext: 'Fake Data',
       left: 'center'
     },
@@ -82,11 +82,11 @@ export default [
         type: 'pie',
         radius: '50%',
         data: [
-          { value: 1048, name: 'Search Engine' },
-          { value: 735, name: 'Direct' },
-          { value: 580, name: 'Email' },
-          { value: 484, name: 'Union Ads' },
-          { value: 300, name: 'Video Ads' }
+          { value: 1048, name: 'UK' },
+          { value: 735, name: 'US' },
+          { value: 580, name: 'CHINA' },
+          { value: 484, name: 'CANADA' },
+          { value: 300, name: 'JAPAN' }
         ],
         emphasis: {
           itemStyle: {
@@ -100,6 +100,9 @@ export default [
   },
 //bar
   {
+    title: {
+      text: 'Donation History',
+    },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -123,7 +126,7 @@ export default [
     },
     series: [
       {
-        name: 'Direct',
+        name: 'Project A',
         type: 'bar',
         stack: 'total',
         label: {
@@ -135,7 +138,7 @@ export default [
         data: [320, 302, 301, 334, 390, 330, 320]
       },
       {
-        name: 'Mail Ad',
+        name: 'Project B',
         type: 'bar',
         stack: 'total',
         label: {
@@ -147,7 +150,7 @@ export default [
         data: [120, 132, 101, 134, 90, 230, 210]
       },
       {
-        name: 'Affiliate Ad',
+        name: 'Project C',
         type: 'bar',
         stack: 'total',
         label: {
@@ -159,7 +162,7 @@ export default [
         data: [220, 182, 191, 234, 290, 330, 310]
       },
       {
-        name: 'Video Ad',
+        name: 'Project D',
         type: 'bar',
         stack: 'total',
         label: {
@@ -172,7 +175,7 @@ export default [
 
       },
       {
-        name: 'Search Engine',
+        name: 'Project E',
         type: 'bar',
         stack: 'total',
         label: {
