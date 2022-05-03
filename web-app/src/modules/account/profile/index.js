@@ -441,9 +441,9 @@ export default () => {
 
         {/*Charity*/}
         {lock && _.get(userInfo, 'type') === 1 && <Grid item xs={12}>
-          <ReactEcharts
-            option={option}
-          />
+          {/*<ReactEcharts*/}
+          {/*  option={option}*/}
+          {/*/>*/}
         </Grid>}
 
 
