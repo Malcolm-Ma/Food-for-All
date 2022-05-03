@@ -105,4 +105,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/income/summary',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'income' */ /* webpackMode: 'lazy' */ 'src/modules/dashboard/incomeSummary/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];

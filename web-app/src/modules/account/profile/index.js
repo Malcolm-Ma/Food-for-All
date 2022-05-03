@@ -1,7 +1,7 @@
 // @Todo currency full name following the code in()
 // @Todo turn to page after create, change title
 // @Todo transform error info
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Avatar, Badge, Collapse, Divider, Grid, styled, TextField} from '@mui/material';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -30,6 +30,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from "@mui/material/Box";
 import log from "tailwindcss/lib/util/log";
 import moment from "moment";
+import ReactEcharts from "echarts-for-react"
+import option from "src/configure/ChartConfigDemo";
 
 export default () => {
 
@@ -297,6 +299,7 @@ export default () => {
   // rows.push(createData("123",1,2,3, '0a1605393836a7babeaa3d9afdcd9280'));
   // console.log(rows);
 
+
   return (
     <Grid container>
       <Grid item xs={3}>
@@ -408,13 +411,14 @@ export default () => {
         </Grid>
       </Grid>
 
-      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem onClick={switchHide}>
+      <Divider orientation="vertical" flexItem onClick={switchHide}>
           {lock && <IconButton><LockOpenIcon/></IconButton>}
           {!lock && <IconButton><LockIcon/></IconButton>}
-        </Divider>}
+        </Divider>
 
       <Grid item xs={8} rowSpacing={2}>
-        {lock && <Grid item xs={12}>
+        {/*Donor*/}
+        {lock && _.get(userInfo, 'type') !== 1 && <Grid item xs={12}>
           <TableContainer sx={{ maxHeight: 1000 }} component={Paper}>
             <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
               <TableHead>
@@ -434,6 +438,15 @@ export default () => {
             </Table>
           </TableContainer>
         </Grid>}
+
+        {/*Charity*/}
+        {lock && _.get(userInfo, 'type') === 1 && <Grid item xs={12}>
+          <ReactEcharts
+            option={option}
+          />
+        </Grid>}
+
+
       </Grid>
 
     </Grid>
