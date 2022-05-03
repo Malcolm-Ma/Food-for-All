@@ -30,12 +30,14 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from "@mui/material/Box";
 import log from "tailwindcss/lib/util/log";
 import moment from "moment";
-import ReactEcharts from "echarts-for-react"
-import option from "src/configure/ChartConfigDemo";
+import {calculateNewValue} from "@testing-library/user-event/dist/utils";
+import { useNavigate } from 'react-router-dom';
 
 export default () => {
 
   const key = 'MessageKey';
+
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -59,6 +61,8 @@ export default () => {
   const [currency, setCurrency] = useState(userInfo.currency_type);
   const [history, setHistory] = useState([]);
   const [lock, setLock] = useState(false);
+  const [avatar, setAvatar] = useState(_.get(userInfo, 'avatar'));
+  const orginAvatar = avatar;
 
   function getRegionName(value) {
     // return regionList.filter(
@@ -79,7 +83,9 @@ export default () => {
   // @Todo refresh the Grid
   const handleCancel = () => {
     setDisplay("none");
+    setAvatar(orginAvatar);
     setEditDisplay(null);
+    window.location.reload();
   };
 
   const handleSubmit = async (event) => {
@@ -91,7 +97,7 @@ export default () => {
         name: data.name,
         region: data.region,
         currency_type: data.currency,
-        avatar: userInfo.avatar,
+        avatar: avatar,
       });
       if (editUserRes !== null) {
         setName(data.name);
@@ -280,25 +286,21 @@ export default () => {
     setHistory(await setRows());
   }, []);
 
-
-
-
-  // async function test() {
-  //   for(var i in _.get(userInfo, 'donate_history')) {
-  //     console.log(i);
-  //     const p = await actions.getProjectInfo({
-  //       'pid': i,
-  //       'currency_type': userInfo.currency_type
-  //     })
-  //     console.log(p['project_info']);
-  //   }
-  //
-  // }
-  // test();
-  // const rows = []
-  // rows.push(createData("123",1,2,3, '0a1605393836a7babeaa3d9afdcd9280'));
-  // console.log(rows);
-
+  const changeAvatar = async (event) => {
+    const newImg = event.target?.files?.[0];
+    if (newImg) {
+      const formData = new FormData();
+      formData.append('files', newImg);
+      const res = await actions.uploadImage(formData);
+      setAvatar(res.url);
+      setNameColor(null);
+      setRegionColor(null);
+      setCurrencyColor(null);
+      setSaveDisabled(false);
+      setDisplay(null);
+      setEditDisplay("none");
+    }
+  }
 
   return (
     <Grid container>
@@ -311,14 +313,14 @@ export default () => {
               badgeContent={
                 <Stack direction="row" alignItems="center" spacing={2}>
                   <label htmlFor="icon-button-file">
-                    <Input accept="image/*" id="icon-button-file" type="file"/>
-                    <IconButton color="primary" aria-label="upload picture" component="span" >
+                    <Input accept="image/*" id="icon-button-file" type="file" name="setAvatar" onChange={changeAvatar}/>
+                    <IconButton color="primary" aria-label="upload picture" component="span">
                       <PhotoCameraIcon variant="contained" fontSize="large"/>
                     </IconButton>
                   </label>
                 </Stack>
               }>
-              <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
+              <Avatar sx={{ width: 200, height: 200 }} alt="Remy Sharp" src={SERVICE_BASE_URL + avatar}/>
             </Badge>
           </Grid>
 
@@ -335,7 +337,7 @@ export default () => {
           </Grid>
 
 
-          {display !== 'none' && <Grid item xs={6}>
+          {display !== 'none' && <Grid item xs={12}>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={4}>
                 <Grid item xs={12}>

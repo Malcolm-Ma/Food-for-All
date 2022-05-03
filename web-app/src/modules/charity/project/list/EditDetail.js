@@ -78,7 +78,6 @@ export default (props) => {
   };
 
   const imgView = (values) => {
-    console.log(values);
     if (values.file.status === "done") {
       setImg(SERVICE_BASE_URL + values.file.response.url);
     }

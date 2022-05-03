@@ -50,7 +50,11 @@ export default () => {
         await handleLogOut();
         break;
       case 'Profile':
-        navigate('/account/profile');
+        if ((_.get(userInfo, 'type') === 1)) {
+          navigate('/charity/account/profile');
+        } else {
+          navigate('/account/profile');
+        }
         break;
     }
   }

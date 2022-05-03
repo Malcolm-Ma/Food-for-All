@@ -13,6 +13,9 @@ import Box from "@mui/material/Box";
 import {ProjectList} from "src/components/ProjectCardList";
 import Container from "@mui/material/Container";
 import {useParams} from "react-router-dom";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import {ArrowBack} from "@mui/icons-material";
 
 export default (props) => {
 
@@ -92,8 +95,14 @@ export default (props) => {
             <Typography textAlign="left" >{userInfo.name}</Typography>
             {userTypeTags()}
           </Grid>
+          <Grid item xs={12}>
+            <Button variant="contained" startIcon={<ArrowBack />} href="/project">
+              Return
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
+
 
       <Divider orientation="vertical" flexItem/>
 

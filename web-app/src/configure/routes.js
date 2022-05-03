@@ -113,4 +113,12 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/charity/account/profile',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
