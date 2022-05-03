@@ -51,3 +51,6 @@ export const getCurrencyList = (params) => async (dispatch) => {
     });
   }
 }
+
+export const uploadImage = params => api.post(apiConfig.upLoadImg, params);
+
