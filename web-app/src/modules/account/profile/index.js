@@ -416,10 +416,10 @@ export default () => {
         </Grid>
       </Grid>
 
-      <Divider orientation="vertical" flexItem>
+      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem>
           {lock && <LoadingButton onClick={switchHide}><LockOpenIcon/></LoadingButton>}
           {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
-        </Divider>
+        </Divider>}
 
       <Grid item xs={8} rowSpacing={2}>
         {/*Donor*/}
