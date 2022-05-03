@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'Upload',
     'User',
     'corsheaders',
+    'Statistics',
 ]
 
 MIDDLEWARE = [

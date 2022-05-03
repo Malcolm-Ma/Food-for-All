@@ -22,6 +22,7 @@ from Common import views as common_views
 from Upload import views as upload_views
 from DataBase import views as database_views
 from Share import views as share_views
+from Statistics import views as statistics_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -47,4 +48,5 @@ urlpatterns = [
     path('upload_doc/', upload_views.upload_doc),
     path('share_by_email/', share_views.share_by_email),
     path('init_database/', database_views.init_database),
+    path('get_report/', statistics_views.get_report),
 ]

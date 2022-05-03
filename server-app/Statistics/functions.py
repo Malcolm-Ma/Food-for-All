@@ -27,18 +27,18 @@ class Statistics(object):
         return f_data
 
     @staticmethod
-    def generate_report(id_):
+    def generate_report(id_, id_type):
         # External interface for generating PDF report.
         # Takes pid or uid.
-        try:
+        if id_type == 'project':
             d = Statistics.get_project_dict(id_)
-            pp = PdfPages('DOC/pdf_report/' + d['title'] + '.pdf')
+            file_name = d['pid'] + '.pdf'
+            pp = PdfPages('DOC/report/' + file_name)
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             completeness = Statistics.get_completeness(d)
             region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
 
             fig = plt.figure()
-            fig.clf()
             fig.text(0.5, 0.55,
                      'Food For All by Apex08',
                      fontsize=20, ha='center', va='center')
@@ -46,9 +46,9 @@ class Statistics(object):
                      '- Project Report -',
                      fontsize=16, ha='center', va='center')
             pp.savefig(fig)
+            plt.close()
 
             fig = plt.figure()
-            fig.clf()
             fig.text(0.1, 0.8,
                      'Project:    ' + d['title'],
                      fontsize=14, ha='left', va='center')
@@ -74,6 +74,7 @@ class Statistics(object):
                      'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
                      fontsize=14, ha='left', va='center')
             pp.savefig(fig)
+            plt.close()
 
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
@@ -85,6 +86,7 @@ class Statistics(object):
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
             pp.savefig(fig)
+            plt.close()
 
             x_iter = range(len(completeness[0]))
             fig = plt.figure()
@@ -96,31 +98,33 @@ class Statistics(object):
             plt.ylim(-0.1, 1.1)
             plt.plot(x_iter, completeness[1])
             pp.savefig(fig)
+            plt.close()
 
             fig = plt.figure()
             plt.title("Location Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
-        except AttributeError:
+            plt.close()
+        else:
             d = Statistics.get_user_dict(id_)
-            pp = PdfPages('DOC/pdf_report/' + d['name'] + '.pdf')
+            file_name = d['uid'] + '.pdf'
+            pp = PdfPages('DOC/report/' + file_name)
             overall_sum, monthly_sum = Statistics.get_donation_sum(d)
             region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
 
             fig = plt.figure()
-            fig.clf()
             fig.text(0.5, 0.55,
                      'Food For All by Apex08',
                      fontsize=20, ha='center', va='center')
             fig.text(0.5, 0.4,
-                     '- User Report -',
+                     '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
                      fontsize=16, ha='center', va='center')
             pp.savefig(fig)
+            plt.close()
 
             fig = plt.figure()
-            fig.clf()
             fig.text(0.1, 0.8,
-                     'User:    ' + d['name'] + (' (charity)' if d['type'] == 1 else ' (guest)'),
+                     'User:    ' + d['name'],
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.7,
                      'Email:    ' + d['mail'],
@@ -141,6 +145,7 @@ class Statistics(object):
                      'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
                      fontsize=14, ha='left', va='center')
             pp.savefig(fig)
+            plt.close()
 
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
@@ -152,12 +157,15 @@ class Statistics(object):
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
             pp.savefig(fig)
+            plt.close()
 
             fig = plt.figure()
             plt.title("Location Distribution")
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
+            plt.close()
         pp.close()
+        return file_name
 
     @staticmethod
     def get_completeness(project_dict):
