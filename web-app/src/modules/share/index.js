@@ -4,7 +4,9 @@
  */
 
 // module import
-import {} from 'react';
+import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import _ from 'lodash';
 
 // style import
 import './index.less';
@@ -12,22 +14,36 @@ import Box from "@mui/material/Box";
 import Typography from '@mui/material/Typography';
 import Button from "@mui/material/Button";
 import * as React from "react";
-import {Image} from "antd";
-import success from 'src/modules/share/success.jpg'
+import { Image } from "antd";
+import success from 'src/assets/success.jpg'
 
 export default (props) => {
 
+  const location = useLocation();
+
+  const sharedProject = useMemo(() => _.get(location, 'state.pid', null), [location]);
+
   return (
     <div align="center">
-      <Box align="center" textAlign="center"
-           sx={{width: '100%', maxWidth: 500}}>
-        <img src={success} alt="success" />
-        <Typography variant="h5" component="div" gutterBottom>
-            You have successfully donated!
-            Thank you very much. We hope you will be able to share this project with more people.
-        </Typography>
-
-        <Button size="large" variant="outlined" href='project'>Confirm</Button>
+      <Box
+        align="center"
+        textAlign="center"
+        sx={{ width: '100%', maxWidth: 500 }}
+      >
+        {
+          sharedProject
+            ? <>
+              <img src={success} alt="success" />
+              <Typography variant="h5" component="div" gutterBottom>
+                You have successfully donated!
+                Thank you very much. We hope you will be able to share this project with more people.
+              </Typography>
+              <Button size="large" variant="outlined" href='project'>Confirm</Button>
+            </>
+            : <>
+            <div>no permission</div>
+            </>
+        }
       </Box>
     </div>
   );

@@ -11,11 +11,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import { useCallback, useState } from "react";
 import Typography from "@mui/material/Typography";
 import _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
 const SAMPLE_DONATION = [4, 12, 24];
 
 export default (props) => {
   const { projectDetail } = props;
+
+  const navigate = useNavigate();
 
   const [donationType, setDonationType] = useState('monthly');
   const [donationCount, setDonationCount] = useState(SAMPLE_DONATION[0]);
@@ -41,8 +44,16 @@ export default (props) => {
       setShowTips(false);
       setDonationCount(0);
     }
-
   }, []);
+
+  const handlePayment = useCallback(() => {
+    navigate('/share', {
+      state: {
+        pid: _.get(projectDetail, 'pid'),
+      },
+      replace: true,
+    });
+  }, [navigate, projectDetail]);
 
   return (
     <Container
@@ -162,7 +173,7 @@ export default (props) => {
                   height="24px"
                 />
               }
-              href="/share"
+              onClick={handlePayment}
             >
               DONATE BY PAYPAL
             </Button>
