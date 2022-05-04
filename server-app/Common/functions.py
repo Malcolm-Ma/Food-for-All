@@ -13,6 +13,7 @@ from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadReq
 from django.core.cache import caches
 import string
 from Mail.models import Mail
+import requests
 
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")
