@@ -22,5 +22,6 @@ export default {
   getProjectInfo:'/get_project/',
   startProject:'/start_project/',
   suspendProject:'/suspend_project/',
+  deleteProject:'/delete_project/',
   shareByEmail:'/share_by_email/',
 };

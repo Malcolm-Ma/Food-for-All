@@ -7,6 +7,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import _ from 'lodash';
+import {useNavigate} from "react-router-dom";
 
 // style import
 import './index.less';
@@ -31,11 +32,15 @@ export default (props) => {
 
     const [sharedProject, setSharedProject] = useState(null);
 
+    const navigate = useNavigate();
+
     //Set Dialog Status
     const [open, setOpen] = React.useState(false);
     const [dialogText, setDialogText] = useState('');
 
     const handleClickOpen = async (event) => {
+        setOpen(true);
+        event.preventDefault();
         const data = new FormData(event.currentTarget);
         console.log({
             email01: data.get('email01'),
@@ -47,10 +52,6 @@ export default (props) => {
         }else {
             setDialogText("Thank you for sharing。")
         }
-        setOpen(true);
-        event.preventDefault();
-
-
         let hideStatus = 0;
         if (data.get('hide') === 'on')
             hideStatus = 1;
@@ -68,6 +69,10 @@ export default (props) => {
         setOpen(false);
     };
     const handleOk = () => {
+        setTimeout(() => {
+            setOpen(false);
+            navigate('/project');
+        }, 500);
 
     }
 
@@ -120,7 +125,7 @@ export default (props) => {
                                                       label=" Hide personal information in emails"/>
                                 </FormGroup>
                             </Box>
-                            <Button type="submit" size="large" variant="outlined" onClick={handleClickOpen}>Confirm</Button>
+                            <Button type="submit" size="large" variant="outlined">Confirm</Button>
                             <Dialog
                                 open={open}
                                 onClose={handleClose}
@@ -139,7 +144,8 @@ export default (props) => {
                                 </DialogContent>
                                 <DialogActions>
                                     <Button onClick={handleClose}>Cancel</Button>
-                                    <Button onClick={handleOk} autoFocus>
+                                    <Button onClick={handleOk}
+                                            autoFocus>
                                         Ok
                                     </Button>
                                 </DialogActions>

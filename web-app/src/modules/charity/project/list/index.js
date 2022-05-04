@@ -212,8 +212,8 @@ const columnsConfig = (payloads) => {
                     {
                         return (
                             <Space size={0}>
-                                <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
-                                    Detail
+                                <Button type="link" onClick={() => showModal(record.pid, record.status, 'Delete')}>
+                                    Delete
                                 </Button>
                                 <Button type="link" onClick={() => showDrawer('edit', record.pid)}
                                         disabled={record.status !== 0}>
@@ -232,7 +232,7 @@ const columnsConfig = (payloads) => {
                                 <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
                                     Detail
                                 </Button>
-                                <Button type="link" onClick={() => showModal(record.pid, record.status)}>
+                                <Button type="link" onClick={() => showModal(record.pid, record.status, 'Continue')}>
                                     Continue
                                 </Button>
                             </Space>
@@ -339,19 +339,24 @@ export default () => {
     };
     //Below is the delete button pop-up warning box
     const showModal = (projectId, status, action) => {
-        if (status === 0) {
+        if (status === 0 && action === 'Start') {
             // prepare mode
-            setModalText('Are you sure you want to start the project? Once the project starts, it can\'t be edited, it can only be stopped.');
+            setModalText('Are you sure you want to start the project? Once the project starts, it can\'t be edited, it can only be suspended or stopped.');
             setTitleText('Start Project');
-        }
-        if (status === 1 && action === 'Stop') {
+        } else if (status === 0 && action === 'Delete') {
+            // prepare mode
+            setModalText('Are you sure you want to delete the item? Deleted items are not recoverable.');
+            setTitleText('Delete Project');
+        } else if (status === 1 && action === 'Stop') {
             // ongoing mode
             setModalText('Are you sure you want to terminate the project? The project cannot continue after termination.');
             setTitleText('Stop Project');
-        }
-        if (status === 1 && action === 'Pause') {
+        } else if (status === 1 && action === 'Pause') {
             setModalText('Are you sure you want to suspend your project? Suspended projects can be restarted afterwards.');
             setTitleText('Pause Project');
+        } else if (status === 3 && action === 'Continue') {
+            setModalText('Are you sure you want to continue the project.');
+            setTitleText('Continue Project');
         }
         setOperatingProject([projectId, status, action]);
         modalSetVisible(true);
@@ -359,7 +364,7 @@ export default () => {
 
     const handleOk = async () => {
         const [projectId, status, action] = operatingProject;
-        if (status === 0 || status === 3) {
+        if ((status === 0 && action === 'Start') || status === 3) {
             // prepare mode
             setModalText('Start project.');
             setConfirmLoading(true);
@@ -367,8 +372,7 @@ export default () => {
             await actions.startProject({
                 "pid": projectId,
             });
-        }
-        if (status === 1 && action === 'Stop') {
+        } else if (status === 1 && action === 'Stop') {
             // ongoing mode
             setModalText('Terminating project.');
             setConfirmLoading(true);
@@ -381,14 +385,26 @@ export default () => {
                 modalSetVisible(false);
                 message.error(error.name)
             }
-        }
-        if (status === 1 && action === 'Pause') {
+        } else if (status === 1 && action === 'Pause') {
             // ongoing mode
             setModalText('Pausing project.');
             setConfirmLoading(true);
             // TODO change to start project
             try {
                 await actions.suspendProject({
+                    "pid": projectId,
+                });
+            } catch (error) {
+                modalSetVisible(false);
+                message.error(error.name)
+            }
+        } else if (status === 0 && action === 'Delete') {
+            // ongoing mode
+            setModalText('Delete project.');
+            setConfirmLoading(true);
+            // TODO change to start project
+            try {
+                await actions.deleteProject({
                     "pid": projectId,
                 });
             } catch (error) {
