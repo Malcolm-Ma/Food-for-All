@@ -27,172 +27,6 @@ class Statistics(object):
         return f_data
 
     @staticmethod
-    def generate_report(id_, id_type):
-        # External interface for generating PDF report.
-        # Takes pid or uid.
-        if id_type == 'project':
-            d = Statistics.get_project_dict(id_)
-            file_name = d['pid'] + '.pdf'
-            pp = PdfPages('DOC/report/' + file_name)
-            overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-            completeness = Statistics.get_completeness(d)
-            region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
-
-            fig = plt.figure()
-            fig.text(0.5, 0.55,
-                     'Food For All by Apex08',
-                     fontsize=20, ha='center', va='center')
-            fig.text(0.5, 0.4,
-                     '- Project Report -',
-                     fontsize=16, ha='center', va='center')
-            pp.savefig(fig)
-            plt.close()
-
-            fig = plt.figure()
-            fig.text(0.1, 0.8,
-                     'Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.7,
-                     'Charity:    ' + d['charity'],
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.6,
-                     'Location:    ' + rid2region(d['region']),
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.5,
-                     'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.4,
-                     'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                     + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                     + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.3,
-                     'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
-                     + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.2,
-                     'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
-                     fontsize=14, ha='left', va='center')
-            pp.savefig(fig)
-            plt.close()
-
-            x_iter = range(len(monthly_sum[0]))
-            fig = plt.figure()
-            plt.grid(axis='y')
-            for x, y in zip(x_iter, monthly_sum[1]):
-                plt.text(x, y, round(y, 2), ha='center', va='bottom')
-            plt.title('Monthly Donation')
-            plt.xticks(x_iter, monthly_sum[0], rotation=30)
-            plt.ylabel('/GBP')
-            plt.bar(x_iter, monthly_sum[1])
-            pp.savefig(fig)
-            plt.close()
-
-            x_iter = range(len(completeness[0]))
-            fig = plt.figure()
-            plt.grid(True)
-            for x, y in zip(x_iter, completeness[1]):
-                plt.text(x, y, round(y, 2), ha='left', va='top')
-            plt.title('Project Completeness')
-            plt.xticks(x_iter, completeness[0], rotation=30)
-            plt.ylim(-0.1, 1.1)
-            plt.plot(x_iter, completeness[1])
-            pp.savefig(fig)
-            plt.close()
-
-            fig = plt.figure()
-            plt.title('Source Location Distribution')
-            plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
-            pp.savefig(fig)
-            plt.close()
-        else:
-            d = Statistics.get_user_dict(id_)
-            file_name = d['uid'] + '.pdf'
-            pp = PdfPages('DOC/report/' + file_name)
-            overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-            region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
-
-            fig = plt.figure()
-            fig.text(0.5, 0.55,
-                     'Food For All by Apex08',
-                     fontsize=20, ha='center', va='center')
-            fig.text(0.5, 0.4,
-                     '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
-                     fontsize=16, ha='center', va='center')
-            pp.savefig(fig)
-            plt.close()
-
-            fig = plt.figure()
-            fig.text(0.1, 0.8,
-                     'User:    ' + d['name'],
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.7,
-                     'Email:    ' + d['mail'],
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.6,
-                     'Location:    ' + rid2region(d['region']),
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.5,
-                     'Currency:    ' + d['currency_type'],
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.4,
-                     'Total Donation:    ' + str(round(overall_sum, 2)) + ' GBP',
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.3,
-                     'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
-                     fontsize=14, ha='left', va='center')
-            fig.text(0.1, 0.2,
-                     'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d'),
-                     fontsize=14, ha='left', va='center')
-            pp.savefig(fig)
-            plt.close()
-
-            x_iter = range(len(monthly_sum[0]))
-            fig = plt.figure()
-            plt.grid(axis='y')
-            for x, y in zip(x_iter, monthly_sum[1]):
-                plt.text(x, y, round(y, 2), ha='center', va='bottom')
-            plt.title('Monthly Donation')
-            plt.xticks(x_iter, monthly_sum[0], rotation=30)
-            plt.ylabel('/GBP')
-            plt.bar(x_iter, monthly_sum[1])
-            pp.savefig(fig)
-            plt.close()
-
-            fig = plt.figure()
-            plt.title('Source Location Distribution' if d['type'] == 1 else 'Target Location Distribution')
-            plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
-            pp.savefig(fig)
-            plt.close()
-
-            if d['type'] == 1:
-                for pid in d['project']:
-                    d = Statistics.get_project_dict(pid)
-                    overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-                    completeness = Statistics.get_completeness(d)
-
-                    fig = plt.figure()
-                    fig.text(0.1, 0.65,
-                             'Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
-                             fontsize=14, ha='left', va='center')
-                    fig.text(0.1, 0.55,
-                             'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
-                             fontsize=14, ha='left', va='center')
-                    fig.text(0.1, 0.45,
-                             'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                             + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                             + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
-                             fontsize=14, ha='left', va='center')
-                    fig.text(0.1, 0.35,
-                             'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
-                             + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
-                             fontsize=14, ha='left', va='center')
-                    pp.savefig(fig)
-                    plt.close()
-        pp.close()
-        return file_name
-
-    @staticmethod
     def get_completeness(project_dict):
         # Get monthly completeness of a project.
         # Returns completeness: [year-month_list, completeness_list].
@@ -264,6 +98,79 @@ class Statistics(object):
         return project.to_dict()
 
     @staticmethod
+    def get_project_report(pid):
+        d = Statistics.get_project_dict(pid)
+        file_name = d['pid'] + '.pdf'
+        pp = PdfPages('DOC/report/' + file_name)
+        overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+        completeness = Statistics.get_completeness(d)
+        region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
+
+        fig = plt.figure()
+        fig.text(0.5, 0.55,
+                 'Food For All by Apex08',
+                 fontsize=20, ha='center', va='center')
+        fig.text(0.5, 0.4,
+                 '- Project Report -',
+                 fontsize=16, ha='center', va='center')
+        pp.savefig(fig)
+        plt.close()
+
+        lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
+                 'Charity:    ' + d['charity'],
+                 'Location:    ' + rid2region(d['region']),
+                 'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                 'Progress:    ' + str(round(overall_sum, 2)) + ' / '
+                 + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
+                 + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
+                 'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
+                 + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
+                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
+        y = 0.05 * len(lines) + 0.45
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '1', fontsize=10, ha='center', va='center')
+        for line in lines:
+            fig.text(0.1, y, line, fontsize=14, ha='left', va='center')
+            y -= 0.1
+        pp.savefig(fig)
+        plt.close()
+
+        x_iter = range(len(monthly_sum[0]))
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '2', fontsize=10, ha='center', va='center')
+        plt.grid(axis='y')
+        for x, y in zip(x_iter, monthly_sum[1]):
+            plt.text(x, y, round(y, 2), ha='center', va='bottom')
+        plt.title('Monthly Donation')
+        plt.xticks(x_iter, monthly_sum[0], rotation=30)
+        plt.ylabel('/GBP')
+        plt.bar(x_iter, monthly_sum[1])
+        pp.savefig(fig)
+        plt.close()
+
+        x_iter = range(len(completeness[0]))
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '3', fontsize=10, ha='center', va='center')
+        plt.grid(True)
+        for x, y in zip(x_iter, completeness[1]):
+            plt.text(x, y, round(y, 2), ha='left', va='top')
+        plt.title('Project Completeness')
+        plt.xticks(x_iter, completeness[0], rotation=30)
+        plt.ylim(-0.1, 1.1)
+        plt.plot(x_iter, completeness[1])
+        pp.savefig(fig)
+        plt.close()
+
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '4', fontsize=10, ha='center', va='center')
+        plt.title('Source Location Distribution')
+        plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
+        pp.savefig(fig)
+        plt.close()
+        pp.close()
+        return file_name
+
+    @staticmethod
     def get_region_distribution(d):
         # Get region distribution of donation.
         # Returns region_dist: [region_list, ratio_list].
@@ -321,3 +228,85 @@ class Statistics(object):
         duser = DUser()
         user = duser.get_user({'uid': uid})
         return user.to_dict()
+
+    @staticmethod
+    def get_user_report(uid):
+        d = Statistics.get_user_dict(uid)
+        file_name = d['uid'] + '.pdf'
+        pp = PdfPages('DOC/report/' + file_name)
+        overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+        region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
+
+        fig = plt.figure()
+        fig.text(0.5, 0.55,
+                 'Food For All by Apex08',
+                 fontsize=20, ha='center', va='center')
+        fig.text(0.5, 0.4,
+                 '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
+                 fontsize=16, ha='center', va='center')
+        pp.savefig(fig)
+        plt.close()
+
+        lines = ['User:    ' + d['name'],
+                 'Email:    ' + d['mail'],
+                 'Location:    ' + rid2region(d['region']),
+                 'Currency:    ' + d['currency_type'],
+                 'Total Donation:    ' + str(round(overall_sum, 2)) + ' GBP',
+                 'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
+                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
+        y = 0.05 * len(lines) + 0.45
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '1', fontsize=10, ha='center', va='center')
+        for line in lines:
+            fig.text(0.1, y, line, fontsize=14, ha='left', va='center')
+            y -= 0.1
+        pp.savefig(fig)
+        plt.close()
+
+        x_iter = range(len(monthly_sum[0]))
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '2', fontsize=10, ha='center', va='center')
+        plt.grid(axis='y')
+        for x, y in zip(x_iter, monthly_sum[1]):
+            plt.text(x, y, round(y, 2), ha='center', va='bottom')
+        plt.title('Monthly Donation')
+        plt.xticks(x_iter, monthly_sum[0], rotation=30)
+        plt.ylabel('/GBP')
+        plt.bar(x_iter, monthly_sum[1])
+        pp.savefig(fig)
+        plt.close()
+
+        fig = plt.figure()
+        fig.text(0.95, 0.05, '3', fontsize=10, ha='center', va='center')
+        plt.title('Source Location Distribution' if d['type'] == 1 else 'Target Location Distribution')
+        plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
+        pp.savefig(fig)
+        plt.close()
+
+        # Project briefing
+        if d['type'] == 1:
+            page_number = 4
+            for pid in d['project']:
+                d = Statistics.get_project_dict(pid)
+                overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+                completeness = Statistics.get_completeness(d)
+
+                lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
+                         'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                         'Progress:    ' + str(round(overall_sum, 2)) + ' / '
+                         + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
+                         + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
+                         'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
+                         + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d')]
+                y = 0.05 * len(lines) + 0.45
+                fig = plt.figure()
+                fig.text(0.95, 0.05, str(page_number), fontsize=10, ha='center', va='center')
+                for line in lines:
+                    fig.text(0.1, y, line, fontsize=14, ha='left', va='center')
+                    y -= 0.1
+                pp.savefig(fig)
+                plt.close()
+
+                page_number += 1
+        pp.close()
+        return file_name
