@@ -96,11 +96,16 @@ def get_user(request, user):
     user_info_key = {"self": ["uid", "mail", "name", "avatar", "type", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history", "hide"],
                      "other": ["uid", "mail", "name", "avatar", "type", "region", "project", "donate_history"]}
     if request.method == "GET":
-        response_data["user_info"] = user.to_dict(fields=user_info_key["self"])
+        if not user:
+            raise ServerError("user has not logged in")
+        else:
+            response_data["user_info"] = user.to_dict(fields=user_info_key["self"])
     else:
         data = json.loads(request.body)
         uid = data["uid"]
-        if not uid or uid == user.uid:
+        if not uid and not user:
+            raise ServerError("user has not logged in")
+        elif not uid or (user and uid == user.uid):
             response_data["user_info"] = user.to_dict(fields=user_info_key["self"])
         else:
             user = DUser.get_user({"uid": uid})
