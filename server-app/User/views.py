@@ -4,7 +4,7 @@ from Common.decorators import *
 @api_logger_decorator()
 @check_server_error_decorator()
 @check_request_method_decorator(method=["GET", "POST"])
-@get_user_decorator()
+@get_user_decorator(force_login=False)
 def get_user(request, user):
     """
     @api {GET} /get_user/ get user
