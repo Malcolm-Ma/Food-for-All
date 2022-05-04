@@ -3,6 +3,8 @@
  * @author Mingze Ma
  */
 
+import axios from 'axios';
+
 import api from "../api";
 import apiConfig from "../api/apiConfig";
 import { SET_REGION_LIST, SET_CURRENCY_LIST } from "../constants/actionTypes";
@@ -51,6 +53,8 @@ export const getCurrencyList = (params) => async (dispatch) => {
     });
   }
 }
+
+export const getIpInfo = () => axios.get(apiConfig.ipInfo);
 
 export const uploadImage = params => api.post(apiConfig.upLoadImg, params);
 
