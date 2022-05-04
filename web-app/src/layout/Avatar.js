@@ -7,19 +7,22 @@ import IconButton from '@mui/material/IconButton';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useCallback, useMemo, useState } from "react";
+import {useDispatch, useSelector} from "react-redux";
 import actions from "src/actions";
 import Typography from "@mui/material/Typography";
+import {Avatar} from "@mui/material";
+import {SERVICE_BASE_URL} from "src/constants/constants";
+import _ from "lodash";
 
 export default () => {
 
   const navigate = useNavigate();
+
   const dispatch = useDispatch();
+  const {userInfo} = useSelector(state => state.user);
 
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const settings = ['Profile', 'Account', 'Logout'];
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -29,15 +32,31 @@ export default () => {
     setAnchorEl(null);
   };
 
+  const settings = useMemo(() => {
+    const curSetting = ['Profile', 'Logout'];
+    if (_.get(userInfo, 'type') === 1) {
+      return ['Admin', ...curSetting];
+    }
+    return curSetting;
+  }, [userInfo]);
+
+
   async function handleClick(key) {
     switch (key) {
+      case 'Admin':
+        navigate('/charity/project/list');
+        break;
       case 'Logout':
         await handleLogOut();
         break;
       case 'Profile':
-        navigate('/account/profile');
+        if ((_.get(userInfo, 'type') === 1)) {
+          navigate('/charity/account/profile');
+        } else {
+          navigate('/account/profile');
+        }
         break;
-    };
+    }
   }
 
   const handleLogOut = useCallback(async () => {
@@ -60,7 +79,7 @@ export default () => {
         onClick={handleMenu}
         color="inherit"
       >
-        <AccountCircle />
+        <Avatar alt="Remy Sharp" src={SERVICE_BASE_URL + _.get(userInfo, 'avatar')}/>
       </IconButton>
       <Menu
         id="menu-appbar"

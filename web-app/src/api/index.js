@@ -5,6 +5,7 @@
 
 import axios from "axios";
 import _ from 'lodash';
+import { message } from 'antd';
 
 import { STATUS_CODE, SERVICE_BASE_URL } from 'src/constants/constants';
 
@@ -35,7 +36,7 @@ export class Api {
         message.error('Fall to request：' + response.status);
       }
     }, (error) => {
-      message.error('Network Error, please try again');
+      message.error(error.message + ', please try again');
       return Promise.reject(error);
     });
   }

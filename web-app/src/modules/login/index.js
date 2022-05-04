@@ -65,7 +65,6 @@ export default (props) => {
   }, [dispatch, navigate]);
 
   useEffect(() => {
-    console.log(_.get(userInfo, 'isLoggedIn'));
     if (preCheck) {
       navigate('/');
       message.warning('You have already logged in!');

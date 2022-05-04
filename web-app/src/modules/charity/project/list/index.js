@@ -2,8 +2,8 @@
  * @file Project list page
  * @author Mingze Ma
  */
-import {useCallback, useEffect, useRef, useState} from "react";
-import {useDispatch, useSelector} from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import moment from "moment";
 import {
   Button,
@@ -19,7 +19,7 @@ import {
 
 import actions from "src/actions";
 import _ from "lodash";
-import {getProjectInfo} from "src/actions/projectActions";
+import {getProjectInfo, getProjectList} from "src/actions/projectActions";
 
 import {
   CheckCircleOutlined,
@@ -299,7 +299,7 @@ export default () => {
         pageInfo,
         currencyType,
       };
-      setProjectInfo(result);
+      setProjectInfo(result);//设置projectInfo需要使用这个
     } catch (e) {
       console.error(e);
     }
@@ -415,7 +415,7 @@ export default () => {
       <Table
         columns={columnsConfig(payloads)}
         rowKey={record => record.pid}
-        dataSource={_.get(projectInfo, 'projectInfo', [])}
+          dataSource={_.get(projectInfo, 'projectInfo', [])}
         scroll={{x: 1500}}
       />
       <Drawer

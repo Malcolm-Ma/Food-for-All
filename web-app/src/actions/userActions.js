@@ -46,6 +46,8 @@ export const getUserInfo = () => async (dispatch) => {
   }
 }
 
+export const getUserInfoById = params => api.post(apiConfig.userInfo, params);
+
 export const register = params => api.post(apiConfig.register, params);
 
 export const logout = params => api.get(apiConfig.logout, params);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Layout as AntdLayout } from 'antd';
+import { Layout as AntdLayout, message } from 'antd';
 import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { useDispatch, useSelector } from "react-redux";
