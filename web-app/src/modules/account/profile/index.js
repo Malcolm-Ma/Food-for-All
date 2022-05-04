@@ -67,9 +67,6 @@ export default () => {
   const orginAvatar = avatar;
 
   function getRegionName(value) {
-    // return regionList.filter(
-    //   function(regionList){return regionList.value == value}
-    // );
     return regionMap[value];
   }
 
@@ -280,7 +277,7 @@ export default () => {
         });
         pj = pj['project_info'];
         const sumNum = getSumNum(pid);
-        rows.push(createData(pj['title'], pj['price'], sumNum, pj['price'] * sumNum, pid));
+        rows.push(createData(pj['title'], pj['price'], sumNum, (pj['price'] * sumNum).toFixed(3), pid));
       }
       console.log(rows);
       return rows;
@@ -338,7 +335,6 @@ export default () => {
               Edit profile
             </Button>
           </Grid>
-
 
           {display !== 'none' && <Grid item xs={12}>
             <form onSubmit={handleSubmit}>
