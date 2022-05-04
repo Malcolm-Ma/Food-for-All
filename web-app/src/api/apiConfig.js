@@ -21,4 +21,5 @@ export default {
   stopProject:'/stop_project/',
   getProjectInfo:'/get_project/',
   startProject:'/start_project/',
+  shareByEmail:'/share_by_email/',
 };

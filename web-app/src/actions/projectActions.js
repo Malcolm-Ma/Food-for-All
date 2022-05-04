@@ -26,3 +26,5 @@ export const startProject = params => api.post(apiConfig.startProject, params);
 export const getProjectInfo = params => api.post(apiConfig.projectInfo, params);
 
 export const getPrepareProject = params => api.get(apiConfig.prepareProject, params);
+
+export const shareByEmail = params => api.post(apiConfig.shareByEmail, params);

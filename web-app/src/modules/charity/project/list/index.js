@@ -299,7 +299,7 @@ export default () => {
         pageInfo,
         currencyType,
       };
-      setProjectInfo(result);//设置projectInfo需要使用这个
+      setProjectInfo(result);//To set projectInfo you need to use this
     } catch (e) {
       console.error(e);
     }
