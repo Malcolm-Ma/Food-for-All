@@ -177,7 +177,7 @@ export default () => {
         <Input.TextArea/>
       </Form.Item>
 
-      <Form.Item name="details" label="Details">
+      <Form.Item name="details" label="Details" rules={[{required: true, message: 'Please write the details'}]}>
         <Input.TextArea/>
       </Form.Item>
 
