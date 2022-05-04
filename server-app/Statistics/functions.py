@@ -9,7 +9,7 @@ import time
 
 class Statistics(object):
     @staticmethod
-    def fold_pie(data, threshold=0.025):
+    def fold_pie(data, threshold=0.04):
         # Takes [[key], [value]].
         f_key = []
         f_value = []
@@ -50,7 +50,7 @@ class Statistics(object):
 
             fig = plt.figure()
             fig.text(0.1, 0.8,
-                     'Project:    ' + d['title'],
+                     'Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.7,
                      'Charity:    ' + d['charity'],
@@ -64,7 +64,7 @@ class Statistics(object):
             fig.text(0.1, 0.4,
                      'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                      + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                     + '(' + str(round(completeness[1][-1]) * 100) + '%)',
+                     + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
                      fontsize=14, ha='left', va='center')
             fig.text(0.1, 0.3,
                      'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
@@ -78,10 +78,10 @@ class Statistics(object):
 
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
-            plt.grid(axis="y")
+            plt.grid(axis='y')
             for x, y in zip(x_iter, monthly_sum[1]):
                 plt.text(x, y, round(y, 2), ha='center', va='bottom')
-            plt.title("Monthly Donation")
+            plt.title('Monthly Donation')
             plt.xticks(x_iter, monthly_sum[0], rotation=30)
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
@@ -93,7 +93,7 @@ class Statistics(object):
             plt.grid(True)
             for x, y in zip(x_iter, completeness[1]):
                 plt.text(x, y, round(y, 2), ha='left', va='top')
-            plt.title("Project Completeness")
+            plt.title('Project Completeness')
             plt.xticks(x_iter, completeness[0], rotation=30)
             plt.ylim(-0.1, 1.1)
             plt.plot(x_iter, completeness[1])
@@ -101,7 +101,7 @@ class Statistics(object):
             plt.close()
 
             fig = plt.figure()
-            plt.title("Location Distribution")
+            plt.title('Source Location Distribution')
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
             plt.close()
@@ -149,10 +149,10 @@ class Statistics(object):
 
             x_iter = range(len(monthly_sum[0]))
             fig = plt.figure()
-            plt.grid(axis="y")
+            plt.grid(axis='y')
             for x, y in zip(x_iter, monthly_sum[1]):
                 plt.text(x, y, round(y, 2), ha='center', va='bottom')
-            plt.title("Monthly Donation")
+            plt.title('Monthly Donation')
             plt.xticks(x_iter, monthly_sum[0], rotation=30)
             plt.ylabel('/GBP')
             plt.bar(x_iter, monthly_sum[1])
@@ -160,10 +160,35 @@ class Statistics(object):
             plt.close()
 
             fig = plt.figure()
-            plt.title("Location Distribution")
+            plt.title('Source Location Distribution' if d['type'] == 1 else 'Target Location Distribution')
             plt.pie(region_dist[1], labels=region_dist[0], autopct='%.2f%%')
             pp.savefig(fig)
             plt.close()
+
+            if d['type'] == 1:
+                for pid in d['project']:
+                    d = Statistics.get_project_dict(pid)
+                    overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+                    completeness = Statistics.get_completeness(d)
+
+                    fig = plt.figure()
+                    fig.text(0.1, 0.65,
+                             'Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
+                             fontsize=14, ha='left', va='center')
+                    fig.text(0.1, 0.55,
+                             'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                             fontsize=14, ha='left', va='center')
+                    fig.text(0.1, 0.45,
+                             'Progress:    ' + str(round(overall_sum, 2)) + ' / '
+                             + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
+                             + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
+                             fontsize=14, ha='left', va='center')
+                    fig.text(0.1, 0.35,
+                             'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
+                             + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
+                             fontsize=14, ha='left', va='center')
+                    pp.savefig(fig)
+                    plt.close()
         pp.close()
         return file_name
 
@@ -235,7 +260,7 @@ class Statistics(object):
     @staticmethod
     def get_project_dict(pid):
         dproject = DProject()
-        project = dproject.get_project({"pid": pid})
+        project = dproject.get_project({'pid': pid})
         return project.to_dict()
 
     @staticmethod
@@ -294,5 +319,5 @@ class Statistics(object):
     @staticmethod
     def get_user_dict(uid):
         duser = DUser()
-        user = duser.get_user({"uid": uid})
+        user = duser.get_user({'uid': uid})
         return user.to_dict()
