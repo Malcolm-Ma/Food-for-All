@@ -48,5 +48,6 @@ urlpatterns = [
     path('upload_doc/', upload_views.upload_doc),
     path('share_by_email/', share_views.share_by_email),
     path('init_database/', database_views.init_database),
+    path('get_stat/', statistics_views.get_stat),
     path('get_report/', statistics_views.get_report),
 ]

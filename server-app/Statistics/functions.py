@@ -9,8 +9,8 @@ import time
 
 class Statistics(object):
     @staticmethod
-    def fold_pie(data, threshold=0.04):
-        # Takes [[key], [value]].
+    def fold_data(data, threshold=0.04):
+        # Takes: [key_list, value_list]
         f_key = []
         f_value = []
         sum_of_others = 0
@@ -27,24 +27,25 @@ class Statistics(object):
         return f_data
 
     @staticmethod
-    def get_completeness(project_dict):
-        # Get monthly completeness of a project.
-        # Returns completeness: [year-month_list, completeness_list].
+    def get_progress(project_dict):
+        # Get monthly progress of a project.
+        # Returns: [year-month_list, progress_list]
         overall_sum, monthly_sum = Statistics.get_donation_sum(project_dict)
         current_sum = 0
-        completeness = []
+        progress = []
         for i in range(len(monthly_sum[1])):
             current_sum += monthly_sum[1][i]
-            completeness.append(current_sum / project_dict['total_num'] / project_dict['price'])
-        completeness = [monthly_sum[0], completeness]
-        return completeness
+            progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
+        progress = [monthly_sum[0], progress]
+        return progress
 
     @staticmethod
     def get_donation_sum(d):
         # Get overall and monthly sum of donation.
-        # For project: from start_time to this month. For user: from first donation to this month.
-        # Takes project_dict or user_dict.
-        # Returns overall_sum: int, monthly_sum: [year-month_list, sum_list].
+        # For project: from start_time to this month.
+        # For user: from first donation to this month.
+        # Takes: project_dict or user_dict
+        # Returns: overall_sum, [year-month_list, sum_list]
         overall_sum = 0
         monthly_sum_dict = {}
         if 'pid' in d:
@@ -99,12 +100,14 @@ class Statistics(object):
 
     @staticmethod
     def get_project_report(pid):
+        # Generate a report of given id to local directory.
+        # Returns: full filename
         d = Statistics.get_project_dict(pid)
-        file_name = d['pid'] + '.pdf'
-        pp = PdfPages('DOC/report/' + file_name)
+        filename = d['pid'] + '.pdf'
+        pp = PdfPages('DOC/report/' + filename)
         overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-        completeness = Statistics.get_completeness(d)
-        region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
+        progress = Statistics.get_progress(d)
+        region_dist = Statistics.fold_data(Statistics.get_region_distribution(d))
 
         fig = plt.figure()
         fig.text(0.5, 0.55,
@@ -122,7 +125,7 @@ class Statistics(object):
                  'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
                  'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                  + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                 + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
+                 + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
                  'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
                  + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
                  'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
@@ -148,16 +151,16 @@ class Statistics(object):
         pp.savefig(fig)
         plt.close()
 
-        x_iter = range(len(completeness[0]))
+        x_iter = range(len(progress[0]))
         fig = plt.figure()
         fig.text(0.95, 0.05, '3', fontsize=10, ha='center', va='center')
         plt.grid(True)
-        for x, y in zip(x_iter, completeness[1]):
+        for x, y in zip(x_iter, progress[1]):
             plt.text(x, y, round(y, 2), ha='left', va='top')
-        plt.title('Project Completeness')
-        plt.xticks(x_iter, completeness[0], rotation=30)
+        plt.title('Project Progress')
+        plt.xticks(x_iter, progress[0], rotation=30)
         plt.ylim(-0.1, 1.1)
-        plt.plot(x_iter, completeness[1])
+        plt.plot(x_iter, progress[1])
         pp.savefig(fig)
         plt.close()
 
@@ -168,12 +171,13 @@ class Statistics(object):
         pp.savefig(fig)
         plt.close()
         pp.close()
-        return file_name
+        return filename
 
     @staticmethod
     def get_region_distribution(d):
         # Get region distribution of donation.
-        # Returns region_dist: [region_list, ratio_list].
+        # Takes: project_dict or user_dict
+        # Returns: [region_list, ratio_list]
         region_dist_dict = {}
         if 'pid' in d:
             for uid, sub_dict in d['donate_history'].items():
@@ -231,11 +235,13 @@ class Statistics(object):
 
     @staticmethod
     def get_user_report(uid):
+        # Generate a report of given id to local directory.
+        # Returns: full filename
         d = Statistics.get_user_dict(uid)
-        file_name = d['uid'] + '.pdf'
-        pp = PdfPages('DOC/report/' + file_name)
+        filename = d['uid'] + '.pdf'
+        pp = PdfPages('DOC/report/' + filename)
         overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-        region_dist = Statistics.fold_pie(Statistics.get_region_distribution(d))
+        region_dist = Statistics.fold_data(Statistics.get_region_distribution(d))
 
         fig = plt.figure()
         fig.text(0.5, 0.55,
@@ -289,13 +295,13 @@ class Statistics(object):
             for pid in d['project']:
                 d = Statistics.get_project_dict(pid)
                 overall_sum, monthly_sum = Statistics.get_donation_sum(d)
-                completeness = Statistics.get_completeness(d)
+                progress = Statistics.get_progress(d)
 
                 lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
                          'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
                          'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                          + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                         + '(' + str(round(completeness[1][-1] * 100, 2)) + '%)',
+                         + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
                          'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
                          + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d')]
                 y = 0.05 * len(lines) + 0.45
@@ -309,4 +315,13 @@ class Statistics(object):
 
                 page_number += 1
         pp.close()
-        return file_name
+        return filename
+
+    @staticmethod
+    def transform_data(data):
+        # Takes: [key_list, value_list]
+        # Returns: dict
+        d = {}
+        for i in range(len(data[0])):
+            d[data[0][i]] = data[1][i]
+        return d
