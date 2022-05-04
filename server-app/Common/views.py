@@ -134,3 +134,50 @@ def get_region2currency(request):
     """
     response_data = {"status": STATUS_CODE["success"], "region2currency": RID2CID}
     return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+@api_logger_decorator()
+@check_request_method_decorator(method=["GET"])
+def get_ip_info(request):
+    """
+    @api {GET} /get_ip_info/ get ip information
+    @apiVersion 1.0.0
+    @apiName get_ip_info
+    @apiGroup Common
+    @apiDescription api to get ip information
+
+    @apiSuccess (Success 200 return) {String} query IP used for the query
+    @apiSuccess (Success 200 return) {String} status Success or fail
+    @apiSuccess (Success 200 return) {String} country Country name
+    @apiSuccess (Success 200 return) {String} countryCode Two-letter country code
+    @apiSuccess (Success 200 return) {String} region Region/state short code
+    @apiSuccess (Success 200 return) {String} regionName Region/state
+    @apiSuccess (Success 200 return) {String} city City
+    @apiSuccess (Success 200 return) {String} zip Zip code
+    @apiSuccess (Success 200 return) {Float} lat Latitude
+    @apiSuccess (Success 200 return) {Float} lon Longitude
+    @apiSuccess (Success 200 return) {String} timezone Timezone (tz)
+    @apiSuccess (Success 200 return) {String} isp ISP name
+    @apiSuccess (Success 200 return) {String} org Organization name
+    @apiSuccess (Success 200 return) {String} as AS number and organization, separated by space (RIR). Empty for IP blocks not being announced in BGP tables.
+
+    @apiSuccessExample {Json} Response-Success
+    {
+      "query": "24.48.0.1",
+      "status": "success",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": "QC",
+      "regionName": "Quebec",
+      "city": "Montreal",
+      "zip": "H1K",
+      "lat": 45.6085,
+      "lon": -73.5493,
+      "timezone": "America/Toronto",
+      "isp": "Le Groupe Videotron Ltee",
+      "org": "Videotron Ltee",
+      "as": "AS5769 Videotron Telecom Ltee"
+    }
+    """
+    url = get_request_url(request)
+    response = requests.get("http://ip-api.com/json/" + url)
+    return HttpResponse(response.content)
