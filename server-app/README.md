@@ -1,5 +1,5 @@
 # Server-app
-Drived by django(python) and mysql
+Driven by django(python) and mysql
 
 # Pre-installed Software Requirements
 MYSQL
