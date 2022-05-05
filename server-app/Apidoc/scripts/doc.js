@@ -4,7 +4,7 @@ var apidoc = require('apidoc');
 var baseDir = path.resolve(`..${path.sep}`);
 
 // Edit to import more apps
-var apiPath = ["Common", "Login", "Payment", "Project", "Upload", "User", "Share"];
+var apiPath = ["Common", "Login", "Payment", "Project", "Upload", "User", "Share", "Statistics"];
 
 var doc = apidoc.createDoc({
     src: apiPath.map((item) => path.join(baseDir, item)),
