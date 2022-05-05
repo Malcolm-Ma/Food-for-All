@@ -11,11 +11,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import { useCallback, useState } from "react";
 import Typography from "@mui/material/Typography";
 import _ from 'lodash';
+import { useSelector } from "react-redux";
 
 const SAMPLE_DONATION = [4, 12, 24];
 
 export default (props) => {
   const { projectDetail } = props;
+
+  const { regionInfo } = useSelector(state => state.global);
 
   const [donationType, setDonationType] = useState('monthly');
   const [donationCount, setDonationCount] = useState(SAMPLE_DONATION[0]);
@@ -89,7 +92,7 @@ export default (props) => {
                 const price = _.ceil(projectDetail.price * value, 2);
                 return (
                   <ToggleButton key={value} value={value}>
-                    <Typography variant="body1" fontWeight="bold">GBP {price}</Typography>
+                    <Typography variant="body1" fontWeight="bold">{regionInfo.currencyType} {price}</Typography>
                   </ToggleButton>
                 )
               })}
@@ -116,7 +119,7 @@ export default (props) => {
               fullWidth
               label="Other Amount"
               InputProps={{
-                startAdornment: <InputAdornment position="start">GBP</InputAdornment>,
+                startAdornment: <InputAdornment position="start">{regionInfo.currencyType}</InputAdornment>,
               }}
             />
           </Grid>

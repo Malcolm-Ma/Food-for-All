@@ -26,7 +26,7 @@ export default [
     child: [
       {
         title: 'Profile',
-        url: '/account/profile',
+        url: '/charity/account/profile',
       },
     ],
   },

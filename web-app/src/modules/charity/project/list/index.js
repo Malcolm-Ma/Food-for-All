@@ -32,6 +32,7 @@ import EditDetail from "./EditDetail";
 import DrawerDetail from './ProjectDetail';
 
 import './index.less';
+import { DEFAULT_CURRENCY } from "src/constants/constants";
 
 // Column config of a table
 // Using either dataIndex or key to point out unique props
@@ -275,7 +276,7 @@ export default () => {
         res = await actions.getPrepareProject();
       } else {
         res = await actions.getProjectList({
-          currency_type: userInfo.currency_type || 'GBP',
+          currency_type: userInfo.currency_type || DEFAULT_CURRENCY,
           page_info: {
             page_size: 10000,
             page: 1

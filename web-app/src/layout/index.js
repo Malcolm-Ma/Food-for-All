@@ -29,6 +29,7 @@ const Layout = (props) => {
   ), [pathname]);
 
   useEffect(() => {
+    dispatch(actions.getRegionInfo()).catch(err => console.error(err));
     dispatch(actions.getUserInfo()).catch(err => console.error(err));
   }, [dispatch]);
 

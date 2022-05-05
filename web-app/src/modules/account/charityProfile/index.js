@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import actions from "src/actions";
 import {Tag} from 'antd';
 import _ from 'lodash';
-import {SERVICE_BASE_URL} from "src/constants/constants";
+import { DEFAULT_CURRENCY, SERVICE_BASE_URL } from "src/constants/constants";
 import Box from "@mui/material/Box";
 import {ProjectList} from "src/components/ProjectCardList";
 import Container from "@mui/material/Container";
@@ -20,6 +20,8 @@ import {ArrowBack} from "@mui/icons-material";
 export default (props) => {
 
   const { uid } = useParams();
+
+  const { regionInfo } = useSelector(state => state.global);
 
   const [userInfo, setUserInfo] = useState({});
   const [projectInfo, setProjectInfo] = useState({});
@@ -33,7 +35,7 @@ export default (props) => {
     console.log(userRes);
     let res = {};
     res = await actions.getProjectList({
-      currency_type: 'GBP',
+      currency_type: _.get(regionInfo, 'currencyType', DEFAULT_CURRENCY),
       page_info: {
         page_size: 10000,
         page: 1
@@ -58,7 +60,7 @@ export default (props) => {
       currencyType,
     };
     setProjectInfo(result);
-  }, [uid]);
+  }, [regionInfo, uid]);
 
   const userTypeTags = () => {
     const userType = _.get(userInfo, 'type');
