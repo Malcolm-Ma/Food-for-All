@@ -19,7 +19,6 @@ import { SERVICE_BASE_URL } from "src/constants/constants";
 import Grid from "@mui/material/Grid";
 import { CssBaseline, Paper } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import PaymentForm from "src/modules/donation/PaymentForm";
 
 export default (props) => {
@@ -27,23 +26,25 @@ export default (props) => {
   const { pid } = useParams();
 
   const { userinfo } = useSelector(state => state.user);
+  const { regionInfo } = useSelector(state => state.global);
 
   const [projectDetail, setProjectDetail] = useState();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await actions.getProjectInfo({
-          pid,
-          currency_type: 'GBP',
-        });
-        setProjectDetail(res.project_info);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-
-  }, [pid, userinfo]);
+    if (!_.isEmpty(regionInfo)) {
+      (async () => {
+        try {
+          const res = await actions.getProjectInfo({
+            pid,
+            currency_type: regionInfo.currencyType,
+          });
+          setProjectDetail(res.project_info);
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    }
+  }, [pid, regionInfo, userinfo]);
 
   const theme = createTheme();
   return (

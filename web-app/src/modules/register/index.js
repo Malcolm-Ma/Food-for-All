@@ -21,8 +21,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { message } from 'antd';
-
-
+import { DEFAULT_CURRENCY } from 'src/constants/constants';
 import { useMemo, useState } from "react";
 import _ from 'lodash';
 
@@ -31,7 +30,6 @@ import VerifyForm from "./VerifyForm";
 import DetailForm from './DetailForm'
 
 import './index.less';
-import api from "../../api";
 import actions from "../../actions";
 
 const STEP_CONFIG = [
@@ -95,7 +93,7 @@ export default () => {
           action: activeStep,
           password: _.get(data, 'password'),
           region: _.get(data, 'region'),
-          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', 'GBP'),
+          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', DEFAULT_CURRENCY),
           name: _.get(data, 'name'),
           avatar: '',
         });
