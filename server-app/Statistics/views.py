@@ -7,7 +7,7 @@ from Common.decorators import *
 @get_user_decorator()
 def get_stat(request, user):
     """
-    @api {POST} /get_stat/ get statistics information
+    @api {POST} /get_stat/ get statistics data
     @apiVersion 1.0.0
     @apiName get_stat
     @apiGroup Statistics
