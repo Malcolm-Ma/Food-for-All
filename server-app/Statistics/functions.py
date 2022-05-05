@@ -316,12 +316,3 @@ class Statistics(object):
                 page_number += 1
         pp.close()
         return filename
-
-    @staticmethod
-    def transform_data(data):
-        # Takes: [key_list, value_list]
-        # Returns: dict
-        d = {}
-        for i in range(len(data[0])):
-            d[data[0][i]] = data[1][i]
-        return d
