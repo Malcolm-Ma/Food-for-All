@@ -32,6 +32,7 @@ import log from "tailwindcss/lib/util/log";
 import moment from "moment";
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 import { useNavigate } from 'react-router-dom';
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export default () => {
 
@@ -62,12 +63,10 @@ export default () => {
   const [history, setHistory] = useState([]);
   const [lock, setLock] = useState(false);
   const [avatar, setAvatar] = useState(_.get(userInfo, 'avatar'));
+  const [loading, setLoading] = useState(true);
   const orginAvatar = avatar;
 
   function getRegionName(value) {
-    // return regionList.filter(
-    //   function(regionList){return regionList.value == value}
-    // );
     return regionMap[value];
   }
 
@@ -222,8 +221,8 @@ export default () => {
             {row.title}
           </TableCell>
           <TableCell align="right">{row.num}</TableCell>
-          <TableCell align="right">{row.price}</TableCell>
-          <TableCell align="right">{row.sum}</TableCell>
+          <TableCell align="right">{row.price + " " +userInfo.currency_type}</TableCell>
+          <TableCell align="right">{row.sum + " " + userInfo.currency_type}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -247,7 +246,7 @@ export default () => {
                           {historyRow.date}
                         </TableCell>
                         <TableCell>{historyRow.value}</TableCell>
-                        <TableCell>{historyRow.value*row.price}</TableCell>
+                        <TableCell>{(historyRow.value*row.price).toFixed(2) + " " + userInfo.currency_type}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -278,12 +277,13 @@ export default () => {
         });
         pj = pj['project_info'];
         const sumNum = getSumNum(pid);
-        rows.push(createData(pj['title'], pj['price'], sumNum, pj['price'] * sumNum, pid));
+        rows.push(createData(pj['title'], pj['price'].toFixed(2), sumNum, (pj['price'] * sumNum).toFixed(2), pid));
       }
       console.log(rows);
       return rows;
     }
     setHistory(await setRows());
+    setLoading(false);
   }, []);
 
   const changeAvatar = async (event) => {
@@ -335,7 +335,6 @@ export default () => {
               Edit profile
             </Button>
           </Grid>
-
 
           {display !== 'none' && <Grid item xs={12}>
             <form onSubmit={handleSubmit}>
@@ -413,10 +412,10 @@ export default () => {
         </Grid>
       </Grid>
 
-      <Divider orientation="vertical" flexItem onClick={switchHide}>
-          {lock && <IconButton><LockOpenIcon/></IconButton>}
-          {!lock && <IconButton><LockIcon/></IconButton>}
-        </Divider>
+      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem>
+          {lock && <LoadingButton onClick={switchHide}><LockOpenIcon/></LoadingButton>}
+          {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
+        </Divider>}
 
       <Grid item xs={8} rowSpacing={2}>
         {/*Donor*/}
@@ -447,10 +446,7 @@ export default () => {
           {/*  option={option}*/}
           {/*/>*/}
         </Grid>}
-
-
       </Grid>
-
     </Grid>
   );
 };

@@ -159,7 +159,7 @@ export default (props) => {
           <Input.TextArea rows={5}/>
         </Form.Item>
 
-        <Form.Item name="details" label="Details">
+        <Form.Item name="details" label="Details" rules={[{required: true, message: 'Please write the details'}]}>
           <Input.TextArea rows={5}/>
         </Form.Item>
 
