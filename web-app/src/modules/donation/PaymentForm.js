@@ -12,6 +12,11 @@ import { useCallback, useState } from "react";
 import Typography from "@mui/material/Typography";
 import _ from 'lodash';
 import { useSelector } from "react-redux";
+import { useNavigate } from 'react-router-dom';
+import Box from "@mui/material/Box";
+import moment from "moment";
+import CryptoJS from 'crypto-js';
+import { SECRET_KEY } from "src/constants/constants";
 
 const SAMPLE_DONATION = [4, 12, 24];
 
@@ -19,6 +24,8 @@ export default (props) => {
   const { projectDetail } = props;
 
   const { regionInfo } = useSelector(state => state.global);
+
+  const navigate = useNavigate();
 
   const [donationType, setDonationType] = useState('monthly');
   const [donationCount, setDonationCount] = useState(SAMPLE_DONATION[0]);
@@ -35,7 +42,6 @@ export default (props) => {
   }, [projectDetail.price]);
 
   const handleManualPriceChange = useCallback((e) => {
-    console.log('--value--\n', e.target.value);
     setManualPrice(e.target.value);
     if (_.isEmpty(e.target.value)) {
       setShowTips(true);
@@ -44,8 +50,32 @@ export default (props) => {
       setShowTips(false);
       setDonationCount(0);
     }
-
   }, []);
+
+  const handlePayment = useCallback((event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log('--data--\n', {
+      email: data.get('email'),
+      first_name: data.get('first_name'),
+      last_name: data.get('last_name'),
+    });
+    // encode search params
+    const params = {
+      pid: _.get(projectDetail, 'pid'),
+      first_name: data.get('first_name'),
+      last_name: data.get('last_name'),
+      email: data.get('email'),
+      ttl: moment().add(5, 'm').toDate(),
+    };
+
+    // encode for share
+    const secretStr = CryptoJS.AES.encrypt(JSON.stringify(params), SECRET_KEY);
+    // also set token in local storage
+    window.localStorage.setItem('share_pid', _.get(projectDetail, 'pid'));
+
+    navigate(`/share?token=${encodeURIComponent(secretStr)}`);
+  }, [navigate, projectDetail]);
 
   return (
     <Container
@@ -57,6 +87,7 @@ export default (props) => {
         variant="outlined"
         sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
       >
+        <Box component="form" onSubmit={handlePayment} sx={{ mt: 1 }}>
         <Grid container spacing={3}>
           <Grid item sm={12}>
             <ToggleButtonGroup
@@ -92,7 +123,7 @@ export default (props) => {
                 const price = _.ceil(projectDetail.price * value, 2);
                 return (
                   <ToggleButton key={value} value={value}>
-                    <Typography variant="body1" fontWeight="bold">{regionInfo.currencyType} {price}</Typography>
+                    <Typography variant="body1" fontWeight="bold">GBP {price}</Typography>
                   </ToggleButton>
                 )
               })}
@@ -114,6 +145,7 @@ export default (props) => {
           </Grid>
           <Grid item sm={12}>
             <TextField
+              name="amount"
               value={manualPrice}
               onChange={handleManualPriceChange}
               fullWidth
@@ -132,7 +164,7 @@ export default (props) => {
             </Typography>
           </Grid>
           <Grid item sm={12}>
-            <TextField id="email" label="Email Address" variant="outlined" fullWidth={true} />
+            <TextField id="email" name="email" label="Email Address" variant="outlined" fullWidth={true} />
           </Grid>
           <Grid item xs={12}>
             <FormControlLabel
@@ -141,10 +173,10 @@ export default (props) => {
             />
           </Grid>
           <Grid item sm={6}>
-            <TextField id="first_name" label="First Name" variant="outlined" fullWidth={true} />
+            <TextField id="first_name" name="first_name" label="First Name" variant="outlined" fullWidth={true} />
           </Grid>
           <Grid item sm={6}>
-            <TextField id="last_name" label="Last Name" variant="outlined" fullWidth={true} />
+            <TextField id="last_name" name="last_name" label="Last Name" variant="outlined" fullWidth={true} />
           </Grid>
         </Grid>
         <Divider sx={{ mt: 3, mb: 3 }} />
@@ -165,12 +197,13 @@ export default (props) => {
                   height="24px"
                 />
               }
-              href="/share"
+              type="submit"
             >
               DONATE BY PAYPAL
             </Button>
           </Grid>
         </Grid>
+        </Box>
       </Paper>
     </Container>
   );
