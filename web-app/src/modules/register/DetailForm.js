@@ -21,11 +21,23 @@ export default (props) => {
 
   const dispatch = useDispatch();
   const { regionList, currencyList } = useSelector(state => state.global);
+  console.log('--currencyList--\n', currencyList);
+
+  const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
 
   useEffect(() => {
     dispatch(actions.getRegionList()).catch(err => console.error(err));
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!_.isEmpty(currencyList)) {
+      const thisList = _.map(currencyList, ({ label, value }) => {
+        return { label: `${value} (${label})` };
+      });
+      setFormattedCurrencyList(thisList);
+    }
+  }, [currencyList]);
 
   return (
     <Grid container spacing={2}>
@@ -86,7 +98,7 @@ export default (props) => {
           disablePortal
           fullWidth
           id="currency"
-          options={currencyList}
+          options={formattedCurrencyList}
           renderInput={(params) => <TextField
             {...params}
             label="Select Currency"

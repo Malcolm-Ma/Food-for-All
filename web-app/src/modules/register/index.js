@@ -96,9 +96,11 @@ export default () => {
           currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', DEFAULT_CURRENCY),
           name: _.get(data, 'name'),
           avatar: '',
+          hide: 0,
         });
         console.log('--res--\n', res);
-        if (res.status === 6) {
+        if (res.status === 0) {
+          message.success('Welcome to Apex - Food For ALl!');
           navigate('/home');
         }
       }
