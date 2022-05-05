@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'Share',
     'Upload',
     'User',
+    'Statistics',
     'corsheaders',
 ]
 

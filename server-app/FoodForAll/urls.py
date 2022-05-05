@@ -23,6 +23,7 @@ from Upload import views as upload_views
 from DataBase import views as database_views
 from Share import views as share_views
 from Payment import views as payment_views
+from Statistics import views as statistics_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -50,5 +51,7 @@ urlpatterns = [
     path('share_by_email/', share_views.share_by_email),
     path('pay/', payment_views.pay),
     path('capture_payment/', payment_views.capture_payment),
+    path('get_stat/', statistics_views.get_stat),
+    path('get_report/', statistics_views.get_report),
     path('init_database/', database_views.init_database),
 ]
