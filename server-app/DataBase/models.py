@@ -139,6 +139,8 @@ class DUser(models.Model):
         create_dict["details"] = ""
         create_dict["price"] = 0
         create_dict["donate_history"] = "{}"
+        create_dict["product_id"] = ""
+        create_dict["subscription_list"] = "[]"
         create_dict["pid"] = DProject.gen_pid(self.mail)
         try:
             DProject.objects.create(**create_dict)
@@ -175,7 +177,10 @@ class DUser(models.Model):
             raise ServerError("project is aiready finished")
         update_dict = {"status": PROJECT_STATUS["ongoing"]}
         if project.status == PROJECT_STATUS["prepare"]:
-            update_dict.update({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}"})
+            r = Payment.create_product(project.title, project.intro, "https://example.com", "https://example.com")
+            if not "id" in r:
+                raise ServerError("create paypal product failed")
+            update_dict.update({"current_num": 0, "start_time": int(time.time()), "donate_history": "{}", "product_id": r["id"]})
         try:
             project.update_from_fict(update_dict)
         except ServerError as se:
@@ -188,11 +193,15 @@ class DUser(models.Model):
             raise ServerError("project is not ongoing")
         if project.current_num >= project.total_num or project.end_time <= int(time.time()):
             try:
-                project.update_from_fict({"status": PROJECT_STATUS["finish"]})
+                for subscription_id in eval(project.subscription_list):
+                    Payment.cancel_subscription(subscription_id, "Project finished")
+                project.update_from_fict({"status": PROJECT_STATUS["finish"], "subscription_list": "[]"})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
             raise ServerError("project is aiready finished")
         try:
+            for subscription_id in eval(project.subscription_list):
+                Payment.suspend_subscription(subscription_id, "Project suspend")
             project.update_from_fict({"status": PROJECT_STATUS["pause"]})
         except ServerError as se:
             raise ServerError("project suspension failed")
@@ -204,12 +213,16 @@ class DUser(models.Model):
             raise ServerError("project is not ongoing or on hold")
         if project.current_num >= project.total_num or project.end_time <= int(time.time()):
             try:
-                project.update_from_fict({"status": PROJECT_STATUS["finish"]})
+                for subscription_id in eval(project.subscription_list):
+                    Payment.cancel_subscription(subscription_id, "Project finished")
+                project.update_from_fict({"status": PROJECT_STATUS["finish"], "subscription_list": "[]"})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
             raise ServerError("project is aiready finished")
         try:
-            project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time())})
+            for subscription_id in eval(project.subscription_list):
+                Payment.cancel_subscription(subscription_id, "Project stopped")
+            project.update_from_fict({"status": PROJECT_STATUS["finish"], "end_time": int(time.time()), "subscription_list": "[]"})
         except ServerError as se:
             raise ServerError("project stop failed")
 
@@ -262,6 +275,8 @@ class DUser(models.Model):
 class DProject(models.Model):
     pid = models.CharField(max_length=64, unique=True)
     uid = models.CharField(max_length=64)
+    product_id = models.CharField(max_length=64)
+    subscription_list = models.TextField()
     title = models.CharField(max_length=256)
     intro = models.CharField(max_length=256)
     region = models.CharField(max_length=256)
@@ -298,13 +313,16 @@ class DProject(models.Model):
     def auto_update_status(self):
         if (self.status == PROJECT_STATUS["ongoing"] or self.status == PROJECT_STATUS["pause"]) and (self.end_time <= int(time.time()) or self.current_num >= self.total_num):
             try:
+                for subscription_id in eval(self.subscription_list):
+                    Payment.cancel_subscription(subscription_id, "Project finished")
                 self.status = PROJECT_STATUS["finish"]
-                self.save(update_fields=["status"])
+                self.subscription_list = "[]"
+                self.save(update_fields=["status", "subscription_list"])
             except:
                 logger_standard.error("Project {pid} auto update status failed.".format(self.pid))
 
     def update_from_fict(self, update_dict):
-        allow_fields = ("title", "intro", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history")
+        allow_fields = ("title", "intro", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history", "product_id")
         update_fields = [i for i in update_dict if i in allow_fields]
         if "status" in update_fields and update_dict["status"] not in PROJECT_STATUS.values():
             raise ServerError("project status invalid")

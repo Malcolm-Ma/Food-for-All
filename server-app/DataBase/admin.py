@@ -12,7 +12,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['mail', 'name', "uid"]
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('id', 'pid', 'uid', 'title', 'intro', 'region', 'charity', 'charity_avatar', 'background_image', 'status', 'total_num', 'current_num', 'start_time', 'end_time', 'short_details', 'price', 'short_donate_history')
+    list_display = ('id', 'pid', 'uid', 'title', 'intro', 'region', 'charity', 'charity_avatar', 'background_image', 'status', 'total_num', 'current_num', 'start_time', 'end_time', 'short_details', 'price', 'product_id', 'subscription_list', 'short_donate_history')
     list_filter = ['region', 'status']
     search_fields = ['title', 'intro', 'charity', 'details', "uid", "pid"]
 
