@@ -136,7 +136,7 @@ DOC_DIR = os.path.join(BASE_DIR, "DOC")
 
 STATIC_URL = 'static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, "Static")
+STATIC_ROOT = os.path.join(BASE_DIR, "STATIC")
 
 STATICFILES_DIRS = [
     IMG_DIR,
@@ -158,6 +158,7 @@ EMAIL_HOST_PASSWORD = 'foodforall'
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "http://127.0.0.1:3000"]
+#CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_METHODS = [
      "DELETE",
      "GET",

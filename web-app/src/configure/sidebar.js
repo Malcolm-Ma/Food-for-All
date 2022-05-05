@@ -1,39 +1,14 @@
-import { UserOutlined } from "@ant-design/icons";
-import React from "react";
-
 /**
  * @file sidebar config
  * @author Mingze Ma
  */
 
+import { UserOutlined, UnorderedListOutlined, LineChartOutlined } from "@ant-design/icons";
+
 export default [
   {
-    title: 'Account',
-    icon: <UserOutlined />,
-    child: [
-      {
-        title: 'Profile',
-        url: '/account/profile',
-      },
-    ],
-  },
-  {
-    title: 'Income',
-    icon: <UserOutlined />,
-    child: [
-      {
-        title: 'Income Management',
-        url: '/income/manage',
-      },
-      {
-        title: 'Income Summary',
-        url: '/income/summary',
-      }
-    ],
-  },
-  {
     title: 'Project',
-    icon: <UserOutlined />,
+    icon: <UnorderedListOutlined />,
     child: [
       {
         title: 'Project List',
@@ -42,6 +17,30 @@ export default [
       {
         title: 'Create Project',
         url: '/charity/project/create',
+      }
+    ],
+  },
+  {
+    title: 'Account',
+    icon: <UserOutlined />,
+    child: [
+      {
+        title: 'Profile',
+        url: '/charity/account/profile',
+      },
+    ],
+  },
+  {
+    title: 'Income',
+    icon: <LineChartOutlined />,
+    child: [
+      {
+        title: 'Income Management',
+        url: '/income/manage',
+      },
+      {
+        title: 'Income Summary',
+        url: '/income/summary',
       }
     ],
   },

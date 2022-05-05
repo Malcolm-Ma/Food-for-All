@@ -1,3 +1,5 @@
+import {getProjectsList} from "src/actions/projectActions";
+
 /**
  * @file API config
  * @author Mingze Ma
@@ -19,4 +21,5 @@ export default {
   stopProject:'/stop_project/',
   getProjectInfo:'/get_project/',
   startProject:'/start_project/',
+  upLoadImg: '/upload_img/',
 };

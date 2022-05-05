@@ -78,7 +78,6 @@ export default (props) => {
   };
 
   const imgView = (values) => {
-    console.log(values);
     if (values.file.status === "done") {
       setImg(SERVICE_BASE_URL + values.file.response.url);
     }
@@ -160,7 +159,7 @@ export default (props) => {
           <Input.TextArea rows={5}/>
         </Form.Item>
 
-        <Form.Item name="details" label="Details">
+        <Form.Item name="details" label="Details" rules={[{required: true, message: 'Please write the details'}]}>
           <Input.TextArea rows={5}/>
         </Form.Item>
 
