@@ -11,6 +11,7 @@ import { reformatOptions, reformatToMap } from 'src/utils/utils'
 import api from "../api";
 import apiConfig from "../api/apiConfig";
 import { SET_REGION_LIST, SET_CURRENCY_LIST, SET_COUNTRY_CODE } from "../constants/actionTypes";
+import { DEFAULT_CURRENCY } from "src/constants/constants";
 
 export const getRegionList = (params) => async (dispatch) => {
   try {
@@ -54,19 +55,37 @@ export const getCurrencyList = (params) => async (dispatch) => {
   }
 }
 
-export const getIpInfo = () => async (dispatch) => {
+export const getRegionInfo = () => async (dispatch) => {
   try {
     const { data } = await axios.get(apiConfig.ipInfo);
     const countryCode = _.get(data, 'country_code', 'GB');
+    const { region2currency: regionToCurrency } = await api.get(apiConfig.regionToCurrency);
+    const currencyType = (() => {
+      const type = _.get(regionToCurrency, countryCode);
+      if (!type) {
+        return DEFAULT_CURRENCY;
+      }
+      return type;
+    })();
+
+    const regionInfo = {
+      countryCode,
+      currencyType,
+    };
     dispatch({
       type: SET_COUNTRY_CODE,
-      payload: { countryCode },
+      payload: { regionInfo },
     });
     return data;
   } catch (e) {
     dispatch({
       type: SET_COUNTRY_CODE,
-      payload: { countryCode: '' },
+      payload: {
+        regionInfo: {
+          countryCode: 'GB',
+          currencyType: DEFAULT_CURRENCY,
+        }
+      },
     });
   }
 };

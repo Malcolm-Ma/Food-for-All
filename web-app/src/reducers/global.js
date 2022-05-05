@@ -13,7 +13,7 @@ const initialState = {
   regionMap: {},
   currencyList: [],
   currencyMap: {},
-  countryCode: '',
+  regionInfo: {},
 };
 
 export default (state = initialState, action) => {
@@ -34,10 +34,10 @@ export default (state = initialState, action) => {
       };
     }
     case SET_COUNTRY_CODE: {
-      const { countryCode = '' } = action.payload;
+      const { regionInfo } = action.payload;
       return {
         ...state,
-        countryCode,
+        regionInfo,
       }
     }
     default: {
