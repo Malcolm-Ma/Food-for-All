@@ -29,14 +29,7 @@ const Layout = (props) => {
   ), [pathname]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await actions.getIpInfo();
-        const countryCode = _.get(res, 'country_code', 'GB');
-      } catch (err) {
-        console.error(err);
-      }
-    })();
+    dispatch(actions.getIpInfo()).catch(err => console.error(err));
     dispatch(actions.getUserInfo()).catch(err => console.error(err));
   }, [dispatch]);
 

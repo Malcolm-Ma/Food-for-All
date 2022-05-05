@@ -5,7 +5,7 @@
 
 import {
   SET_REGION_LIST,
-  SET_CURRENCY_LIST,
+  SET_CURRENCY_LIST, SET_COUNTRY_CODE,
 } from 'src/constants/actionTypes';
 
 const initialState = {
@@ -13,6 +13,7 @@ const initialState = {
   regionMap: {},
   currencyList: [],
   currencyMap: {},
+  countryCode: '',
 };
 
 export default (state = initialState, action) => {
@@ -31,6 +32,13 @@ export default (state = initialState, action) => {
         ...state,
         currencyList,
       };
+    }
+    case SET_COUNTRY_CODE: {
+      const { countryCode = '' } = action.payload;
+      return {
+        ...state,
+        countryCode,
+      }
     }
     default: {
       return {

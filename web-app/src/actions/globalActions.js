@@ -4,12 +4,13 @@
  */
 
 import axios from 'axios';
+import _ from "lodash";
+
+import { reformatOptions, reformatToMap } from 'src/utils/utils'
 
 import api from "../api";
 import apiConfig from "../api/apiConfig";
-import { SET_REGION_LIST, SET_CURRENCY_LIST } from "../constants/actionTypes";
-
-import { reformatOptions, reformatToMap } from 'src/utils/utils'
+import { SET_REGION_LIST, SET_CURRENCY_LIST, SET_COUNTRY_CODE } from "../constants/actionTypes";
 
 export const getRegionList = (params) => async (dispatch) => {
   try {
@@ -37,7 +38,6 @@ export const getCurrencyList = (params) => async (dispatch) => {
     let { currency_list: currencyList } = await api.get(apiConfig.currencyList, params);
     const currencyMap = reformatToMap(currencyList, 'code', 'currency_type');
     currencyList = reformatOptions(currencyList, 'currency_type', 'code');
-    console.log('--currencyList--\n', currencyList);
     dispatch({
       type: SET_CURRENCY_LIST,
       payload: { currencyList, currencyMap },
@@ -54,7 +54,22 @@ export const getCurrencyList = (params) => async (dispatch) => {
   }
 }
 
-export const getIpInfo = () => axios.get(apiConfig.ipInfo);
+export const getIpInfo = () => async (dispatch) => {
+  try {
+    const { data } = await axios.get(apiConfig.ipInfo);
+    const countryCode = _.get(data, 'country_code', 'GB');
+    dispatch({
+      type: SET_COUNTRY_CODE,
+      payload: { countryCode },
+    });
+    return data;
+  } catch (e) {
+    dispatch({
+      type: SET_COUNTRY_CODE,
+      payload: { countryCode: '' },
+    });
+  }
+};
 
 export const uploadImage = params => api.post(apiConfig.upLoadImg, params);
 
