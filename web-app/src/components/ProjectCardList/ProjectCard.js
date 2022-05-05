@@ -80,11 +80,8 @@ export default function ShowProjectCard(props) {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <IconButton href={`/account/charity_profile/${_.get(project, 'uid')}`}>
-            <Avatar sx={{ bgcolor: stringToColor(_.get(project, 'region')) }} aria-label="recipe">
-              {_.get(project, 'region')}
-            </Avatar>
-          </IconButton>
+          <Avatar src = {SERVICE_BASE_URL + _.get(project, 'charity_avatar')} aria-label="recipe">
+          </Avatar>
         }
         action={
           <Button endIcon={<MoreVertIcon />} href={`/donation/${project.pid}`}>
@@ -108,7 +105,7 @@ export default function ShowProjectCard(props) {
       </CardContent>
       <CardActions disableSpacing>
         <Button size="small" onClick={handleClickOpen}>Share</Button>
-        <Dialog open={openDialog} onClose={handleClose}>
+        <Dialog open={openDialog} onClose={handleClose} fullWidth={true} maxWidth={'xs'}>
           <DialogTitle>Share</DialogTitle>
           <DialogContent dividers={true}>
             <Typography variant="h6" sx={{pb: 2}}>
@@ -122,27 +119,8 @@ export default function ShowProjectCard(props) {
               }}
             />
           </DialogContent>
-          <DialogContent>
-            <Typography variant="h6">
-              Share By Email
-            </Typography>
-            <DialogContentText>
-              Please input the email of the friend you want to share,
-              we will send the project information to your friend.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Email Address"
-              type="email"
-              fullWidth
-              variant="standard"
-            />
-          </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose} href='share'>Share</Button>
+            <Button onClick={handleClose}>OK</Button>
           </DialogActions>
         </Dialog>
         <Button size="small" href={`/donation/${project.pid}`}>Donate</Button>
