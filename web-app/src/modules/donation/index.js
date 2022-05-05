@@ -19,7 +19,6 @@ import { SERVICE_BASE_URL } from "src/constants/constants";
 import Grid from "@mui/material/Grid";
 import { CssBaseline, Paper } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import PaymentForm from "src/modules/donation/PaymentForm";
 
 export default (props) => {
@@ -27,6 +26,7 @@ export default (props) => {
   const { pid } = useParams();
 
   const { userinfo } = useSelector(state => state.user);
+  const { regionInfo } = useSelector(state => state.global);
 
   const [projectDetail, setProjectDetail] = useState();
 
@@ -35,7 +35,7 @@ export default (props) => {
       try {
         const res = await actions.getProjectInfo({
           pid,
-          currency_type: 'GBP',
+          currency_type: regionInfo.currencyType,
         });
         setProjectDetail(res.project_info);
       } catch (e) {

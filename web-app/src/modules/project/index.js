@@ -15,6 +15,7 @@ import { Box } from '@mui/material';
 
 import actions from "src/actions";
 import { useDispatch, useSelector } from "react-redux";
+import { DEFAULT_CURRENCY } from "src/constants/constants";
 // ----------------------------------------------------------------------
 
 export default (props) => {
@@ -32,7 +33,7 @@ export default (props) => {
         res = await actions.getPrepareProject();
       } else {
         res = await actions.getProjectList({
-          currency_type: userInfo.currency_type || 'GBP',
+          currency_type: userInfo.currency_type || DEFAULT_CURRENCY,
           page_info: {
             page_size: 10000,
             page: 1
