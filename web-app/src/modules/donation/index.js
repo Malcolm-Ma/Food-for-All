@@ -31,19 +31,20 @@ export default (props) => {
   const [projectDetail, setProjectDetail] = useState();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await actions.getProjectInfo({
-          pid,
-          currency_type: regionInfo.currencyType,
-        });
-        setProjectDetail(res.project_info);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-
-  }, [pid, userinfo]);
+    if (!_.isEmpty(regionInfo)) {
+      (async () => {
+        try {
+          const res = await actions.getProjectInfo({
+            pid,
+            currency_type: regionInfo.currencyType,
+          });
+          setProjectDetail(res.project_info);
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+    }
+  }, [pid, regionInfo, userinfo]);
 
   const theme = createTheme();
   return (

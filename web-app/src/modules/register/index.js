@@ -21,8 +21,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { message } from 'antd';
-
-
+import { DEFAULT_CURRENCY } from 'src/constants/constants';
 import { useMemo, useState } from "react";
 import _ from 'lodash';
 
@@ -31,7 +30,6 @@ import VerifyForm from "./VerifyForm";
 import DetailForm from './DetailForm'
 
 import './index.less';
-import api from "../../api";
 import actions from "../../actions";
 
 const STEP_CONFIG = [
