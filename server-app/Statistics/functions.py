@@ -141,8 +141,8 @@ class Statistics(object):
         # Save report to local directory.
         # Returns: full filename
         d = Statistics.get_project_dict(pid)
-        filename = d['pid'] + '.pdf'
-        pp = PdfPages('DOC/report/' + filename)
+        filename = "p_" + d['pid'] + '.pdf'
+        pp = PdfPages('DOC/' + filename)
         overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
         progress = Statistics.get_progress(d)
         regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
@@ -253,8 +253,8 @@ class Statistics(object):
         # Save report to local directory.
         # Returns: full filename
         d = Statistics.get_user_dict(uid)
-        filename = d['uid'] + '.pdf'
-        pp = PdfPages('DOC/report/' + filename)
+        filename = "u_" + d['uid'] + '.pdf'
+        pp = PdfPages('DOC/' + filename)
         overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
         regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
         page_number = 1
@@ -285,18 +285,20 @@ class Statistics(object):
         # Project section
         if d['type'] == 1:
             for pid in d['project']:
-                d = Statistics.get_project_dict(pid)
-                overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-                progress = Statistics.get_progress(d)
-                regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+                if pid not in d['donate_history']:
+                    continue
+                project_dict = Statistics.get_project_dict(pid)
+                overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+                progress = Statistics.get_progress(project_dict)
+                regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
 
-                lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
-                         'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else project_dict['title'][:36] + '...'),
+                         'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' GBP',
                          'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                         + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
+                         + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' GBP '
                          + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                         'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
-                         + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d')]
+                         'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
+                         + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
                 pp.savefig(Statistics.get_briefing_page(lines, page_number))
                 page_number += 1
                 pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
