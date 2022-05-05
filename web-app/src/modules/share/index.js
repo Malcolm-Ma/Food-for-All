@@ -69,7 +69,7 @@ export default (props) => {
             "project_url": "http://127.0.0.1:3000/donation/"+_.get(sharedProject,'pid'),
             "donate_num": _.get(sharedProject, 'current_num'),
             "if_hide_personal_information": hideStatus,
-            "user_name": _.get(sharedProject, 'uid')
+            "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
         });
     };
 

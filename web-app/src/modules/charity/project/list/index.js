@@ -140,7 +140,7 @@ const columnsConfig = (payloads) => {
             render: (text, record) => {
                 const {price: price, current_num: currentNum} = record;
                 const realPrice = _.floor(price, 2);
-                const totalPrice = String(realPrice * currentNum) + ' ' + projectInfo.currencyType;
+                const totalPrice = String(_.floor(realPrice * currentNum, 2)) + ' ' + projectInfo.currencyType;
                 return totalPrice;
             }
         },
@@ -284,7 +284,7 @@ export default () => {
                     },
                     search: '',
                     order: '',
-                    uid: '',
+                    uid: userInfo.uid,
                     valid_only: '',
                 });
             }
