@@ -5,8 +5,9 @@
 
 // module import
 import {useEffect, useMemo, useState} from 'react';
-import {useLocation} from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import _ from 'lodash';
+import { message } from 'antd';
 import {useNavigate} from "react-router-dom";
 
 // style import
@@ -15,7 +16,6 @@ import Box from "@mui/material/Box";
 import Typography from '@mui/material/Typography';
 import Button from "@mui/material/Button";
 import * as React from "react";
-import {Image, Switch} from "antd";
 import success from 'src/assets/success.jpg'
 import {Checkbox, FormControlLabel, FormGroup, TextField} from "@mui/material";
 import {Result} from 'antd';
@@ -25,14 +25,20 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import actions from "src/actions";
+import CryptoJS from "crypto-js";
+import { SECRET_KEY } from "src/constants/constants";
+import moment from "moment";
 
 export default (props) => {
 
-    const location = useLocation();
+    const [searchParams] = useSearchParams();
+    const token = useMemo(() => (searchParams.get('token') || null), [searchParams]);
 
     const [sharedProject, setSharedProject] = useState(null);
 
     const navigate = useNavigate();
+
+    const [errorMessage, setErrorMessage] = useState('');
 
     //Set Dialog Status
     const [open, setOpen] = React.useState(false);
@@ -77,28 +83,42 @@ export default (props) => {
     }
 
     useEffect(() => {
-        const pid = _.get(location, 'state.pid', null);
-        if (!pid) {
+        const decodeParams = JSON.parse(CryptoJS.AES.decrypt(token, SECRET_KEY).toString(CryptoJS.enc.Utf8));
+        // check the auth of showing project
+        const localToken = window.localStorage.getItem('share_pid');
+        if (!decodeParams.pid || !_.isEqual(localToken, decodeParams.pid)) {
+            setErrorMessage('Invalid project id! ');
+            message.error('Invalid project id! ');
             return;
         }
+        if (!moment(decodeParams.ttl).isAfter()) {
+            setErrorMessage('The session time has expired.');
+            message.error('The session time has expired.');
+            return;
+        }
+        // fetch project info
         (async () => {
-            const res = await actions.getProjectInfo({
-                'pid': pid,
-                'currency_type': "GBP"
-            });
-            setSharedProject(_.get(res, 'project_info'));
+            try {
+                const res = await actions.getProjectInfo({
+                    'pid': decodeParams.pid,
+                    'currency_type': "GBP"
+                });
+                setSharedProject(_.get(res, 'project_info'));
+                window.localStorage.removeItem('share_pid');
+            } catch (e) {
+                message.error(e);
+            }
         })();
-    }, []);
+    }, [token]);
 
-    const projectId = _.get(location, 'state.pid', null);
     return (
         <div align="center">
             {
-                projectId
-                    ? sharedProject && <div>
+                token
+                  ? sharedProject ? <div>
                         <Box align="center" textAlign="center"
-                             sx={{width: '100%', maxWidth: 500}}>
-                            <img src={success} alt="success"/>
+                             sx={{ width: '100%', maxWidth: 500 }}>
+                            <img src={success} alt="success" />
                             <Typography variant="h5" component="div" gutterBottom>
                                 You have successfully donated!
                             </Typography>
@@ -107,32 +127,32 @@ export default (props) => {
                             </Typography>
                         </Box>
                         <Box
-                            component="form"
-                            sx={{
-                                width: '100ch',
-                                '& > :not(style)': {m: 1, width: '40ch'},
-                            }}
-                            noValidate
-                            autoComplete="off"
-                            alignItems={"center"}
-                            onSubmit={handleClickOpen}
+                          component="form"
+                          sx={{
+                              width: '100ch',
+                              '& > :not(style)': { m: 1, width: '40ch' },
+                          }}
+                          noValidate
+                          autoComplete="off"
+                          alignItems={"center"}
+                          onSubmit={handleClickOpen}
                         >
-                            <TextField name="email01" label="email" variant="outlined"/>
-                            <TextField name="email02" label="email" variant="outlined"/>
+                            <TextField name="email01" label="email" variant="outlined" />
+                            <TextField name="email02" label="email" variant="outlined" />
                             <Box alignContent={"center"}>
                                 <FormGroup>
-                                    <FormControlLabel name="hide" control={<Checkbox defaultChecked/>}
-                                                      label=" Hide personal information in emails"/>
+                                    <FormControlLabel name="hide" control={<Checkbox defaultChecked />}
+                                                      label=" Hide personal information in emails" />
                                 </FormGroup>
                             </Box>
                             <Button type="submit" size="large" variant="outlined">Confirm</Button>
                             <Dialog
-                                open={open}
-                                onClose={handleClose}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                                maxWidth='sm'
-                                fullWidth={true}
+                              open={open}
+                              onClose={handleClose}
+                              aria-labelledby="alert-dialog-title"
+                              aria-describedby="alert-dialog-description"
+                              maxWidth='sm'
+                              fullWidth={true}
                             >
                                 <DialogTitle id="alert-dialog-title">
                                     {"Share"}
@@ -152,14 +172,22 @@ export default (props) => {
                             </Dialog>
                         </Box>
                     </div>
-                    : <div>
-                        <Result
-                            status="403"
-                            title="403"
-                            subTitle="Sorry, you are not authorized to access this page."
-                            extra={<Button size="large" variant="outlined" href='project'>Back Home</Button>}
-                        />
-                    </div>
+                    : <Result
+                      status="error"
+                      title="Invalid Token"
+                      subTitle={errorMessage}
+                      extra={[
+                          <Button size="medium" variant="outlined" href='project'>Go Back</Button>
+                      ]}
+                    />
+                  : <div>
+                      <Result
+                        status="403"
+                        title="403"
+                        subTitle="Sorry, you are not authorized to access this page."
+                        extra={<Button size="large" variant="outlined" href='project'>Back Home</Button>}
+                      />
+                  </div>
             }
         </div>
     );
