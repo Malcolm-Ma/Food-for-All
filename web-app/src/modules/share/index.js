@@ -35,6 +35,8 @@ export default (props) => {
     const token = useMemo(() => (searchParams.get('token') || null), [searchParams]);
 
     const [sharedProject, setSharedProject] = useState(null);
+    // decode token, including donor's name
+    const [decodeToken, setDecodeToken] = useState({});
 
     const navigate = useNavigate();
 
@@ -84,6 +86,7 @@ export default (props) => {
 
     useEffect(() => {
         const decodeParams = JSON.parse(CryptoJS.AES.decrypt(token, SECRET_KEY).toString(CryptoJS.enc.Utf8));
+        setDecodeToken(decodeParams);
         // check the auth of showing project
         const localToken = window.localStorage.getItem('share_pid');
         if (!decodeParams.pid || !_.isEqual(localToken, decodeParams.pid)) {
