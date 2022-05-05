@@ -255,6 +255,9 @@ CACHES = {
     },
 }
 
+PAYMENT_CLIENT_ID = 'AT96y4XONeD0OK88DlwW43rU3sSw9lH55Yfz3etD0RvFtTVfoUbwIpMebVjRxkmEeyFf5ycl7Xp7gU1l'
+PAYMENT_CLIENT_SECRET = 'EFC8hviHQf2sFY-hl_IRkg-4mPclc5dfPxlnN6Vz70F8SHf9-hCImLfaBjqTk4m5_pXb7IujTpqo0JF-'
+
 RESOURCE_DIR = os.path.join(BASE_DIR, "Resource")
 
 APPEND_SLASH=False
@@ -302,4 +305,6 @@ STATUS_CODE = {"success": 0,
                "unable to get image file from request": 400002,
                "unable to get document file from request": 400003,
                "temporary ban due to too frequent login attempts": 400004,
+               "create paypal product failed": 500001,
+               "payment capture failed": 500002,
                }
