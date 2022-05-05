@@ -95,7 +95,7 @@ export default () => {
           action: activeStep,
           password: _.get(data, 'password'),
           region: _.get(data, 'region'),
-          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', 'GBP'),
+          currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', DEFAULT_CURRENCY),
           name: _.get(data, 'name'),
           avatar: '',
         });

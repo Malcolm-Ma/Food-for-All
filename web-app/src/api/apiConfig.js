@@ -22,4 +22,6 @@ export default {
   getProjectInfo:'/get_project/',
   startProject:'/start_project/',
   upLoadImg: '/upload_img/',
+  ipInfo: 'https://geolocation-db.com/json/',
+  regionToCurrency: '/region2currency/',
 };

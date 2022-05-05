@@ -35,3 +35,5 @@ export const STATUS_CODE = {
 }
 
 export const SERVICE_BASE_URL = 'http://localhost:8000/'
+
+export const DEFAULT_CURRENCY = 'GBP';
