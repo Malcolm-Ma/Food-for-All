@@ -8,9 +8,9 @@ def get_stat(request):
     type_ = data['type']
 
     d = Statistics.get_project_dict(id_) if type_ == 'project' else Statistics.get_user_dict(id_)
-    overall_sum, monthly_sum = Statistics.get_donation_sum(d)
+    overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
     progress = Statistics.get_progress(d)
-    region_dist = Statistics.get_region_distribution(d)
+    region_dist = Statistics.get_regional_dist(d)
     stat = {'overall_sum': overall_sum,
             'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
             'progress': dict(zip(progress[0], progress[1])) if type_ == 'project' else 0,
