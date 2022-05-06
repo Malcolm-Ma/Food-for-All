@@ -30,28 +30,23 @@ export default (props) => {
 
   const [donationType, setDonationType] = useState('monthly');
   const [donationCount, setDonationCount] = useState(SAMPLE_DONATION[0]);
-  const [donationPrice, setDonationPrice] = useState(0);
-  const [manualPrice, setManualPrice] = useState(''); // Other amount
-
-  const [showTips, setShowTips] = useState(true);
+  const [donationPrice, setDonationPrice] = useState(donationCount * projectDetail.price);
+  const [customCount, setCustomCount] = useState('');
 
   const handleDonationPrice = useCallback((e, value) => {
     setDonationCount(value);
     setDonationPrice(_.ceil(value * projectDetail.price, 2));
-    setManualPrice('');
-    setShowTips(true);
   }, [projectDetail.price]);
 
-  const handleManualPriceChange = useCallback((e) => {
-    setManualPrice(e.target.value);
-    if (_.isEmpty(e.target.value)) {
-      setShowTips(true);
-      setDonationCount(SAMPLE_DONATION[0]);
+  const handleCustomCountChange = useCallback((e) => {
+    const { value } = e.target
+    setCustomCount(value);
+    if (_.isEmpty(value)) {
+      handleDonationPrice(null, SAMPLE_DONATION[0]);
     } else {
-      setShowTips(false);
-      setDonationCount(0);
+      handleDonationPrice(null, value);
     }
-  }, []);
+  }, [handleDonationPrice]);
 
   const handlePayment = useCallback(async (event) => {
     event.preventDefault();
@@ -121,7 +116,21 @@ export default (props) => {
           </Grid>
           <Grid item sm={12}>
             <Typography variant="body1" align="center">
-              You are about to {donationType === 'once' ? 'give once' : 'become a monthly supporter'}
+              You are about to {donationType === 'once' ? 'give once'
+              : <span>become a monthly supporter, for <b>12 months</b></span>}
+            </Typography>
+          </Grid>
+          <Grid item sm={12}>
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                padding: 2,
+                borderRadius: '4px',
+                backgroundColor: '#72b1dc',
+                color: '#fff',
+              }}>
+              Price Per Meal: {regionInfo.currencyType} {_.get(projectDetail, 'price')}<br/>
             </Typography>
           </Grid>
           <Grid item sm={12}>
@@ -134,40 +143,30 @@ export default (props) => {
               onChange={handleDonationPrice}
             >
               {_.map(SAMPLE_DONATION, (value) => {
-                const price = _.ceil(projectDetail.price * value, 2);
                 return (
                   <ToggleButton key={value} value={value}>
-                    <Typography variant="body1" fontWeight="bold">{regionInfo.currencyType} {price}</Typography>
+                    <Typography variant="body1" fontWeight="bold">{value} MEALS</Typography>
                   </ToggleButton>
                 )
               })}
             </ToggleButtonGroup>
           </Grid>
           <Grid item sm={12}>
-            <Typography
-              variant="h6"
-              align="center"
-              sx={{
-                padding: 2,
-                borderRadius: '4px',
-                backgroundColor: '#72b1dc',
-                color: '#fff',
-                display: !showTips && 'none',
-              }}>
-              Could provide vital emergency meals for {donationCount} hungry people, every month
-            </Typography>
-          </Grid>
-          <Grid item sm={12}>
             <TextField
+              value={customCount}
+              onChange={handleCustomCountChange}
               name="amount"
-              value={manualPrice}
-              onChange={handleManualPriceChange}
               fullWidth
               label="Other Amount"
               InputProps={{
-                startAdornment: <InputAdornment position="start">{regionInfo.currencyType}</InputAdornment>,
+                endAdornment: <InputAdornment position="end">MEAL(S)</InputAdornment>,
               }}
             />
+          </Grid>
+          <Grid item sm={12}>
+            <Typography variant="h6" align="center" color="rgba(0, 0, 0, 0.6)">
+              Total Donation Price: <b>{regionInfo.currencyType} {donationPrice}</b>
+            </Typography>
           </Grid>
         </Grid>
         <Divider sx={{ mt: 3, mb: 3, }} />

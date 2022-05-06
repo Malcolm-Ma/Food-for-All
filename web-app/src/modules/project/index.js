@@ -41,7 +41,7 @@ export default (props) => {
           search: '',
           order: 'charity',
           uid: '',
-          valid_only: '',
+          valid_only: 1,
         });
       }
       const {
