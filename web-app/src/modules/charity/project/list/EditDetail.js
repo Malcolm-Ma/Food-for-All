@@ -27,7 +27,7 @@ export default (props) => {
 
   const [price, setPrice] = useState(100);
   const [donation, setDonation] = useState(10);
-  const [img, setImg] = useState(SERVICE_BASE_URL + _.get(targetProject, 'background_image'));
+  const [img, setImg] = useState(_.get(targetProject, 'background_image'));
 
   useEffect(() => {
     dispatch(actions.getCurrencyList());
@@ -60,7 +60,7 @@ export default (props) => {
         edit: {
           title: values.title,
           intro: values.introduction,
-          background_image: values.background_image[0].response.url,
+          background_image: img,
           total_num: values.donation,
           end_time: moment(values.projectTime).unix(),
           details: values.details,
@@ -79,7 +79,7 @@ export default (props) => {
 
   const imgView = (values) => {
     if (values.file.status === "done") {
-      setImg(SERVICE_BASE_URL + values.file.response.url);
+      setImg(values.file.response.url);
     }
   };
 
@@ -177,7 +177,7 @@ export default (props) => {
               <p className="ant-upload-text">Click or drag file to this area to change the image</p>
               <Image
                 preview={false}
-                src={img}
+                src={SERVICE_BASE_URL + img}
               />
             </Upload.Dragger>
           </Form.Item>
