@@ -68,7 +68,7 @@ class DUser(models.Model):
             for key in update_fields:
                 self.__setattr__(key, update_dict[key])
             self.save(update_fields=update_fields)
-            if "avatar" in update_fields:
+            if "avatar" in update_fields and avatar_url != update_dict["avatar"]:
                 remove_url_file(avatar_url, "img")
             if self.type == USER_TYPE["charity"]:
                 project_update_dict = {}
@@ -337,7 +337,7 @@ class DProject(models.Model):
             for key in update_fields:
                 self.__setattr__(key, update_dict[key])
             self.save(update_fields=update_fields)
-            if "background_image" in update_fields:
+            if "background_image" in update_fields and background_image_url != update_dict["background_image"]:
                 remove_url_file(background_image_url, "img")
             return True
         except:

@@ -8,11 +8,11 @@ import { Routes ,Route } from 'react-router-dom';
 import _ from "lodash";
 import { Layout } from 'antd';
 
-import actions from "src/actions";
 import routesConfig from "src/configure/routes";
+import NoPermission from "src/components/NoPermission";
 
 export default (props) => {
-  const {} = props;
+  const { userInfo } = props;
 
   return (
     <Layout className="frame-content-main">
@@ -20,12 +20,17 @@ export default (props) => {
         <Routes>
           {
             _.map(routesConfig, (route) => {
-              const { path, component: Component, ...otherProps } = route;
+              const { path, component: Component, charity = false, ...otherProps } = route;
+              let component = <Component />;
+              // When no access to charity admin system
+              if (charity && _.get(userInfo, 'type', 2) !== 1) {
+                component = <NoPermission key={path} />;
+              }
               return (
                 <Route
                   key={path}
                   path={path}
-                  element={<Component />}
+                  element={component}
                   {...otherProps}
                 />
               );

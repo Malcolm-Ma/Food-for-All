@@ -4,8 +4,8 @@ from Common.decorators import *
 @check_request_method_decorator(method=["GET"])
 def init_database(request):
     if request.method == "GET":
-        user_num = 60
-        project_num = 150
+        user_num = 50
+        project_num = 100
     #elif request.method == "POST":
     #    data = json.loads(request.body)
     #    user_num = data["user_num"]

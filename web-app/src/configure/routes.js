@@ -18,14 +18,6 @@ export default [
     exact: true,
   },
   {
-    path: '/charity',
-    component: loadable({
-      loader: () => import(/* webpackChunkName: 'home' */ /* webpackMode: 'lazy' */ 'src/modules/home'),
-      loading: Loading,
-    }),
-    exact: true,
-  },
-  {
     path: '/login',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'login' */ /* webpackMode: 'lazy' */ 'src/modules/login'),
@@ -47,6 +39,7 @@ export default [
       loader: () => import(/* webpackChunkName: 'charity' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create'),
       loading: Loading,
     }),
+    charity: true,
     exact: true,
   },
   {
@@ -55,6 +48,7 @@ export default [
       loader: () => import(/* webpackChunkName: 'charity' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/list'),
       loading: Loading,
     }),
+    charity: true,
     exact: true,
   },
   {
@@ -71,6 +65,7 @@ export default [
       loader: () => import(/* webpackChunkName: 'charity' */ /* webpackMode: 'lazy' */ 'src/modules/charity/project/create/Result.js'),
       loading: Loading,
     }),
+    charity: true,
     exact: true,
   },
   {
@@ -119,6 +114,7 @@ export default [
       loader: () => import(/* webpackChunkName: 'income' */ /* webpackMode: 'lazy' */ 'src/modules/dashboard/incomeSummary/index.js'),
       loading: Loading,
     }),
+    charity: true,
     exact: true,
   },
   {
@@ -127,6 +123,7 @@ export default [
       loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/profile'),
       loading: Loading,
     }),
+    charity: true,
     exact: true,
   },
 ];

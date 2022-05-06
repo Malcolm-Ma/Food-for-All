@@ -90,6 +90,8 @@ def create_fake_project(uid, donate_history):
     user = DUser.get_user({"uid": uid})
     fake_project = {"pid": DProject.gen_pid(user.mail),
                     "uid": user.uid,
+                    "product_id": "",
+                    "subscription_list": "[]",
                     "title": "",
                     "intro": "",
                     "region": user.region,
@@ -139,6 +141,7 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
+        fake_project["product_id"] = "fake" + fake_project["pid"]
     elif fake_project["status"] == PROJECT_STATUS["ongoing"] or fake_project["status"] == PROJECT_STATUS["pause"]:
         fake_project["current_num"] = random.randint(0, fake_project["total_num"] - 1)
         fake_project["start_time"] = random.randint(user.regis_time, int(time.time()) - 30 * 24 * 60 * 60)
@@ -161,6 +164,10 @@ def create_fake_project(uid, donate_history):
                 project_donate_dict[donor_uid][str(donor_time[i])] = donor_counts[i]
             donate_history[donor_uid][fake_project["pid"]] = project_donate_dict[donor_uid]
         fake_project["donate_history"] = str(project_donate_dict)
+        r = Payment.create_product(fake_project["title"], fake_project["intro"], "https://example.com", "https://example.com")
+        if not "id" in r:
+            raise ServerError("create paypal product failed")
+        fake_project["product_id"] = r["id"]
     DProject.objects.create(**fake_project)
     user.add_project_to_list(fake_project["pid"])
     if project_donate_dict:
@@ -175,7 +182,7 @@ def init_database_with_fake_data(user_num=50, project_num=200):
         clear_database()
         guest_list = []
         charity_list = []
-        fake_user_info = [["uid", "username", "password", "type"]]
+        fake_user_info = [["uid", "username", "password", "expires_time"]]
         for _ in range(user_num):
             fake_user_uid, fake_user_mail, fake_user_password, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
             if fake_user_type == USER_TYPE["charity"]:
