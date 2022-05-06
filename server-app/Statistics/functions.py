@@ -9,7 +9,7 @@ import time
 
 class Statistics(object):
     @staticmethod
-    def fold_data(data, threshold=0.04):
+    def fold_data(data, threshold=0.05):
         # Takes: [key_list, value_list]
         f_key = []
         f_value = []
@@ -143,9 +143,12 @@ class Statistics(object):
         d = Statistics.get_project_dict(pid)
         filename = 'p_' + d['pid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
-        overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-        progress = Statistics.get_progress(d)
-        regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+        overall_sum = 0
+        progress = 0
+        if d['donate_history']:
+            overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
+            progress = Statistics.get_progress(d)
+            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
         page_number = 1
 
         fig = plt.figure()
@@ -169,12 +172,13 @@ class Statistics(object):
                  'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
         pp.savefig(Statistics.get_briefing_page(lines, page_number))
         page_number += 1
-        pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
-        page_number += 1
-        pp.savefig(Statistics.get_progress_page(progress, page_number))
-        page_number += 1
-        pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number))
-        page_number += 1
+        if d['donate_history']:
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
+            page_number += 1
+            pp.savefig(Statistics.get_progress_page(progress, page_number))
+            page_number += 1
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number))
+            page_number += 1
 
         plt.close('all')
         pp.close()
@@ -235,9 +239,14 @@ class Statistics(object):
         return regional_dist
 
     @staticmethod
-    def get_regional_dist_page(regional_dist, page_number):
+    def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum):
+        if n_donor == 1:
+            text = '1 donor has donated ' + str(overall_sum) + ' GBP to this project.'
+        else:
+            text = str(n_donor) + ' donors have donated ' + str(overall_sum) + ' GBP to this project.'
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
+        fig.text(0.5, 0.05, text, fontsize=14, ha='center', va='center')
         plt.title('Regional Distribution of Donation')
         plt.pie(regional_dist[1], labels=regional_dist[0], autopct='%.2f%%')
         return fig
@@ -255,8 +264,10 @@ class Statistics(object):
         d = Statistics.get_user_dict(uid)
         filename = 'u_' + d['uid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
-        overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-        regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+        overall_sum = 0
+        if d['donate_history']:
+            overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
+            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
         page_number = 1
 
         fig = plt.figure()
@@ -277,20 +288,22 @@ class Statistics(object):
                  'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
         pp.savefig(Statistics.get_briefing_page(lines, page_number))
         page_number += 1
-        pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
-        page_number += 1
-        pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number))
-        page_number += 1
+        if d['donate_history']:
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
+            page_number += 1
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum))
+            page_number += 1
 
         # Project section
         if d['type'] == 1:
             for pid in d['project']:
-                if pid not in d['donate_history']:
-                    continue
                 project_dict = Statistics.get_project_dict(pid)
-                overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
-                progress = Statistics.get_progress(project_dict)
-                regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
+                overall_sum = 0
+                progress = 0
+                if pid in d['donate_history']:
+                    overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+                    progress = Statistics.get_progress(project_dict)
+                    regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
 
                 lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
                                            project_dict['title'][:36] + '...'),
@@ -302,12 +315,13 @@ class Statistics(object):
                          + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
                 pp.savefig(Statistics.get_briefing_page(lines, page_number))
                 page_number += 1
-                pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
-                page_number += 1
-                pp.savefig(Statistics.get_progress_page(progress, page_number))
-                page_number += 1
-                pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number))
-                page_number += 1
+                if pid in d['donate_history']:
+                    pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
+                    page_number += 1
+                    pp.savefig(Statistics.get_progress_page(progress, page_number))
+                    page_number += 1
+                    pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(project_dict['donate_history']), overall_sum))
+                    page_number += 1
         plt.close('all')
         pp.close()
         return filename
