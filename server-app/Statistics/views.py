@@ -1,6 +1,7 @@
 from .functions import Statistics
 from Common.decorators import *
 
+
 @api_logger_decorator()
 @check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
@@ -15,12 +16,12 @@ def get_stat(request, user):
 
     @apiParam {String} pid Pid of the project (If get user's statistics data, just pass pid as "").
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200003] user is not the owner of the project)
-    @apiSuccess (Success 200 return) {Dict} stat Statistics information.
-    @apiSuccess (Success 200 return) {Int} overall_sum Total sum of donation that charity receives.
-    @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation. e.g. key: '202205', value: 100
-    @apiSuccess (Success 200 return) {Dict} progress Statistics information. Monthly progress of a project. e.g. key: '202205', value: 0.5
-    @apiSuccess (Success 200 return) {Dict} regional_dist Statistics information. Regional distribution of donation. e.g. key: 'China', value: 0.1
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
+    @apiSuccess (Success 200 return) {Dict} stat Statistics data.
+    @apiSuccess (Success 200 return) {Int} overall_sum Overall sum of donation that charity receives.
+    @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation. e.g. '202205': 100
+    @apiSuccess (Success 200 return) {Dict} progress Statistics information. Monthly progress of a project. e.g. '202205': 0.5
+    @apiSuccess (Success 200 return) {Dict} regional_dist Statistics information. Regional distribution of donation. e.g. 'France': 0.1
 
     @apiParamExample {Json} Sample Request
     {
@@ -73,23 +74,25 @@ def get_stat(request, user):
     """
     data = json.loads(request.body)
     pid = data['pid']
-    if pid == "":
-        d = Statistics.get_user_dict(user.uid)
-    else:
-        project = DProject.get_project({"pid": pid})
-        if not project or user.uid != project.uid:
+    if pid:
+        project = DProject.get_project({'pid': pid})
+        if not project:
+            raise ServerError("project does not exist")
+        if user.uid != project.uid:
             raise ServerError("user is not the owner of the project")
         d = Statistics.get_project_dict(pid)
+    else:
+        d = Statistics.get_user_dict(user.uid)
     overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-    if pid:
-        progress = Statistics.get_progress(d)
+    progress = Statistics.get_progress(d) if pid else {}
     regional_dist = Statistics.get_regional_dist(d)
     stat = {'overall_sum': overall_sum,
             'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
-            'progress': dict(zip(progress[0], progress[1])) if pid else dict(),
+            'progress': dict(zip(progress[0], progress[1])) if pid else {},
             'regional_dist': dict(zip(regional_dist[0], regional_dist[1]))}
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}
     return HttpResponse(json.dumps(response_data), content_type='application/json')
+
 
 @api_logger_decorator()
 @check_server_error_decorator()
@@ -105,7 +108,7 @@ def get_report(request, user):
 
     @apiParam {String} pid Pid of the project (If get user's pdf report, just pass pid as "").
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200003] user is not the owner of the project)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {String} url PDF report url.
 
     @apiParamExample {Json} Sample Request
@@ -120,12 +123,14 @@ def get_report(request, user):
     """
     data = json.loads(request.body)
     pid = data['pid']
-    if pid == "":
-        filename = Statistics.get_user_report(user.uid)
-    else:
-        project = DProject.get_project({"pid": pid})
-        if not project or user.uid != project.uid:
+    if pid:
+        project = DProject.get_project({'pid': pid})
+        if not project:
+            raise ServerError("project does not exist")
+        if user.uid != project.uid:
             raise ServerError("user is not the owner of the project")
         filename = Statistics.get_project_report(pid)
-    response_data = {'status': STATUS_CODE['success'], 'url': STATIC_URL + filename}  # Reshape url when merge into main
+    else:
+        filename = Statistics.get_user_report(user.uid)
+    response_data = {'status': STATUS_CODE['success'], 'url': os.path.join(STATIC_URL, filename)}
     return HttpResponse(json.dumps(response_data), content_type='application/json')

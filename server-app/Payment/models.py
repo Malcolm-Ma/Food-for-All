@@ -1,15 +1,23 @@
 from FoodForAll.settings import PAYMENT_CLIENT_ID, PAYMENT_CLIENT_SECRET
 import requests
 import json
+import time
+
+payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time())}
 
 class Payment(object):
     @staticmethod
     def authorization(client_id=PAYMENT_CLIENT_ID, secret=PAYMENT_CLIENT_SECRET):
-        headers = {'Accept': 'application/json', 'Accept-Language': 'en_US'}
-        data = {'grant_type': 'client_credentials'}
-        response = requests.post('https://api-m.sandbox.paypal.com/v1/oauth2/token', headers=headers, data=data, auth=(client_id, secret))
-        response_dict = json.loads(response.content)
-        return response_dict
+        global payment_authorization
+        if payment_authorization["expires_time"] < int(time.time()):
+            headers = {'Accept': 'application/json', 'Accept-Language': 'en_US'}
+            data = {'grant_type': 'client_credentials'}
+            response = requests.post('https://api-m.sandbox.paypal.com/v1/oauth2/token', headers=headers, data=data, auth=(client_id, secret))
+            response_dict = json.loads(response.content)
+            payment_authorization["token_type"] = response_dict["token_type"]
+            payment_authorization["access_token"] = response_dict["access_token"]
+            payment_authorization["expires_time"] = int(time.time()) + response_dict["expires_in"]
+        return payment_authorization
 
     @staticmethod
     def create_product(product_name, product_description, home_url, image_url):
