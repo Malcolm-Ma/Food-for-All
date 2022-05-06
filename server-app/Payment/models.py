@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time())}
+payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time()) - 1}
 
 class Payment(object):
     @staticmethod
