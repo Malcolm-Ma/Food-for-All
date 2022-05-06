@@ -78,6 +78,7 @@ export default (props) => {
 
     //navigate(`/share?token=${encodeURIComponent(secretStr)}`);
 
+    //encode for payment
     try {
       const payDetail = await actions.payByDonator({
         "pid": _.get(projectDetail, 'pid'),
@@ -88,6 +89,16 @@ export default (props) => {
         "cancel_url": window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`,
       });
       console.log(payDetail);
+
+      navigate('/'+'/'+_.get(payDetail,'payment_url'));
+
+      //encode for payment check
+      const payResult = await actions.capturePayment({
+        "pid": _.get(projectDetail, 'pid'),
+        "num": donationCount,
+        "payment_id": _.get(payDetail, 'payment_id'),
+        "plan": plan,
+      })
     } catch (e) {
       message.error(e);
     }
