@@ -141,7 +141,7 @@ class Statistics(object):
         # Save report to local directory.
         # Returns: full filename
         d = Statistics.get_project_dict(pid)
-        filename = "p_" + d['pid'] + '.pdf'
+        filename = 'p_' + d['pid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
         overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
         progress = Statistics.get_progress(d)
@@ -253,7 +253,7 @@ class Statistics(object):
         # Save report to local directory.
         # Returns: full filename
         d = Statistics.get_user_dict(uid)
-        filename = "u_" + d['uid'] + '.pdf'
+        filename = 'u_' + d['uid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
         overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
         regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
@@ -292,7 +292,8 @@ class Statistics(object):
                 progress = Statistics.get_progress(project_dict)
                 regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
 
-                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else project_dict['title'][:36] + '...'),
+                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
+                                           project_dict['title'][:36] + '...'),
                          'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' GBP',
                          'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                          + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' GBP '
