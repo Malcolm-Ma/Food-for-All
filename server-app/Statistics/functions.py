@@ -132,8 +132,7 @@ class Statistics(object):
 
     @staticmethod
     def get_project_dict(pid):
-        dproject = DProject()
-        project = dproject.get_project({'pid': pid})
+        project = DProject.get_project({"pid": pid})
         return project.to_dict()
 
     @staticmethod

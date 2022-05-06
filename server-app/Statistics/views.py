@@ -15,7 +15,7 @@ def get_stat(request, user):
 
     @apiParam {String} pid Pid of the project (If get user's statistics data, just pass pid as "").
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200003] user is not the owner of the project)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {Dict} stat Statistics information.
     @apiSuccess (Success 200 return) {Int} overall_sum Total sum of donation that charity receives.
     @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation. e.g. key: '202205', value: 100
@@ -77,7 +77,9 @@ def get_stat(request, user):
         d = Statistics.get_user_dict(user.uid)
     else:
         project = DProject.get_project({"pid": pid})
-        if not project or user.uid != project.uid:
+        if not project:
+            raise ServerError("project does not exist")
+        if user.uid != project.uid:
             raise ServerError("user is not the owner of the project")
         d = Statistics.get_project_dict(pid)
     overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
@@ -105,7 +107,7 @@ def get_report(request, user):
 
     @apiParam {String} pid Pid of the project (If get user's pdf report, just pass pid as "").
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200003] user is not the owner of the project)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {String} url PDF report url.
 
     @apiParamExample {Json} Sample Request
@@ -124,7 +126,9 @@ def get_report(request, user):
         filename = Statistics.get_user_report(user.uid)
     else:
         project = DProject.get_project({"pid": pid})
-        if not project or user.uid != project.uid:
+        if not project:
+            raise ServerError("project does not exist")
+        if user.uid != project.uid:
             raise ServerError("user is not the owner of the project")
         filename = Statistics.get_project_report(pid)
     response_data = {'status': STATUS_CODE['success'], 'url': STATIC_URL + filename}  # Reshape url when merge into main
