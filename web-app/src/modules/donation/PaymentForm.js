@@ -123,7 +123,7 @@ export default (props) => {
                 const price = _.ceil(projectDetail.price * value, 2);
                 return (
                   <ToggleButton key={value} value={value}>
-                    <Typography variant="body1" fontWeight="bold">GBP {price}</Typography>
+                    <Typography variant="body1" fontWeight="bold">{regionInfo.currencyType} {price}</Typography>
                   </ToggleButton>
                 )
               })}
