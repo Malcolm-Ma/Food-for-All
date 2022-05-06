@@ -18,6 +18,7 @@ import moment from "moment";
 import CryptoJS from 'crypto-js';
 import { SECRET_KEY } from "src/constants/constants";
 import actions from "src/actions";
+import {message} from "antd";
 
 const SAMPLE_DONATION = [4, 12, 24];
 
@@ -76,15 +77,21 @@ export default (props) => {
     window.localStorage.setItem('share_pid', _.get(projectDetail, 'pid'));
 
     //navigate(`/share?token=${encodeURIComponent(secretStr)}`);
-    await actions.payByDonator({
-      "pid": _.get(projectDetail,'pid'),
-      "num": 2,
-      "currency_type": "123",//_.get(regionInfo,currencyType),
-      "plan": plan,
-      "return_url": "http://localhost:3000/share",
-      "cancel_url": "http://localhost:3000/payFailed"
-    });
-  }, [navigate, projectDetail]);
+
+    try {
+      const payDetail = await actions.payByDonator({
+        "pid": _.get(projectDetail, 'pid'),
+        "num": donationCount,
+        "currency_type": regionInfo.currencyType,
+        "plan": plan,
+        "return_url": window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`,
+        "cancel_url": window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`,
+      });
+      console.log(payDetail);
+    } catch (e) {
+      message.error(e);
+    }
+  }, [donationCount, donationType, navigate, projectDetail]);
 
   return (
     <Container
