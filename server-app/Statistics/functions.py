@@ -176,7 +176,7 @@ class Statistics(object):
             page_number += 1
             pp.savefig(Statistics.get_progress_page(progress, page_number))
             page_number += 1
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number))
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum))
             page_number += 1
 
         plt.close('all')
@@ -241,11 +241,13 @@ class Statistics(object):
     def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum):
         if n_donor == 1:
             text = '1 donor has donated ' + str(overall_sum) + ' GBP to this project.'
-        else:
-            text = str(n_donor) + ' donors have donated ' + str(overall_sum) + ' GBP to this project.'
+        elif n_donor > 1:
+            text = str(n_donor) + ' donors have donated ' + str(round(overall_sum, 2)) + ' GBP to this project. (' \
+                   + str(round(overall_sum / n_donor, 2)) + ' GBP per person)'
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
-        fig.text(0.5, 0.05, text, fontsize=14, ha='center', va='center')
+        if n_donor:
+            fig.text(0.5, 0.1, text, fontsize=10, ha='center', va='center')
         plt.title('Regional Distribution of Donation')
         plt.pie(regional_dist[1], labels=regional_dist[0], autopct='%.2f%%')
         return fig
@@ -290,7 +292,12 @@ class Statistics(object):
         if d['donate_history']:
             pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
             page_number += 1
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum))
+            n_donor = 0
+            if d['type'] == 1:
+                for pid in d['donate_history']:
+                    project_dict = Statistics.get_project_dict(pid)
+                    n_donor += len(project_dict['donate_history'])
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum))
             page_number += 1
 
         # Project section
