@@ -84,12 +84,120 @@ def get_stat(request, user):
     else:
         d = Statistics.get_user_dict(user.uid)
     overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-    progress = Statistics.get_progress(d) if pid else {}
+    # progress = Statistics.get_progress(d) if pid else {}
     regional_dist = Statistics.get_regional_dist(d)
-    stat = {'overall_sum': overall_sum,
-            'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
-            'progress': dict(zip(progress[0], progress[1])) if pid else {},
-            'regional_dist': dict(zip(regional_dist[0], regional_dist[1]))}
+    project_name = Statistics.get_project_name(d)
+    progress = Statistics.get_monthly_progress(d)
+    # stat = {'overall_sum': overall_sum,
+    #         'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
+    #         'progress': dict(zip(progress[0], progress[1])) if pid else {},
+    #         'regional_dist': dict(zip(regional_dist[0], regional_dist[1]))}
+    progress_data = []
+    if len(regional_dist[0]) < 8:
+        for name, value in zip(regional_dist[0], regional_dist[1]):
+            progress_data.append({'value': value, 'name': name})
+    else:
+        i = 0;
+        other_value = 0
+        for name, value in zip(regional_dist[0], regional_dist[1]):
+            if i < 8:
+                progress_data.append({'value': value, 'name': name})
+                i += 1
+            else:
+                other_value += value
+        progress_data.append({'value': other_value, 'name': 'Others'})
+
+
+    stat = {
+        '0': {
+            'title': {
+                'text': 'Donation Line'
+            },
+            'tooltip': {
+                'trigger': 'axis'
+            },
+            'legend': {
+                'data': project_name
+            },
+            'grid': {
+                'left': '3%',
+                'right': '4%',
+                'bottom': '3%',
+                'containLabel': 'true'
+            },
+            'toolbox': {
+                'feature': {
+                    'saveAsImage': {}
+                }
+            },
+            'xAxis': {
+                'type': 'category',
+                'boundaryGap': 'false',
+                'data': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            },
+            'yAxis': {
+                'type': 'value'
+            },
+            'series': progress
+        },
+        '1': {
+            'title': {
+                'text': 'Donation Location',
+                'left': 'center'
+            },
+            'tooltip': {
+                'trigger': 'item'
+            },
+            'legend': {
+                'type': 'scroll',
+                'orient': 'vertical',
+                'left': 'left'
+            },
+            'series': [
+                {
+                    'name': 'Access From',
+                    'type': 'pie',
+                    'radius': '50%',
+                    'data': progress_data,
+                    'emphasis': {
+                        'itemStyle': {
+                            'shadowBlur': 10,
+                            'shadowOffsetX': 0,
+                            'shadowColor': 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+
+                }
+            ]
+        },
+        '2': {
+            'title': {
+                'text': 'Donation History'
+            },
+            'tooltip': {
+                'trigger': 'axis',
+                'axisPointer': {
+                    'type': 'shadow'
+                }
+            },
+            'legend': {},
+            'grid': {
+                'left': '3%',
+                'right': '4%',
+                'bottom': '3%',
+                'containLabel': 'true'
+            },
+            'xAxis': {
+                'type': 'value'
+            },
+            'yAxis': {
+                'type': 'category',
+                'data': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            },
+            'series': Statistics.get_history(d)
+        }
+
+    }
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 

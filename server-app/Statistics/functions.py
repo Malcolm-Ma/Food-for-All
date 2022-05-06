@@ -196,7 +196,7 @@ class Statistics(object):
                 user_num_sum = 0
                 for timestamp, num in sub_dict.items():
                     user_num_sum += num
-                user_ratio = user_num_sum / d['current_num']
+                user_ratio = user_num_sum
                 if region in regional_dist_dict.keys():
                     regional_dist_dict[region] += user_ratio
                 else:
@@ -218,7 +218,7 @@ class Statistics(object):
                         else:
                             regional_dist_dict[region] = user_sum
                 for key in regional_dist_dict.keys():
-                    regional_dist_dict[key] = regional_dist_dict[key] / projects_sum
+                    regional_dist_dict[key] = regional_dist_dict[key]
             else:
                 overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
                 for pid, sub_dict in d['donate_history'].items():
@@ -227,7 +227,7 @@ class Statistics(object):
                     project_num_sum = 0
                     for timestamp, num in sub_dict.items():
                         project_num_sum += num
-                    project_ratio = project_num_sum * project_dict['price'] / overall_sum
+                    project_ratio = project_num_sum * project_dict['price']
                     if region in regional_dist_dict.keys():
                         regional_dist_dict[region] += project_ratio
                     else:
@@ -257,6 +257,48 @@ class Statistics(object):
         duser = DUser()
         user = duser.get_user({'uid': uid})
         return user.to_dict()
+
+    @staticmethod
+    def get_project_name(d):
+        name = []
+        for pid, sub_dict in d['donate_history'].items():
+            name.append(Statistics.get_project_dict(pid)['title'])
+        return name
+
+    @staticmethod
+    def get_history(d):
+        data = []
+        for pid, sub_dict in d['donate_history'].items():
+            sub_data = {
+                'name': Statistics.get_project_dict(pid)['title'],
+                'type': 'bar',
+                'stack': 'total',
+                'label': {
+                    'show': 'true'
+                },
+                'emphasis': {
+                    'focus': 'series'
+                },
+                'data': Statistics.get_monthly_sum(Statistics.get_project_dict(pid))[1][1]
+            }
+            data.append(sub_data)
+        return data
+
+
+    @staticmethod
+    def get_monthly_progress(d):
+        series = []
+        for pid, sub_dict in d['donate_history'].items():
+            data = {
+                'name': Statistics.get_project_dict(pid)['title'],
+                'type': 'line',
+                'data': Statistics.get_progress(Statistics.get_project_dict(pid))[1]
+            }
+            series.append(data)
+        return series
+
+
+
 
     @staticmethod
     def get_user_report(uid):

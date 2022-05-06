@@ -27,4 +27,5 @@ export default {
   upLoadImg: '/upload_img/',
   ipInfo: 'https://geolocation-db.com/json/',
   regionToCurrency: '/region2currency/',
+  getStat: '/get_stat/'
 };
