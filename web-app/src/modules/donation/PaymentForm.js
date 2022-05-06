@@ -17,6 +17,7 @@ import Box from "@mui/material/Box";
 import moment from "moment";
 import CryptoJS from 'crypto-js';
 import { SECRET_KEY } from "src/constants/constants";
+import actions from "src/actions";
 
 const SAMPLE_DONATION = [4, 12, 24];
 
@@ -52,13 +53,18 @@ export default (props) => {
     }
   }, []);
 
-  const handlePayment = useCallback((event) => {
+  const handlePayment = useCallback(async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    let plan = 0;
+    if (donationType === 'monthly')
+      plan = 1;
     console.log('--data--\n', {
       email: data.get('email'),
       first_name: data.get('first_name'),
       last_name: data.get('last_name'),
+      plan: plan,
+      donation_count: donationCount,
     });
     // encode search params
     const params = {
@@ -74,7 +80,15 @@ export default (props) => {
     // also set token in local storage
     window.localStorage.setItem('share_pid', _.get(projectDetail, 'pid'));
 
-    navigate(`/share?token=${encodeURIComponent(secretStr)}`);
+    //navigate(`/share?token=${encodeURIComponent(secretStr)}`);
+    await actions.payByDonator({
+      "pid": _.get(projectDetail,'pid'),
+      "num": 2,
+      "currency_type": "123",//_.get(regionInfo,currencyType),
+      "plan": plan,
+      "return_url": "http://localhost:3000/share",
+      "cancel_url": "http://localhost:3000/payFailed"
+    });
   }, [navigate, projectDetail]);
 
   return (
