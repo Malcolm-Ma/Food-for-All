@@ -416,9 +416,10 @@ class Statistics(object):
             progress = []
             while start < end_ym:
                 current_num += sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
-                if current_num == 0:
+                if current_num == 0 or current_num == Statistics.get_project_dict(pid)['total_num']:
                     progress.append("")
                 else:
+                    # progress.append(current_num)
                     progress.append("%.2f" % (current_num / Statistics.get_project_dict(pid)['total_num'] * 100))
                 start += delta
             data = {

@@ -76,9 +76,9 @@ def get_stat(request, user):
     pid = data['pid']
     op = data['op']
     days = 0
-    if op == 'monthly':
+    if op == 'month':
         days = 30
-    elif op == 'weekly':
+    elif op == 'week':
         days = 7
     elif op == 'all':
         days = 0
