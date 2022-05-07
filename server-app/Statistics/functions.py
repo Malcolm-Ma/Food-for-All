@@ -391,7 +391,7 @@ class Statistics(object):
         end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
         delta = dt.timedelta(days=1)
         while start < end_ym:
-            time_line.append(start.strftime('%Y%m%d'))
+            time_line.append(start.strftime('%Y/%m/%d'))
             start += delta
         return time_line
 
@@ -414,10 +414,14 @@ class Statistics(object):
             delta = dt.timedelta(days=1)
             current_num = 0
             progress = []
+            finished = False
             while start < end_ym:
                 current_num += sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
-                if current_num == 0 or current_num == Statistics.get_project_dict(pid)['total_num']:
+                if current_num == 0 or finished:
                     progress.append("")
+                elif current_num == Statistics.get_project_dict(pid)['total_num']:
+                    progress.append(100)
+                    finished = True
                 else:
                     # progress.append(current_num)
                     progress.append("%.2f" % (current_num / Statistics.get_project_dict(pid)['total_num'] * 100))
