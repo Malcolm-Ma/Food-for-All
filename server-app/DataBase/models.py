@@ -74,7 +74,7 @@ class DUser(models.Model):
                 project_update_dict = {}
                 if "name" in update_fields:
                     project_update_dict["charity"] = update_dict["name"]
-                if "avatar" in update_fields:
+                if "avatar" in update_fields and avatar_url != update_dict["avatar"]:
                     project_update_dict["charity_avatar"] = update_dict["avatar"]
                 if "region" in update_fields:
                     project_update_dict["region"] = update_dict["region"]
@@ -305,7 +305,7 @@ class DProject(models.Model):
         if currency_type and "price" in fields:
             cid = currency2cid(currency_type)
             if cid:
-                project_dict["price"] = round(project_dict["price"] * EXCHANGE_RATE[cid], 3)
+                project_dict["price"] = round(project_dict["price"] * EXCHANGE_RATE[cid], 2)
             else:
                 raise ServerError("invalid currency type")
         return project_dict

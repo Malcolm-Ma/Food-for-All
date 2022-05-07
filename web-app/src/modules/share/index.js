@@ -28,8 +28,11 @@ import actions from "src/actions";
 import CryptoJS from "crypto-js";
 import { SECRET_KEY } from "src/constants/constants";
 import moment from "moment";
+import { useSelector } from "react-redux";
 
 export default (props) => {
+
+    const { regionInfo } = useSelector(state => state.global);
 
     const [searchParams] = useSearchParams();
     const token = useMemo(() => (searchParams.get('token') || null), [searchParams]);
@@ -104,7 +107,7 @@ export default (props) => {
             try {
                 const res = await actions.getProjectInfo({
                     'pid': decodeParams.pid,
-                    'currency_type': "GBP"
+                    'currency_type': regionInfo.currencyType,
                 });
                 setSharedProject(_.get(res, 'project_info'));
                 window.localStorage.removeItem('share_pid');
@@ -112,7 +115,7 @@ export default (props) => {
                 message.error(e);
             }
         })();
-    }, [token]);
+    }, [regionInfo.currencyType, token]);
 
     return (
         <div align="center">

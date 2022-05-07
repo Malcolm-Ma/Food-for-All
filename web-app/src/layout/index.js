@@ -45,11 +45,11 @@ const Layout = (props) => {
             <Header />
             <AntdLayout className={
               classNames({
-                'frame-content-with-sidebar': sidebarShowingStatus,
+                'frame-content-with-sidebar': (sidebarShowingStatus && _.get(userInfo, 'type', 2) === 1),
               })
             }>
-              {sidebarShowingStatus && <Sidebar />}
-              <Main />
+              {(sidebarShowingStatus && _.get(userInfo, 'type', 2) === 1) && <Sidebar />}
+              <Main userInfo={userInfo} />
             </AntdLayout>
           </>
           : <div></div>

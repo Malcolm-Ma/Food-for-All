@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time())}
+payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time()) - 1}
 
 class Payment(object):
     @staticmethod
@@ -22,8 +22,8 @@ class Payment(object):
     @staticmethod
     def create_product(product_name, product_description, home_url, image_url):
         authorization_dict = Payment.authorization()
-        create_dict = {'name': product_name,
-                       'description': product_description,
+        create_dict = {'name': product_name[:127] if len(product_name) >= 1 else "-",
+                       'description': product_description[:127] if len(product_description) >= 1 else "-",
                        'type': 'SERVICE',
                        'category': 'CHARITY',
                        'image_url': image_url,
@@ -120,8 +120,8 @@ class Payment(object):
         authorization_dict = Payment.authorization()
         create_plan_dict = {
             'product_id': product_id,
-            'name': plan_name,
-            'description': plan_description,
+            'name': plan_name[:127] if len(plan_name) >= 1 else "-",
+            'description': plan_description[:127] if len(plan_description) >= 1 else "-",
             'status': 'ACTIVE',
             'billing_cycles': [
                 {
@@ -199,7 +199,7 @@ class Payment(object):
         create_subscription_dict = {
             'plan_id': plan_id,
             'application_context': {
-                'brand_name': brand_name,
+                'brand_name': brand_name[:127] if len(brand_name) >= 1 else "-",
                 'shipping_preference': 'NO_SHIPPING',
                 'user_action': 'SUBSCRIBE_NOW',
                 'payment_method': {
