@@ -98,7 +98,7 @@ def capture_payment(request, user, project):
     as_plan = data["plan"]
     if as_plan:
         show_subscription = Payment.show_subscription(payment_id)
-        if "status" not in show_subscription or show_subscription["status"] == "ACTIVE":
+        if "status" not in show_subscription or show_subscription["status"] != "ACTIVE":
             raise ServerError("payment capture failed")
     else:
         capture_order = Payment.capture_order(payment_id)
