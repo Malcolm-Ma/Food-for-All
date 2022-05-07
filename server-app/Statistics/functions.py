@@ -1,7 +1,8 @@
 from Common.common import rid2region
 from DataBase.models import DProject
 from DataBase.models import DUser
-from datetime import datetime
+import datetime
+from datetime import datetime as dt
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
@@ -49,7 +50,7 @@ class Statistics(object):
             for uid, sub_dict in d['donate_history'].items():
                 for timestamp, num in sub_dict.items():
                     overall_sum += num * d['price']
-                    ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
+                    ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
                     if ym in monthly_sum_dict.keys():
                         monthly_sum_dict[ym] += num * d['price']
                     else:
@@ -61,7 +62,7 @@ class Statistics(object):
                     for uid, sub_sub_dict in sub_dict.items():
                         for timestamp, num in sub_sub_dict.items():
                             overall_sum += num * price
-                            ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
+                            ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
                             if ym in monthly_sum_dict.keys():
                                 monthly_sum_dict[ym] += num * price
                             else:
@@ -69,23 +70,36 @@ class Statistics(object):
                 else:
                     for timestamp, num in sub_dict.items():
                         overall_sum += num * price
-                        ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
+                        ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
                         if ym in monthly_sum_dict.keys():
                             monthly_sum_dict[ym] += num * price
                         else:
                             monthly_sum_dict[ym] = num * price
         monthly_sum = sorted(monthly_sum_dict.items(), key=lambda x: x[0])
         if 'pid' in d:
-            start_ym = datetime.fromtimestamp(d['start_time']).strftime('%Y%m')
+            start_ym = dt.fromtimestamp(d['start_time']).strftime('%Y%m%d')
         else:
             start_ym = monthly_sum[0][0]
-        end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m')
+        start_ym = dt(int(start_ym[:4]), int(start_ym[4:6]), int(start_ym[6:]))
+        end_ym = dt.fromtimestamp(time.time()).strftime('%Y%m%d')
+        end_ym = dt(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+
         ym_list = []
         sum_list = []
-        for ym in range(int(start_ym), int(end_ym) + 1):
-            if 1 <= int(str(ym)[-2:]) <= 12:
-                ym_list.append(ym)
-                sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
+
+        start = start_ym
+        delta = datetime.timedelta(days=1)
+        while start < end_ym:
+            ym_list.append(start.strftime('%Y%m%d'))
+            sum_list.append(monthly_sum_dict[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in monthly_sum_dict else 0)
+            start += delta
+        # for ym in range((end_ym - start_ym).days + 1):
+        #     ym_list.append(ym)
+        #     sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
+        # for ym in range(int(start_ym), int(end_ym) + 1):
+        #     if 1 <= int(str(ym)[-2:]) <= 12:
+        #         ym_list.append(ym)
+        #         sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
         monthly_sum = [ym_list, sum_list]
         return overall_sum, monthly_sum
 
@@ -289,10 +303,14 @@ class Statistics(object):
     def get_monthly_progress(d):
         series = []
         for pid, sub_dict in d['donate_history'].items():
+            new_data = []
+            data_list = Statistics.get_progress(Statistics.get_project_dict(pid))[1]
+            for i in data_list:
+                new_data.append("%.2f" % i)
             data = {
                 'name': Statistics.get_project_dict(pid)['title'],
                 'type': 'line',
-                'data': Statistics.get_progress(Statistics.get_project_dict(pid))[1]
+                'data': new_data
             }
             series.append(data)
         return series

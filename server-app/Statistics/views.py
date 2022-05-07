@@ -133,10 +133,15 @@ def get_stat(request, user):
             'xAxis': {
                 'type': 'category',
                 'boundaryGap': 'false',
-                'data': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                'data': monthly_sum[0]
             },
             'yAxis': {
-                'type': 'value'
+                'type': 'value',
+                'axisLabel': {
+                    'show': 'true',
+                    'formatter': '{value}%',
+                },
+                'show': True
             },
             'series': progress
         },
