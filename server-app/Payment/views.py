@@ -19,7 +19,7 @@ def pay(request, project):
     @apiParam {String} return_url The url to redirect to after the payment has approved.(Note that it must start with http:// or https://).
     @apiParam {String} cancel_url The url to redirect to after the payment has cancelled.(Note that it must start with http:// or https://).
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [200002] project does not exist)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [200002] project does not exist, [200017] project is not ongoing)
     @apiSuccess (Success 200 return) {String} payment_id Payment ID.
     @apiSuccess (Success 200 return) {String} payment_url Payment Link.
 
@@ -40,6 +40,8 @@ def pay(request, project):
     }
     """
     response_data = {"status": STATUS_CODE["success"], "payment_id": "", "payment_url": ""}
+    if project.status != PROJECT_STATUS["ongoing"]:
+        raise ServerError("project is not ongoing")
     data = json.loads(request.body)
     num = data["num"]
     currency_type = data["currency_type"]
