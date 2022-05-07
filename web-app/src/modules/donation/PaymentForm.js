@@ -55,54 +55,39 @@ export default (props) => {
     let plan = 0;
     if (donationType === 'monthly')
       plan = 1;
-    console.log('--data--\n', {
-      email: data.get('email'),
-      first_name: data.get('first_name'),
-      last_name: data.get('last_name'),
-      plan: plan,
-      donation_count: donationCount,
-    });
     // encode search params
     const params = {
       pid: _.get(projectDetail, 'pid'),
       first_name: data.get('first_name'),
       last_name: data.get('last_name'),
       email: data.get('email'),
-      ttl: moment().add(5, 'm').toDate(),
+      ttl: moment().add(3, 'h').toDate(),
+      donation_count: donationCount,
+      plan: plan,
     };
 
     // encode for share
     const secretStr = CryptoJS.AES.encrypt(JSON.stringify(params), SECRET_KEY);
     // also set token in local storage
-    window.localStorage.setItem('share_pid', _.get(projectDetail, 'pid'));
-
-    //navigate(`/share?token=${encodeURIComponent(secretStr)}`);
+    window.localStorage.setItem('pid', _.get(projectDetail, 'pid'));
 
     //encode for payment
+    const returnUrl = window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`;
     try {
       const payDetail = await actions.payByDonator({
         "pid": _.get(projectDetail, 'pid'),
         "num": donationCount,
         "currency_type": regionInfo.currencyType,
         "plan": plan,
-        "return_url": window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`,
-        "cancel_url": window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`,
+        "return_url": returnUrl,
+        "cancel_url": returnUrl,
       });
-      console.log(payDetail);
-
-      navigate('/'+'/'+_.get(payDetail,'payment_url'));
-
-      //encode for payment check
-      const payResult = await actions.capturePayment({
-        "pid": _.get(projectDetail, 'pid'),
-        "num": donationCount,
-        "payment_id": _.get(payDetail, 'payment_id'),
-        "plan": plan,
-      })
+      window.localStorage.setItem('p_id', _.get(payDetail, 'payment_id'));
+      window.location.href = _.get(payDetail,'payment_url');
     } catch (e) {
       message.error(e);
     }
-  }, [donationCount, donationType, navigate, projectDetail]);
+  }, [donationCount, donationType, projectDetail, regionInfo.currencyType]);
 
   return (
     <Container
