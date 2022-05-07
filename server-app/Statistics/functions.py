@@ -1,8 +1,8 @@
 from Common.common import rid2region
 from DataBase.models import DProject
 from DataBase.models import DUser
-import datetime
-from datetime import datetime as dt
+import datetime as dt
+from datetime import datetime
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
@@ -50,7 +50,7 @@ class Statistics(object):
             for uid, sub_dict in d['donate_history'].items():
                 for timestamp, num in sub_dict.items():
                     overall_sum += num * d['price']
-                    ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                    ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                     if ym in monthly_sum_dict.keys():
                         monthly_sum_dict[ym] += num * d['price']
                     else:
@@ -62,7 +62,7 @@ class Statistics(object):
                     for uid, sub_sub_dict in sub_dict.items():
                         for timestamp, num in sub_sub_dict.items():
                             overall_sum += num * price
-                            ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                            ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                             if ym in monthly_sum_dict.keys():
                                 monthly_sum_dict[ym] += num * price
                             else:
@@ -70,36 +70,23 @@ class Statistics(object):
                 else:
                     for timestamp, num in sub_dict.items():
                         overall_sum += num * price
-                        ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                        ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                         if ym in monthly_sum_dict.keys():
                             monthly_sum_dict[ym] += num * price
                         else:
                             monthly_sum_dict[ym] = num * price
         monthly_sum = sorted(monthly_sum_dict.items(), key=lambda x: x[0])
         if 'pid' in d:
-            start_ym = dt.fromtimestamp(d['start_time']).strftime('%Y%m%d')
+            start_ym = datetime.fromtimestamp(d['start_time']).strftime('%Y%m')
         else:
             start_ym = monthly_sum[0][0]
-        start_ym = dt(int(start_ym[:4]), int(start_ym[4:6]), int(start_ym[6:]))
-        end_ym = dt.fromtimestamp(time.time()).strftime('%Y%m%d')
-        end_ym = dt(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
-
+        end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m')
         ym_list = []
         sum_list = []
-
-        start = start_ym
-        delta = datetime.timedelta(days=1)
-        while start < end_ym:
-            ym_list.append(start.strftime('%Y%m%d'))
-            sum_list.append(monthly_sum_dict[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in monthly_sum_dict else 0)
-            start += delta
-        # for ym in range((end_ym - start_ym).days + 1):
-        #     ym_list.append(ym)
-        #     sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
-        # for ym in range(int(start_ym), int(end_ym) + 1):
-        #     if 1 <= int(str(ym)[-2:]) <= 12:
-        #         ym_list.append(ym)
-        #         sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
+        for ym in range(int(start_ym), int(end_ym) + 1):
+            if 1 <= int(str(ym)[-2:]) <= 12:
+                ym_list.append(ym)
+                sum_list.append(monthly_sum_dict[str(ym)] if str(ym) in monthly_sum_dict else 0)
         monthly_sum = [ym_list, sum_list]
         return overall_sum, monthly_sum
 
@@ -118,44 +105,29 @@ class Statistics(object):
         return fig
 
     @staticmethod
+    def get_progress(project_dict):
+        # Get monthly progress of a project.
+        # Returns: [year-month_list, progress_list]
+        overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+        current_sum = 0
+        progress = []
+        for i in range(len(monthly_sum[1])):
+            current_sum += monthly_sum[1][i]
+            progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
+        progress = [monthly_sum[0], progress]
+        return progress
+
+    @staticmethod
     def get_sum_num(d):
         sum_dict = {}
         for uid, sub_dict in d['donate_history'].items():
             for timestamp, num in sub_dict.items():
-                ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
                 if ym in sum_dict.keys():
                     sum_dict[ym] += num
                 else:
                     sum_dict[ym] = num
         return sum_dict
-
-    @staticmethod
-    def get_progress(project_dict):
-        # Get monthly progress of a project.
-        # Returns: [year-month_list, progress_list]
-        # _, monthly_sum = Statistics.get_monthly_sum(project_dict)
-        # current_sum = 0
-        # progress = []
-        # for i in range(len(monthly_sum[1])):
-        #     current_sum += monthly_sum[1][i]
-        #     progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
-        # progress = [monthly_sum[0], progress]
-
-
-        # sum_num = Statistics.get_sum_num(project_dict)
-        # current_sum = 0
-        # progress = []
-        # for key in sum_num.keys():
-        #     current_sum += sum_num[key]
-        #     progress.append(current_sum / project_dict['total_num'])
-
-        _, time_sum = Statistics.get_monthly_sum(project_dict)
-        progress = []
-        current_sum = 0
-        for date, money in zip(time_sum[0], time_sum[1]):
-            current_sum += money
-            progress.append(current_sum / (project_dict['total_num'] * project_dict['price']))
-        return progress
 
     @staticmethod
     def get_progress_page(progress, page_number):
@@ -207,9 +179,9 @@ class Statistics(object):
                  'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                  + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
                  + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                 'Period:    ' + dt.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
-                 + dt.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
-                 'Report Date:    ' + dt.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
+                 'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
+                 + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
+                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
         pp.savefig(Statistics.get_briefing_page(lines, page_number))
         page_number += 1
         if d['donate_history']:
@@ -226,6 +198,60 @@ class Statistics(object):
 
     @staticmethod
     def get_regional_dist(d):
+        # Get regional distribution of donation.
+        # Takes: project_dict or user_dict
+        # Returns: [region_list, ratio_list]
+        regional_dist_dict = {}
+        if 'pid' in d:
+            for uid, sub_dict in d['donate_history'].items():
+                user_dict = Statistics.get_user_dict(uid)
+                region = rid2region(user_dict['region'])
+                user_num_sum = 0
+                for timestamp, num in sub_dict.items():
+                    user_num_sum += num
+                user_ratio = user_num_sum / d['current_num']
+                if region in regional_dist_dict.keys():
+                    regional_dist_dict[region] += user_ratio
+                else:
+                    regional_dist_dict[region] = user_ratio
+        else:
+            if d['type'] == 1:
+                projects_sum = 0
+                for pid, sub_dict in d['donate_history'].items():
+                    project_dict = Statistics.get_project_dict(pid)
+                    projects_sum += project_dict['current_num'] * project_dict['price']
+                    for uid, sub_sub_dict in sub_dict.items():
+                        user_dict = Statistics.get_user_dict(uid)
+                        region = rid2region(user_dict['region'])
+                        user_sum = 0
+                        for timestamp, num in sub_sub_dict.items():
+                            user_sum += num * project_dict['price']
+                        if region in regional_dist_dict.keys():
+                            regional_dist_dict[region] += user_sum
+                        else:
+                            regional_dist_dict[region] = user_sum
+                for key in regional_dist_dict.keys():
+                    regional_dist_dict[key] = regional_dist_dict[key] / projects_sum
+            else:
+                overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
+                for pid, sub_dict in d['donate_history'].items():
+                    project_dict = Statistics.get_project_dict(pid)
+                    region = rid2region(project_dict['region'])
+                    project_num_sum = 0
+                    for timestamp, num in sub_dict.items():
+                        project_num_sum += num
+                    project_ratio = project_num_sum * project_dict['price'] / overall_sum
+                    if region in regional_dist_dict.keys():
+                        regional_dist_dict[region] += project_ratio
+                    else:
+                        regional_dist_dict[region] = project_ratio
+        regional_dist = sorted(regional_dist_dict.items(), key=lambda x: x[1], reverse=True)
+        region_list, ratio_list = zip(*regional_dist)
+        regional_dist = [region_list, ratio_list]
+        return regional_dist
+
+    @staticmethod
+    def m_get_regional_dist(d):
         # Get regional distribution of donation.
         # Takes: project_dict or user_dict
         # Returns: [region_list, ratio_list]
@@ -308,16 +334,31 @@ class Statistics(object):
 
     @staticmethod
     def get_history(d, days):
-        data = []
+        series = []
         for pid, sub_dict in d['donate_history'].items():
-            _, history_data = Statistics.get_monthly_sum(Statistics.get_project_dict(pid))[1]
-            fixed_data = []
-            for i in history_data:
-                if i == 0:
-                    fixed_data.append("")
+            sum_num = {}
+            price = Statistics.get_project_dict(pid)['price']
+            for uid, u_his in sub_dict.items():
+                for timestamp, num in u_his.items():
+                    day = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                    if day in sum_num.keys():
+                        sum_num[day] += num * price
+                    else:
+                        sum_num[day] = num * price
+
+            end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+            end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+            start = Statistics.get_latest(d)
+            delta = dt.timedelta(days=1)
+            history = []
+            while start < end_ym:
+                money = sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
+                if money == 0:
+                    history.append("")
                 else:
-                    fixed_data.append("%.2f" % i)
-            sub_data = {
+                    history.append("%.2f" % money)
+                start += delta
+            data = {
                 'name': Statistics.get_project_dict(pid)['title'],
                 'type': 'bar',
                 'stack': 'total',
@@ -327,30 +368,66 @@ class Statistics(object):
                 'emphasis': {
                     'focus': 'series'
                 },
-                'data': fixed_data[-days:]
+                'data': history[-days:]
             }
-            data.append(sub_data)
-        return data
+            series.append(data)
+        return series
 
+    @staticmethod
+    def get_latest(d):
+        latest = 2147483648
+        for pid, no_matter in d['donate_history'].items():
+            start = Statistics.get_project_dict(pid)['start_time']
+            if start < latest:
+                latest = start
+        latest = datetime.fromtimestamp(latest).strftime('%Y%m%d')
+        return datetime(int(latest[:4]), int(latest[4:6]), int(latest[6:]))
+
+    @staticmethod
+    def get_time_line(d):
+        time_line = []
+        start = Statistics.get_latest(d)
+        end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+        end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+        delta = dt.timedelta(days=1)
+        while start < end_ym:
+            time_line.append(start.strftime('%Y%m%d'))
+            start += delta
+        return time_line
 
     @staticmethod
     def get_monthly_progress(d, days):
         series = []
         for pid, sub_dict in d['donate_history'].items():
-            new_data = []
-            data_list = Statistics.get_progress(Statistics.get_project_dict(pid))
-            for i in data_list:
-                new_data.append("%.2f" % i)
+            sum_num = {}
+            for uid, u_his in sub_dict.items():
+                for timestamp, num in u_his.items():
+                    day = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                    if day in sum_num.keys():
+                        sum_num[day] += num
+                    else:
+                        sum_num[day] = num
+
+            end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+            end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+            start = Statistics.get_latest(d)
+            delta = dt.timedelta(days=1)
+            current_num = 0
+            progress = []
+            while start < end_ym:
+                current_num += sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
+                if current_num == 0:
+                    progress.append("")
+                else:
+                    progress.append("%.2f" % (current_num / Statistics.get_project_dict(pid)['total_num'] * 100))
+                start += delta
             data = {
                 'name': Statistics.get_project_dict(pid)['title'],
                 'type': 'line',
-                'data': new_data[-days:]
+                'data': progress[-days:]
             }
             series.append(data)
         return series
-
-
-
 
     @staticmethod
     def get_user_report(uid):
@@ -379,8 +456,8 @@ class Statistics(object):
                  'Location:    ' + rid2region(d['region']),
                  'Currency:    ' + d['currency_type'],
                  'Total Donation:    ' + str(round(overall_sum, 2)) + ' GBP',
-                 'Registration Date:    ' + dt.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
-                 'Report Date:    ' + dt.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
+                 'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
+                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
         pp.savefig(Statistics.get_briefing_page(lines, page_number))
         page_number += 1
         if d['donate_history']:
@@ -411,8 +488,8 @@ class Statistics(object):
                          'Progress:    ' + str(round(overall_sum, 2)) + ' / '
                          + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' GBP '
                          + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                         'Period:    ' + dt.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
-                         + dt.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
+                         'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
+                         + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
                 pp.savefig(Statistics.get_briefing_page(lines, page_number))
                 page_number += 1
                 if pid in d['donate_history']:

@@ -82,6 +82,8 @@ def get_stat(request, user):
         days = 7
     elif op == 'all':
         days = 0
+    elif op == 'half month':
+        days = 15
     if pid:
         project = DProject.get_project({'pid': pid})
         if not project:
@@ -91,9 +93,9 @@ def get_stat(request, user):
         d = Statistics.get_project_dict(pid)
     else:
         d = Statistics.get_user_dict(user.uid)
-    overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
     # progress = Statistics.get_progress(d) if pid else {}
-    regional_dist = Statistics.get_regional_dist(d)
+    time_line = Statistics.get_time_line(d)
+    regional_dist = Statistics.m_get_regional_dist(d)
     project_name = Statistics.get_project_name(d)
     progress = Statistics.get_monthly_progress(d, days)
     # stat = {'overall_sum': overall_sum,
@@ -103,19 +105,19 @@ def get_stat(request, user):
     progress_data = []
     if len(regional_dist[0]) < 8:
         for name, value in zip(regional_dist[0], regional_dist[1]):
-            progress_data.append({'value': value, 'name': name})
+            progress_data.append({'value': "%.2f" % value, 'name': name})
     else:
         i = 0;
         other_value = 0
         for name, value in zip(regional_dist[0], regional_dist[1]):
             if i < 8:
-                progress_data.append({'value': value, 'name': name})
+                progress_data.append({'value': "%.2f" % value, 'name': name})
                 i += 1
             else:
                 other_value += value
-        progress_data.append({'value': other_value, 'name': 'Others'})
+        progress_data.append({'value': "%.2f" % other_value, 'name': 'Others'})
 
-    final_date = monthly_sum[0][-days:]
+    final_date = time_line[-days:]
     final_progress = progress
     final_history = Statistics.get_history(d, days)
 

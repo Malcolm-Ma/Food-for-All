@@ -12,7 +12,7 @@ export default () => {
   useEffect(async () => {
     const res = await actions.getStat({
       pid: "",
-      op: "all"
+      op: "half month"
     });
     setData(res.stat);
   }, []);
