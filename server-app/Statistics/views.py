@@ -74,6 +74,14 @@ def get_stat(request, user):
     """
     data = json.loads(request.body)
     pid = data['pid']
+    op = data['op']
+    days = 0
+    if op == 'monthly':
+        days = 30
+    elif op == 'weekly':
+        days = 7
+    elif op == 'all':
+        days = 0
     if pid:
         project = DProject.get_project({'pid': pid})
         if not project:
@@ -87,7 +95,7 @@ def get_stat(request, user):
     # progress = Statistics.get_progress(d) if pid else {}
     regional_dist = Statistics.get_regional_dist(d)
     project_name = Statistics.get_project_name(d)
-    progress = Statistics.get_monthly_progress(d)
+    progress = Statistics.get_monthly_progress(d, days)
     # stat = {'overall_sum': overall_sum,
     #         'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
     #         'progress': dict(zip(progress[0], progress[1])) if pid else {},
@@ -106,6 +114,10 @@ def get_stat(request, user):
             else:
                 other_value += value
         progress_data.append({'value': other_value, 'name': 'Others'})
+
+    final_date = monthly_sum[0][-days:]
+    final_progress = progress
+    final_history = Statistics.get_history(d, days)
 
 
     stat = {
@@ -133,7 +145,7 @@ def get_stat(request, user):
             'xAxis': {
                 'type': 'category',
                 'boundaryGap': 'false',
-                'data': monthly_sum[0]
+                'data': final_date
             },
             'yAxis': {
                 'type': 'value',
@@ -141,9 +153,9 @@ def get_stat(request, user):
                     'show': 'true',
                     'formatter': '{value}%',
                 },
-                'show': True
+                'show': 'true'
             },
-            'series': progress
+            'series': final_progress
         },
         '1': {
             'title': {
@@ -197,9 +209,9 @@ def get_stat(request, user):
             },
             'yAxis': {
                 'type': 'category',
-                'data': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                'data': final_date
             },
-            'series': Statistics.get_history(d)
+            'series': final_history
         }
 
     }

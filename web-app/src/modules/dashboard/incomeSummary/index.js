@@ -11,9 +11,9 @@ export default () => {
 
   useEffect(async () => {
     const res = await actions.getStat({
-      pid: ""
+      pid: "",
+      op: "all"
     });
-    console.log(res.stat);
     setData(res.stat);
   }, []);
 
