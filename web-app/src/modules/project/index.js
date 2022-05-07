@@ -130,7 +130,7 @@ export default (props) => {
     <div className="project">
       <Box>
         <Container>
-          <Typography variant="h4" sx={{ mb: 5 }}>
+          <Typography variant="h4">
             ProjectList
           </Typography>
         </Container>
