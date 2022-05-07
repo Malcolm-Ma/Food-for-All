@@ -85,6 +85,14 @@ export default [
     exact: true,
   },
   {
+    path: '/payFailed',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'payFiled' */ /* webpackMode: 'lazy' */ 'src/modules/payFailed/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
     path: '/donation/:pid',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'donation' */ /* webpackMode: 'lazy' */ 'src/modules/donation/index.js'),

@@ -53,3 +53,7 @@ export const register = params => api.post(apiConfig.register, params);
 export const logout = params => api.get(apiConfig.logout, params);
 
 export const editUser = params => api.post(apiConfig.editUser, params);
+
+export const payByDonator = params => api.post(apiConfig.payByDonator, params);
+
+export const capturePayment = params => api.post(apiConfig.capturePayment, params);

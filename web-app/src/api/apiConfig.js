@@ -27,4 +27,6 @@ export default {
   upLoadImg: '/upload_img/',
   ipInfo: 'https://geolocation-db.com/json/',
   regionToCurrency: '/region2currency/',
+  payByDonator:'/pay/',
+  capturePayment:'/capture_payment/',
 };
