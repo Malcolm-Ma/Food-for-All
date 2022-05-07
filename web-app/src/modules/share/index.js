@@ -69,7 +69,7 @@ export default (props) => {
         await actions.shareByEmail({
             "mail": [data.get('email01'), data.get('email02')],
             "project_name": _.get(sharedProject, 'title'),
-            "project_url": "http://127.0.0.1:3000/donation/"+_.get(sharedProject,'pid'),
+            "project_url": window.location.origin + "/donation/" + _.get(sharedProject,'pid'),
             "donate_num": _.get(sharedProject, 'current_num'),
             "if_hide_personal_information": hideStatus,
             "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
