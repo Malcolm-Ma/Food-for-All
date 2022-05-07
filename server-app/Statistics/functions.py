@@ -118,16 +118,34 @@ class Statistics(object):
         return fig
 
     @staticmethod
+    def get_sum(d):
+        sum_dict = {}
+        for uid, sub_dict in d['donate_history'].items():
+            for timestamp, num in sub_dict.items():
+                ym = dt.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                if ym in sum_dict.keys():
+                    sum_dict[ym] += num
+                else:
+                    sum_dict[ym] = num
+        return sum_dict
+
+    @staticmethod
     def get_progress(project_dict):
         # Get monthly progress of a project.
         # Returns: [year-month_list, progress_list]
-        overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+        # overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+        # current_sum = 0
+        # progress = []
+        # for i in range(len(monthly_sum[1])):
+        #     current_sum += monthly_sum[1][i]
+        #     progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
+        # progress = [monthly_sum[0], progress]
+        sum_num = Statistics.get_sum(project_dict)
         current_sum = 0
         progress = []
-        for i in range(len(monthly_sum[1])):
-            current_sum += monthly_sum[1][i]
-            progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
-        progress = [monthly_sum[0], progress]
+        for key in sum_num.keys():
+            current_sum += sum_num[key]
+            progress.append(current_sum / project_dict['total_num'])
         return progress
 
     @staticmethod
@@ -304,7 +322,7 @@ class Statistics(object):
         series = []
         for pid, sub_dict in d['donate_history'].items():
             new_data = []
-            data_list = Statistics.get_progress(Statistics.get_project_dict(pid))[1]
+            data_list = Statistics.get_progress(Statistics.get_project_dict(pid))
             for i in data_list:
                 new_data.append("%.2f" % i)
             data = {
