@@ -18,7 +18,7 @@ export class Api {
     this.codeStatus = _.reduce(STATUS_CODE, (result, value, key) => {
       result[value] = key;
       return result;
-    }, {})
+    }, {});
 
     this.axiosInstance.defaults.withCredentials = true;
 
@@ -28,7 +28,10 @@ export class Api {
         const { status, ...otherProps } = data;
 
         if (status !== 0) {
-          return Promise.reject({ status, name: this.codeStatus[status] })
+          if (status !== 100001) {
+            message.error('Error! ', this.codeStatus[status]);
+          }
+          return Promise.reject({ status, name: this.codeStatus[status] });
         }
 
         return otherProps;

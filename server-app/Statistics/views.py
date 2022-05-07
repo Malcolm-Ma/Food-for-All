@@ -12,16 +12,16 @@ def get_stat(request, user):
     @apiVersion 1.0.0
     @apiName get_stat
     @apiGroup Statistics
-    @apiDescription api to get statistics data for frontend dashboard
+    @apiDescription Get statistics data for frontend dashboard
 
-    @apiParam {String} pid Pid of the project (If get user's statistics data, just pass pid as "").
+    @apiParam {String} pid Leave blank to get data of the current user or specify a pid of any affiliated project.
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {Dict} stat Statistics data.
-    @apiSuccess (Success 200 return) {Int} overall_sum Overall sum of donation that charity receives.
-    @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation. e.g. '202205': 100
-    @apiSuccess (Success 200 return) {Dict} progress Statistics information. Monthly progress of a project. e.g. '202205': 0.5
-    @apiSuccess (Success 200 return) {Dict} regional_dist Statistics information. Regional distribution of donation. e.g. 'France': 0.1
+    @apiSuccess (Success 200 return) {Int} overall_sum Overall sum of donation.
+    @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation.
+    @apiSuccess (Success 200 return) {Dict} Monthly progress of a project.
+    @apiSuccess (Success 200 return) {Dict} Regional distribution of donation.
 
     @apiParamExample {Json} Sample Request
     {
@@ -233,10 +233,10 @@ def get_report(request, user):
     @apiGroup Statistics
     @apiDescription api to get statistics pdf report
 
-    @apiParam {String} pid Pid of the project (If get user's pdf report, just pass pid as "").
+    @apiParam {String} pid Leave blank to get report of the current user or specify a pid of any affiliated project.
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
-    @apiSuccess (Success 200 return) {String} url PDF report url.
+    @apiSuccess (Success 200 return) {String} url URL of report.
 
     @apiParamExample {Json} Sample Request
     {

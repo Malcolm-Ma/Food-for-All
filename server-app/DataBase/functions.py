@@ -134,7 +134,7 @@ def create_fake_project(uid, donate_history):
             donor_time = []
             t = max(user.regis_time, fake_project["start_time"])
             for i in range(donor_times):
-                t = random.randint(t, t + (fake_project["end_time"] - t) // (donor_times - i))
+                t = random.randint(t, t + (min(fake_project["end_time"], int(time.time())) - t) // (donor_times - i))
                 donor_time.append(t)
             project_donate_dict[donor_uid] = {}
             for i in range(donor_times):
