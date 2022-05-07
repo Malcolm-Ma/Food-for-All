@@ -12,8 +12,14 @@ random.seed(int(time.time()))
 Faker.seed(int(time.time()))
 fk = Faker(locale = 'en')
 
+def read_init_project_info():
+    with open(os.path.join(RESOURCE_DIR, "debug_init_project.csv"), "r", encoding="UTF-8") as f:
+        project_list = list(csv.reader(f))
+    return project_list
+
 resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "avatar")) if i.endswith(".jpg")],
-                 "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")]}
+                 "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")],
+                 "project_info": read_init_project_info()}
 
 def clear_database():
     DUser.objects.all().delete()
@@ -85,7 +91,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
     except:
         return create_fake_user(user_type_list=user_type_list)
 
-def create_fake_project(uid, donate_history):
+def create_fake_project(uid, donate_history, project_info):
     donate_history = copy.deepcopy(donate_history)
     user = DUser.get_user({"uid": uid})
     fake_project = {"pid": DProject.gen_pid(user.mail),
@@ -106,10 +112,10 @@ def create_fake_project(uid, donate_history):
                     "price": random.random() * 1.5 + 1.5,
                     "donate_history": "{}",
                     "status": random.choices(list(PROJECT_STATUS.values()), weights=[2, 12, 5, 1], k=1)[0]}
-    content = fk.texts(random.randint(3, 8))
-    fake_project["title"] = content[0][:random.randint(30, 50)]
-    fake_project["intro"] = content[0]
-    fake_project["details"] = "\n".join(content)
+    #content = fk.texts(random.randint(3, 8))
+    fake_project["title"] = (project_info[0] + "_" + fake_project["pid"][:8])[:256]#content[0][:random.randint(30, 50)]
+    fake_project["intro"] = project_info[1][:256]#content[0]
+    fake_project["details"] = project_info[2]#"\n".join(content)
     project_donate_dict = {}
     if fake_project["status"] == PROJECT_STATUS["prepare"]:
         fake_project["current_num"] = 0
@@ -178,6 +184,8 @@ def create_fake_project(uid, donate_history):
     return donate_history
 
 def init_database_with_fake_data(user_num=50, project_num=200):
+    global resource_file
+    resource_file["project_info"] = resource_file["project_info"] * (project_num // len(resource_file["project_info"]) + 1)
     for _ in range(5):
         clear_database()
         guest_list = []
@@ -197,7 +205,7 @@ def init_database_with_fake_data(user_num=50, project_num=200):
     for i in guest_list:
         donate_history[i] = {}
     for i in range(project_num):
-        donate_history = create_fake_project(owner_list[i], donate_history)
+        donate_history = create_fake_project(owner_list[i], donate_history, resource_file["project_info"][i])
     for donor_uid in donate_history:
         user = DUser.get_user({"uid": donor_uid})
         user.donate_history = str(donate_history[donor_uid])
