@@ -52,7 +52,7 @@ const columnsConfig = (payloads) => {
             dataIndex: 'title',
             width: 200,
             fixed: 'left',
-            render: text => <a>{text}</a>,
+            render: (text, record) => <a href={`/donation/${record.pid}`}>{text}</a>,
         },
         {
             title: 'Introduction',

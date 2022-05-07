@@ -66,16 +66,21 @@ export default (props) => {
       setDialogText("Thank you for sharing。")
     }
     let hideStatus = 0;
-    if (data.get('hide') === 'on')
+    if (data.get('hide') === 'on') {
       hideStatus = 1;
-    await actions.shareByEmail({
-      "mail": [data.get('email01'), data.get('email02')],
-      "project_name": _.get(sharedProject, 'title'),
-      "project_url": window.location.origin + "/donation/" + _.get(sharedProject, 'pid'),
-      "donate_num": _.get(sharedProject, 'current_num'),
-      "if_hide_personal_information": hideStatus,
-      "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
-    });
+    }
+    try {
+      await actions.shareByEmail({
+        "mail": [data.get('email01'), data.get('email02')],
+        "project_name": _.get(sharedProject, 'title'),
+        "project_url": window.location.origin + "/donation/" + _.get(sharedProject, 'pid'),
+        "donate_num": _.get(decodeToken, 'donation_count'),
+        "if_hide_personal_information": hideStatus,
+        "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
+      });
+    } catch (e) {
+      message.error(e.name);
+    }
   };
 
   const handleClose = () => {
