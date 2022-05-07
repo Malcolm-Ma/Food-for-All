@@ -20,6 +20,7 @@ const Layout = (props) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const userInfo = useSelector(state => state.user.userInfo);
+  const regionInfo = useSelector(state => state.global.regionInfo);
 
   const { pathname } = location;
 
@@ -34,8 +35,8 @@ const Layout = (props) => {
   }, [dispatch]);
 
   const initStatus = useMemo(() => {
-    return !_.isNil(_.get(userInfo, 'isLoggedIn'));
-  }, [userInfo]);
+    return !_.isNil(_.get(userInfo, 'isLoggedIn')) && !_.isEmpty(regionInfo);
+  }, [regionInfo, userInfo]);
 
   return (
     <div className="ffa-frame">
