@@ -66,36 +66,37 @@ export default (props) => {
         //error email set
         let email01 = data.get('email01');
         let email02 = data.get('email02');
-        if (!(/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(email01)) && email01 !== '')
+        const regStr = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        if (!(regStr.test(email01)) && email01 !== '') {
             setErrorEmail01(true);
-        else setErrorEmail01(false);
-        if (!(/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(email02)) && email02 !== '')
+        } else setErrorEmail01(false);
+        if (!(regStr.test(email02)) && email02 !== '') {
             setErrorEmail02(true);
-        else setErrorEmail02(false);
-        if (errorEmail01 || errorEmail02) {
-            setDialogText('Your email is in the wrong format, please re-enter it.')
+        } else setErrorEmail02(false);
+        if ((!(regStr.test(email01)) && email01 !== '') || ((!regStr.test(email02)) && email02 !== '')) {
+            setDialogText('Your email is in the wrong format, please re-enter it.');
+            return;
+        }
+        if (data.get('email01') === '' && data.get('email02') === '') {
+            setDialogText("Are you sure you don't want to share the project with others?")
         } else {
-            if (data.get('email01') === '' && data.get('email02') === '') {
-                setDialogText("Are you sure you don't want to share the project with others?")
-            } else {
-                setDialogText("Thank you for sharing。")
-            }
-            let hideStatus = 0;
-            if (data.get('hide') === 'on') {
-                hideStatus = 1;
-            }
-            try {
-                await actions.shareByEmail({
-                    "mail": [data.get('email01'), data.get('email02')],
-                    "project_name": _.get(sharedProject, 'title'),
-                    "project_url": window.location.origin + "/donation/" + _.get(sharedProject, 'pid'),
-                    "donate_num": _.get(decodeToken, 'donation_count'),
-                    "if_hide_personal_information": hideStatus,
-                    "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
-                });
-            } catch (e) {
-                message.error(e.name);
-            }
+            setDialogText("Thank you for sharing.")
+        }
+        let hideStatus = 0;
+        if (data.get('hide') === 'on') {
+            hideStatus = 1;
+        }
+        try {
+            await actions.shareByEmail({
+                "mail": [data.get('email01'), data.get('email02')],
+                "project_name": _.get(sharedProject, 'title'),
+                "project_url": window.location.origin + "/donation/" + _.get(sharedProject, 'pid'),
+                "donate_num": _.get(decodeToken, 'donation_count'),
+                "if_hide_personal_information": hideStatus,
+                "user_name": _.get(decodeToken, 'first_name') + " " + _.get(decodeToken, 'last_name')
+            });
+        } catch (e) {
+            message.error(e.name);
         }
     };
 
@@ -103,12 +104,14 @@ export default (props) => {
         setOpen(false);
     };
     const handleOk = () => {
+        if (errorEmail01 || errorEmail01) {
+            setOpen(false);
+            return;
+        }
         setTimeout(() => {
             setOpen(false);
-            if (!(errorEmail01 || errorEmail01)) {
-                navigate('/project');
-            }
-        }, 500);
+            navigate('/project');
+        }, 200);
 
     }
 
