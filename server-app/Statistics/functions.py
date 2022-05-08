@@ -333,7 +333,7 @@ class Statistics(object):
         return name
 
     @staticmethod
-    def get_history(d, days):
+    def get_history(d):
         series = []
         for pid, sub_dict in d['donate_history'].items():
             sum_num = {}
@@ -368,7 +368,7 @@ class Statistics(object):
                 'emphasis': {
                     'focus': 'series'
                 },
-                'data': history[-days:]
+                'data': history
             }
             series.append(data)
         return series
@@ -396,7 +396,7 @@ class Statistics(object):
         return time_line
 
     @staticmethod
-    def get_monthly_progress(d, days):
+    def get_monthly_progress(d):
         series = []
         for pid, sub_dict in d['donate_history'].items():
             sum_num = {}
@@ -429,7 +429,7 @@ class Statistics(object):
             data = {
                 'name': Statistics.get_project_dict(pid)['title'],
                 'type': 'line',
-                'data': progress[-days:]
+                'data': progress
             }
             series.append(data)
         return series

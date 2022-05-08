@@ -74,16 +74,6 @@ def get_stat(request, user):
     """
     data = json.loads(request.body)
     pid = data['pid']
-    op = data['op']
-    days = 0
-    if op == 'month':
-        days = 30
-    elif op == 'week':
-        days = 7
-    elif op == 'all':
-        days = 0
-    elif op == 'half month':
-        days = 15
     if pid:
         project = DProject.get_project({'pid': pid})
         if not project:
@@ -97,11 +87,8 @@ def get_stat(request, user):
     time_line = Statistics.get_time_line(d)
     regional_dist = Statistics.m_get_regional_dist(d)
     project_name = Statistics.get_project_name(d)
-    progress = Statistics.get_monthly_progress(d, days)
-    # stat = {'overall_sum': overall_sum,
-    #         'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
-    #         'progress': dict(zip(progress[0], progress[1])) if pid else {},
-    #         'regional_dist': dict(zip(regional_dist[0], regional_dist[1]))}
+    progress = Statistics.get_monthly_progress(d)
+
     progress_data = []
     if len(regional_dist[0]) < 8:
         for name, value in zip(regional_dist[0], regional_dist[1]):
@@ -117,106 +104,14 @@ def get_stat(request, user):
                 other_value += value
         progress_data.append({'value': "%.2f" % other_value, 'name': 'Others'})
 
-    final_date = time_line[-days:]
-    final_progress = progress
-    final_history = Statistics.get_history(d, days)
-
-
     stat = {
-        '0': {
-            'title': {
-                'text': 'Donation Line'
-            },
-            'tooltip': {
-                'trigger': 'axis'
-            },
-            'legend': {
-                'data': project_name
-            },
-            'grid': {
-                'left': '3%',
-                'right': '4%',
-                'bottom': '3%',
-                'containLabel': 'true'
-            },
-            'toolbox': {
-                'feature': {
-                    'saveAsImage': {}
-                }
-            },
-            'xAxis': {
-                'type': 'category',
-                'boundaryGap': 'false',
-                'data': final_date
-            },
-            'yAxis': {
-                'type': 'value',
-                'axisLabel': {
-                    'show': 'true',
-                    'formatter': '{value}%',
-                },
-                'show': 'true'
-            },
-            'series': final_progress
-        },
-        '1': {
-            'title': {
-                'text': 'Donation Location',
-                'left': 'center'
-            },
-            'tooltip': {
-                'trigger': 'item'
-            },
-            'legend': {
-                'type': 'scroll',
-                'orient': 'vertical',
-                'left': 'left'
-            },
-            'series': [
-                {
-                    'name': 'Access From',
-                    'type': 'pie',
-                    'radius': '50%',
-                    'data': progress_data,
-                    'emphasis': {
-                        'itemStyle': {
-                            'shadowBlur': 10,
-                            'shadowOffsetX': 0,
-                            'shadowColor': 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
-
-                }
-            ]
-        },
-        '2': {
-            'title': {
-                'text': 'Donation History'
-            },
-            'tooltip': {
-                'trigger': 'axis',
-                'axisPointer': {
-                    'type': 'shadow'
-                }
-            },
-            'legend': {},
-            'grid': {
-                'left': '3%',
-                'right': '4%',
-                'bottom': '3%',
-                'containLabel': 'true'
-            },
-            'xAxis': {
-                'type': 'value'
-            },
-            'yAxis': {
-                'type': 'category',
-                'data': final_date
-            },
-            'series': final_history
-        }
-
+        'date': time_line,
+        'title': project_name,
+        'pie': progress_data,
+        'progress': progress,
+        'history': Statistics.get_history(d)
     }
+
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 
