@@ -9,7 +9,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Avatar from 'src/layout/Avatar';
 
-const theme2C = createTheme({
+const theme = createTheme({
   status: {
     danger: '#e53e3e',
   },
@@ -29,8 +29,6 @@ const theme2C = createTheme({
   },
 });
 
-const theme2B = createTheme();
-
 const Header = (props) => {
   const { toC } = props;
 
@@ -39,8 +37,8 @@ const Header = (props) => {
   const navigate = useNavigate();
 
   return (
-    <ThemeProvider theme={toC ? theme2C : theme2B}>
-      <AppBar className="frame-nav" position="fixed" color="secondary">
+    <ThemeProvider theme={theme}>
+      <AppBar className="frame-nav" position="sticky" color={toC ? 'secondary' : 'primary'}>
         <Toolbar>
           <Typography
             variant="h6"
