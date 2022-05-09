@@ -2,6 +2,7 @@
  * @file utils for encode password
  * @author Mingze Ma
  */
+
 import _ from "lodash";
 
 export const ENCODE_KEY = '85';
