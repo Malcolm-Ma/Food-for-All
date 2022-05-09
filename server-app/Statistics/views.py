@@ -83,13 +83,35 @@ def get_stat(request, user):
         d = Statistics.get_project_dict(pid)
     else:
         d = Statistics.get_user_dict(user.uid)
-    overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-    progress = Statistics.get_progress(d) if pid else {}
-    regional_dist = Statistics.get_regional_dist(d)
-    stat = {'overall_sum': overall_sum,
-            'monthly_sum': dict(zip(monthly_sum[0], monthly_sum[1])),
-            'progress': dict(zip(progress[0], progress[1])) if pid else {},
-            'regional_dist': dict(zip(regional_dist[0], regional_dist[1]))}
+    # progress = Statistics.get_progress(d) if pid else {}
+    time_line = Statistics.get_time_line(d)
+    regional_dist = Statistics.m_get_regional_dist(d)
+    project_name = Statistics.get_project_name(d)
+    progress = Statistics.get_monthly_progress(d)
+
+    progress_data = []
+    if len(regional_dist[0]) < 8:
+        for name, value in zip(regional_dist[0], regional_dist[1]):
+            progress_data.append({'value': "%.2f" % value, 'name': name})
+    else:
+        i = 0;
+        other_value = 0
+        for name, value in zip(regional_dist[0], regional_dist[1]):
+            if i < 8:
+                progress_data.append({'value': "%.2f" % value, 'name': name})
+                i += 1
+            else:
+                other_value += value
+        progress_data.append({'value': "%.2f" % other_value, 'name': 'Others'})
+
+    stat = {
+        'date': time_line,
+        'title': project_name,
+        'pie': progress_data,
+        'progress': progress,
+        'history': Statistics.get_history(d)
+    }
+
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 
