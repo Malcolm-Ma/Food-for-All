@@ -46,7 +46,7 @@ def login(request):
         data = json.loads(request.body)
         mail = data["username"]
         password = data["password"]
-        #password = decode_password(password)
+        password = decode_password(password)
         user = DUser.get_user({"mail": mail})
         if not user:
             raise ServerError("invalid username")
@@ -163,8 +163,8 @@ def regis(request):
         for i in ("type", "region", "currency_type", "name", "avatar", "hide"):
             if i in data:
                 create_info[i] = data[i]
-        # create_info["password"] = decode_password(data["password"])
-        create_info["password"] = make_password(data["password"])
+        create_info["password"] = decode_password(data["password"])
+        create_info["password"] = make_password(create_info["password"])
         try:
             DUser.create(create_info)
         except ServerError as se:
