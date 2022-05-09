@@ -1,6 +1,7 @@
 from Common.common import rid2region
 from DataBase.models import DProject
 from DataBase.models import DUser
+import datetime as dt
 from datetime import datetime
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -115,6 +116,18 @@ class Statistics(object):
             progress.append(current_sum / project_dict['total_num'] / project_dict['price'])
         progress = [monthly_sum[0], progress]
         return progress
+
+    @staticmethod
+    def get_sum_num(d):
+        sum_dict = {}
+        for uid, sub_dict in d['donate_history'].items():
+            for timestamp, num in sub_dict.items():
+                ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                if ym in sum_dict.keys():
+                    sum_dict[ym] += num
+                else:
+                    sum_dict[ym] = num
+        return sum_dict
 
     @staticmethod
     def get_progress_page(progress, page_number):
@@ -238,6 +251,60 @@ class Statistics(object):
         return regional_dist
 
     @staticmethod
+    def m_get_regional_dist(d):
+        # Get regional distribution of donation.
+        # Takes: project_dict or user_dict
+        # Returns: [region_list, ratio_list]
+        regional_dist_dict = {}
+        if 'pid' in d:
+            for uid, sub_dict in d['donate_history'].items():
+                user_dict = Statistics.get_user_dict(uid)
+                region = rid2region(user_dict['region'])
+                user_num_sum = 0
+                for timestamp, num in sub_dict.items():
+                    user_num_sum += num
+                user_ratio = user_num_sum
+                if region in regional_dist_dict.keys():
+                    regional_dist_dict[region] += user_ratio
+                else:
+                    regional_dist_dict[region] = user_ratio
+        else:
+            if d['type'] == 1:
+                projects_sum = 0
+                for pid, sub_dict in d['donate_history'].items():
+                    project_dict = Statistics.get_project_dict(pid)
+                    projects_sum += project_dict['current_num'] * project_dict['price']
+                    for uid, sub_sub_dict in sub_dict.items():
+                        user_dict = Statistics.get_user_dict(uid)
+                        region = rid2region(user_dict['region'])
+                        user_sum = 0
+                        for timestamp, num in sub_sub_dict.items():
+                            user_sum += num * project_dict['price']
+                        if region in regional_dist_dict.keys():
+                            regional_dist_dict[region] += user_sum
+                        else:
+                            regional_dist_dict[region] = user_sum
+                for key in regional_dist_dict.keys():
+                    regional_dist_dict[key] = regional_dist_dict[key]
+            else:
+                overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
+                for pid, sub_dict in d['donate_history'].items():
+                    project_dict = Statistics.get_project_dict(pid)
+                    region = rid2region(project_dict['region'])
+                    project_num_sum = 0
+                    for timestamp, num in sub_dict.items():
+                        project_num_sum += num
+                    project_ratio = project_num_sum * project_dict['price']
+                    if region in regional_dist_dict.keys():
+                        regional_dist_dict[region] += project_ratio
+                    else:
+                        regional_dist_dict[region] = project_ratio
+        regional_dist = sorted(regional_dist_dict.items(), key=lambda x: x[1], reverse=True)
+        region_list, ratio_list = zip(*regional_dist)
+        regional_dist = [region_list, ratio_list]
+        return regional_dist
+
+    @staticmethod
     def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum):
         if n_donor == 1:
             text = '1 donor has donated ' + str(overall_sum) + ' GBP to this project.'
@@ -257,6 +324,115 @@ class Statistics(object):
         duser = DUser()
         user = duser.get_user({'uid': uid})
         return user.to_dict()
+
+    @staticmethod
+    def get_project_name(d):
+        name = []
+        for pid, sub_dict in d['donate_history'].items():
+            name.append(Statistics.get_project_dict(pid)['title'])
+        return name
+
+    @staticmethod
+    def get_history(d):
+        series = []
+        for pid, sub_dict in d['donate_history'].items():
+            sum_num = {}
+            price = Statistics.get_project_dict(pid)['price']
+            for uid, u_his in sub_dict.items():
+                for timestamp, num in u_his.items():
+                    day = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                    if day in sum_num.keys():
+                        sum_num[day] += num * price
+                    else:
+                        sum_num[day] = num * price
+
+            end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+            end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+            start = Statistics.get_latest(d)
+            delta = dt.timedelta(days=1)
+            history = []
+            while start < end_ym:
+                money = sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
+                if money == 0:
+                    history.append("")
+                else:
+                    history.append("%.2f" % money)
+                start += delta
+            data = {
+                'name': Statistics.get_project_dict(pid)['title'],
+                'type': 'bar',
+                'stack': 'total',
+                'label': {
+                    'show': 'true'
+                },
+                'emphasis': {
+                    'focus': 'series'
+                },
+                'data': history
+            }
+            series.append(data)
+        return series
+
+    @staticmethod
+    def get_latest(d):
+        latest = 2147483648
+        for pid, no_matter in d['donate_history'].items():
+            start = Statistics.get_project_dict(pid)['start_time']
+            if start < latest:
+                latest = start
+        latest = datetime.fromtimestamp(latest).strftime('%Y%m%d')
+        return datetime(int(latest[:4]), int(latest[4:6]), int(latest[6:]))
+
+    @staticmethod
+    def get_time_line(d):
+        time_line = []
+        start = Statistics.get_latest(d)
+        end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+        end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+        delta = dt.timedelta(days=1)
+        while start < end_ym:
+            time_line.append(start.strftime('%Y/%m/%d'))
+            start += delta
+        return time_line
+
+    @staticmethod
+    def get_monthly_progress(d):
+        series = []
+        for pid, sub_dict in d['donate_history'].items():
+            sum_num = {}
+            for uid, u_his in sub_dict.items():
+                for timestamp, num in u_his.items():
+                    day = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                    if day in sum_num.keys():
+                        sum_num[day] += num
+                    else:
+                        sum_num[day] = num
+
+            end_ym = datetime.fromtimestamp(time.time()).strftime('%Y%m%d')
+            end_ym = datetime(int(end_ym[:4]), int(end_ym[4:6]), int(end_ym[6:]))
+            start = Statistics.get_latest(d)
+            delta = dt.timedelta(days=1)
+            current_num = 0
+            progress = []
+            finished = False
+            while start < end_ym:
+                current_num += sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
+                if current_num == 0 or finished:
+                    progress.append("")
+                elif current_num == Statistics.get_project_dict(pid)['total_num']:
+                    progress.append(100)
+                    finished = True
+                else:
+                    # progress.append(current_num)
+                    progress.append("%.2f" % (current_num / Statistics.get_project_dict(pid)['total_num'] * 100))
+                start += delta
+            data = {
+                'name': Statistics.get_project_dict(pid)['title'],
+                'type': 'line',
+                'data': progress
+            }
+            series.append(data)
+        return series
 
     @staticmethod
     def get_user_report(uid):

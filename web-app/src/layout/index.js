@@ -43,7 +43,7 @@ const Layout = (props) => {
       {
         initStatus
           ? <>
-            <Header />
+            <Header toC={!sidebarShowingStatus} />
             <AntdLayout className={
               classNames({
                 'frame-content-with-sidebar': (sidebarShowingStatus && _.get(userInfo, 'type', 2) === 1),

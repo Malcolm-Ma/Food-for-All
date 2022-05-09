@@ -18,6 +18,8 @@ const Sidebar = (props) => {
 
   const [selectedKey, setSelectKey] = useState(DEFAULT_SELECTED_KEYS);
 
+  const [broken, setBroken] = useState(false);
+
   useEffect(() => {
     setSelectKey(pathname);
   }, [pathname]);
@@ -27,7 +29,14 @@ const Sidebar = (props) => {
   }, []);
 
   return (
-    <Sider className="frame-sidebar" width={200}>
+    <Sider
+      className="frame-sidebar"
+      width={200}
+      breakpoint="xs"
+      theme="light"
+      style={{ paddingTop: broken ? '56px' : '64px' }}
+      onBreakpoint={(broken) => setBroken(broken)}
+    >
       <Menu
         mode="inline"
         defaultSelectedKeys={[DEFAULT_SELECTED_KEYS]}
