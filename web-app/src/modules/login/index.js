@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from "react";
 import { message } from 'antd';
 
 import actions from "src/actions";
+import { encode } from 'src/utils/encodePassword';
 
 const theme = createTheme();
 
@@ -45,11 +46,13 @@ export default (props) => {
       email: data.get('email'),
       password: data.get('password'),
     });
+    // encode password for security
+    const password = encode(data.get('password'));
     try {
       // call login api
       const res = await dispatch(actions.login({
         username: data.get('email'),
-        password: data.get('password'),
+        password,
       }));
       // Success actions
       if (_.get(res, 'uid', null)) {
