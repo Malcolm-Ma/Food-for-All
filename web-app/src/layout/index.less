@@ -29,6 +29,14 @@
   z-index: 900 !important;
 }
 
+@media screen and (max-width: 480px) {
+  .frame-content-with-sidebar {
+    .frame-content-main {
+      padding: 12px 12px 12px 92px !important;
+    }
+  }
+}
+
 .frame-content-with-sidebar {
   .frame-content-main {
     padding: 24px 24px 24px 224px;
@@ -43,7 +51,6 @@
 }
 
 .frame-sidebar {
-  padding-top: 64px;
   overflow: auto;
   height: 100vh;
   position: fixed !important;
