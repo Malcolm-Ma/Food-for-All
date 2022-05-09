@@ -64,7 +64,7 @@ export default (props) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Price of each meal"
+              label="Price per Meal"
             >
               <Descriptions>
                 <Descriptions.Item>
@@ -75,7 +75,7 @@ export default (props) => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Total price of meal"
+              label="Amount of Meals Donated"
             >
               <Descriptions>
                 <Descriptions.Item>
@@ -88,7 +88,7 @@ export default (props) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Donation number of meal"
+              label="Number of Meals Donated"
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'current_num')}</Descriptions.Item>
@@ -97,7 +97,7 @@ export default (props) => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Total number of meal"
+              label="Total Meals Due for Donation"
             >
               <Descriptions>
                 <Descriptions.Item>{_.get(detailInfo, 'total_num')}</Descriptions.Item>
@@ -132,7 +132,7 @@ export default (props) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Region"
+              label="Country / Region"
             >
               <Descriptions>
                 <Descriptions.Item>{
@@ -150,7 +150,7 @@ export default (props) => {
           </Col>
           <Col span={12}>
             <Form.Item
-              name="progress"
+              name="Donation Progress"
               label="Progress"
             >
               <Progress percent={percent} width={60} />
