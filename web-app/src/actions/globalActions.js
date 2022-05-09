@@ -92,3 +92,5 @@ export const getRegionInfo = () => async (dispatch) => {
 
 export const uploadImage = params => api.post(apiConfig.upLoadImg, params);
 
+export const getStat = params => api.post(apiConfig.getStat, params);
+

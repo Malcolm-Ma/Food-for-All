@@ -127,70 +127,60 @@ export default (props) => {
   }, [dispatch, getProjectList]);
 
   return (
-    <div className="project">
-      <Box>
-        <Container>
-          <Typography variant="h4">
-            ProjectList
-          </Typography>
-        </Container>
-        <Stack
-            direction="row"
-            flexWrap="wrap-reverse"
-            alignItems="center"
-            justifyContent="flex-end"
-            sx={{ px: 21, mb: 5 }}
+    <Container className="project">
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        sx={{ pb: 4 }}
+      >
+        <Typography variant="h4">Choose a Project</Typography>
+        <Button
+          id="demo-customized-button"
+          aria-controls={open ? 'demo-customized-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          variant="contained"
+          disableElevation
+          onClick={handleClick}
+          endIcon={<KeyboardArrowDownIcon />}
         >
-          <Button
-              id="demo-customized-button"
-              aria-controls={open ? 'demo-customized-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
-              variant="contained"
-              disableElevation
-              onClick={handleClick}
-              endIcon={<KeyboardArrowDownIcon />}
-          >
-            Sort by
-          </Button>
-          <StyledMenu
-              id="demo-customized-menu"
-              MenuListProps={{
-                'aria-labelledby': 'demo-customized-button',
-              }}
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              onSubmit = {handleClose}
-          >
-            <MenuItem label="charity" id='charity' onClick={handleClose} disableRipple>
-              <PeopleIcon />
-              Charity
-            </MenuItem>
-            <MenuItem label="price" id='price' onClick={handleClose} disableRipple>
-              <CheckCircleOutlineIcon />
-              Price
-            </MenuItem>
-            <MenuItem label="start_time" id='start_time' onClick={handleClose} disableRipple>
-              <AccessTimeIcon />
-              Start Time
-            </MenuItem>
-            <MenuItem label="end_time" id='end_time' onClick={handleClose} disableRipple>
-              <AccessAlarmIcon />
-              End Time
-            </MenuItem>
-            <MenuItem label="title" id='title' onClick={handleClose} disableRipple>
-              <TitleIcon />
-              Title
-            </MenuItem>
-          </StyledMenu>
-        </Stack>
-        <Box>
-          <Container>
-            <ProjectList projects={_.get(projectInfo, 'projectInfo', [])} />
-          </Container>
-        </Box>
+          Sort by
+        </Button>
+        <StyledMenu
+          id="demo-customized-menu"
+          MenuListProps={{
+            'aria-labelledby': 'demo-customized-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          onSubmit = {handleClose}
+        >
+          <MenuItem label="charity" id='charity' onClick={handleClose} disableRipple>
+            <PeopleIcon />
+            Charity
+          </MenuItem>
+          <MenuItem label="price" id='price' onClick={handleClose} disableRipple>
+            <CheckCircleOutlineIcon />
+            Price
+          </MenuItem>
+          <MenuItem label="start_time" id='start_time' onClick={handleClose} disableRipple>
+            <AccessTimeIcon />
+            Start Time
+          </MenuItem>
+          <MenuItem label="end_time" id='end_time' onClick={handleClose} disableRipple>
+            <AccessAlarmIcon />
+            End Time
+          </MenuItem>
+          <MenuItem label="title" id='title' onClick={handleClose} disableRipple>
+            <TitleIcon />
+            Title
+          </MenuItem>
+        </StyledMenu>
+      </Stack>
+      <Box>
+        <ProjectList projects={_.get(projectInfo, 'projectInfo', [])} />
       </Box>
-    </div>
+    </Container>
   );
 }
