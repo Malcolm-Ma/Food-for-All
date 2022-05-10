@@ -17,7 +17,7 @@ password = b64.b64encode("123456".encode()).decode()
 reset_password = b64.b64encode("111111".encode()).decode()
 
 path = Path(__file__).resolve().parent
-output_file = os.path.join(path, "test_backend_result.txt")
+output_file = os.path.join(path, "test_backend_api_result.txt")
 
 mysql_host = '127.0.0.1'
 mysql_user='apex'
@@ -104,7 +104,6 @@ correct_response = {}
 for api in api_list:
     correct_response[api] = {}
 correct_response['init_database/'][STATUS_CODE["success"]] = []
-#correct_response['init_database/'][STATUS_CODE["success"]] = [["POST", {"user_num": 10, "project_num": 20}, '{"user_num": 10, "project_num": 20, "user_list": .*}']]
 correct_response['init_database/'][STATUS_CODE["success"]].append(["GET", "", '{"user_num": [0-9]+, "project_num": [0-9]+, "user_list": .*}'])
 correct_response['region_list/'][STATUS_CODE["success"]] = [["GET", "", '{"status": 0, "region_list": .*}']]
 correct_response['currency_list/'][STATUS_CODE["success"]] = [["GET", "", '{"status": 0, "currency_list": .*}']]
@@ -210,7 +209,7 @@ if __name__ == "__main__":
                     for code in correct_response[api]:
                         for method, data, answer in correct_response[api][code]:
                             f.write(check_api(api, code, method, data, answer) + "\n")
-                with open(os.path.join(path, "init_database_user.csv"), "r", encoding='utf-8', newline='') as uf:
+                with open(os.path.join(path, "../init_database/init_database_user.csv"), "r", encoding='utf-8', newline='') as uf:
                     user_list = list(csv.DictReader(uf))
                 cursor.execute('SELECT * FROM database_duser WHERE type=1 AND project!=""')
                 db.commit()
