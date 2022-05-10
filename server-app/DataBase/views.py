@@ -3,6 +3,8 @@ from Common.decorators import *
 
 @check_request_method_decorator(method=["GET"])
 def init_database(request):
+    if not DEBUG:
+        return HttpResponse(json.dumps({"Info": "The current environment is not a debug environment, so this interface is not valid. Please call this interface after restarting the service in a debug environment."}), content_type="application/json")
     if request.method == "GET":
         user_num = 50
         project_num = 100
