@@ -26,6 +26,7 @@ import { SERVICE_BASE_URL } from "src/constants/constants";
 import moment from "moment";
 import Button from "@mui/material/Button";
 import { TwitterShareButton } from 'react-twitter-embed';
+import { useNavigate } from "react-router-dom";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -39,6 +40,8 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function ShowProjectCard(props) {
+  const navigate = useNavigate();
+
   const [expanded, setExpanded] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
 
@@ -96,6 +99,7 @@ export default function ShowProjectCard(props) {
         component="img"
         height="194"
         image={SERVICE_BASE_URL + _.get(project, 'background_image')}
+        onClick={() => navigate(`/donation/${project.pid}`)}
         onError={(e) => e.target.src = require('src/assets/broken-1.png')}
       />
       <CardContent>
