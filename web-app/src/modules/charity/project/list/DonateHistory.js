@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Drawer, Button, Space } from 'antd';
+import { Drawer, Button, Space, message } from 'antd';
 import { useSelector } from "react-redux";
 import _ from 'lodash';
 
@@ -18,6 +18,8 @@ export default (props) => {
 
   const [visible, setVisible] = useState(visibleProps);
 
+  const [dataSource, setDataSource] = useState([]);
+
   const onClose = () => {
     customOnClose();
     setVisible(false);
@@ -30,46 +32,59 @@ export default (props) => {
   useEffect(() => {
     if (!!pid) {
       (async () => {
-        const {project_info: projectInfo} = await actions.getProjectInfo({
-          pid,
-          currency_type: regionInfo.currencyType,
-        });
-        const donationHistory = _.get(projectInfo, 'donate_history', []);
-        const historyDetail = [];
-        _.map(donationHistory, async (value, uid) => {
-          let result = {};
-          console.log('--value, key--\n', value, uid);
-          if (_.isEqual(uid, 'Anonymous')) {
-            _.set(result, 'name', 'Anonymous');
-          } else {
-            const { user_info: userRes } = await actions.getUserInfoById({ uid });
-            /**
-             * avatar: "static/JEZgyvgE.jpg"
-             * donate_history: {}
-             * mail: "davisgregory@example.net"
-             * name: "Richard Long"
-             * project: []
-             * region: "YE"
-             * type: 2
-             * uid: "db88231346b5333a8314a4f72bd3f314"
-             */
-            const { donate_history, project, type, ...otherProps } = userRes;
-            console.log('--res--\n', userRes);
-            result = {
-              ...result,
-              ...otherProps,
-            };
-          }
-          _.map(value, (num, time) => {
-            historyDetail.push({
-              ...result,
-              time: moment(_.toNumber(time) * 1000).format(),
+        try {
+          const {project_info: projectInfo} = await actions.getProjectInfo({
+            pid,
+            currency_type: regionInfo.currencyType,
+          });
+          const donationHistory = _.get(projectInfo, 'donate_history', []);
+          const historyDetail = [];
+          const promiseAll = _.map(donationHistory, async (value, uid) => {
+            let result = {};
+            if (_.isEqual(uid, 'Anonymous')) {
+              _.set(result, 'name', 'Anonymous');
+            } else {
+              const { user_info: userRes } = await actions.getUserInfoById({ uid });
+              /**
+               * avatar: "static/JEZgyvgE.jpg"
+               * donate_history: {}
+               * mail: "davisgregory@example.net"
+               * name: "Richard Long"
+               * project: []
+               * region: "YE"
+               * type: 2
+               * uid: "db88231346b5333a8314a4f72bd3f314"
+               */
+              const { donate_history, project, type, ...otherProps } = userRes;
+              result = {
+                ...result,
+                ...otherProps,
+              };
+            }
+            _.map(value, (num, time) => {
+              historyDetail.push({
+                ...result,
+                timestamp: _.toNumber(time) * 1000,
+                time: moment(_.toNumber(time) * 1000).format(),
+                donate_num: _.toNumber(num),
+                donate_amount: _.toNumber(num) * projectInfo.price,
+              });
             });
           });
-        })
+          await Promise.all(promiseAll).then(() => {
+            console.log('--historyDetail--\n', historyDetail);
+            setDataSource(_.sortBy(historyDetail, 'timestamp'));
+          })
+        } catch (e) {
+          message.error(e.name);
+        }
       })();
     }
   }, [pid, regionInfo.currencyType]);
+
+  useEffect(() => {
+    console.log('--dataSource--\n', dataSource);
+  }, [dataSource]);
 
   const loading = useMemo(() => (_.isEmpty(pid)), [pid]);
   return (
