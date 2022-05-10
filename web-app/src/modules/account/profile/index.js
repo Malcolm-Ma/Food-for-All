@@ -70,6 +70,15 @@ export default () => {
     return regionMap[value];
   }
 
+  function getFullCurrencyName(code) {
+    for(let i in currencyCode){
+      if(i.indexOf(code)){
+        return currencyCode[i]
+      }
+    }
+  }
+
+
   const handleDisplay = () => {
     setNameColor(null);
     setRegionColor(null);
@@ -95,7 +104,7 @@ export default () => {
       const editUserRes = await actions.editUser({
         name: data.name,
         region: data.region,
-        currency_type: data.currency,
+        currency_type: data.currency.match(/[^\(\)]+(?=\))/g)[0],
         avatar: avatar,
       });
       if (editUserRes !== null) {
@@ -377,7 +386,7 @@ export default () => {
 
                 <Grid item xs={12}>
                   <Autocomplete
-                    defaultValue={userInfo.currency_type}
+                    defaultValue={getFullCurrencyName(userInfo.currency_type)}
                     disablePortal
                     fullWidth
                     id="currency"
