@@ -5,7 +5,7 @@
 
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 // material
-import { Container, Stack, Typography } from '@mui/material';
+import {Container, Icon, Stack, Typography} from '@mui/material';
 // components
 import { ProjectList } from 'src/components/ProjectCardList';
 //
@@ -27,6 +27,11 @@ import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import PeopleIcon from '@mui/icons-material/People';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import TitleIcon from '@mui/icons-material/Title';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
     <Menu
@@ -76,6 +81,8 @@ export default (props) => {
   const [projectInfo, setProjectInfo] = useState({});
   const [prepareMode, setPrepareMode] = useState(false);
   const { userInfo } = useSelector(state => state.user);
+//Search
+  const [searchItem, setSearchItem] = useState(' ');
 //Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -88,7 +95,12 @@ export default (props) => {
     event.preventDefault();
     setSortItem(event.currentTarget.id);
   };
-
+  const handleSearchProject = async (event) =>{
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log(data.get('search'));
+    setSearchItem(data.get('search'));
+  }
   const getProjectList = useCallback(async () => {
     try {
       let res = await actions.getProjectList({
@@ -97,7 +109,7 @@ export default (props) => {
           page_size: 10000,
           page: 1
         },
-        search: '',
+        search: searchItem,
         order: sortItem,
         uid: '',
         valid_only: 1,
@@ -120,7 +132,7 @@ export default (props) => {
     } catch (e) {
       console.error(e);
     }
-  }, [sortItem, userInfo.currency_type]);
+  }, [searchItem, sortItem, userInfo.currency_type]);
 
   useEffect(() => {
     getProjectList().catch(err => console.error(err));
@@ -134,6 +146,27 @@ export default (props) => {
         sx={{ pb: 4 }}
       >
         <Typography variant="h4">Choose a Project</Typography>
+        <Paper
+          component="form"
+          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+          onSubmit={handleSearchProject}
+        >
+          <Icon aria-label="menu" sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', pl: 2, pr:1}}>
+            <MenuIcon />
+          </Icon>
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Search Project"
+            inputProps={{ 'aria-label': 'search project' , 'maxlength': 30}}
+            id="search-item"
+            name="search"
+            label="search-item"
+
+          />
+          <IconButton sx={{ p: '10px' }} aria-label="search" type="submit" >
+            <SearchIcon />
+          </IconButton>
+        </Paper>
         <Button
           id="demo-customized-button"
           aria-controls={open ? 'demo-customized-menu' : undefined}

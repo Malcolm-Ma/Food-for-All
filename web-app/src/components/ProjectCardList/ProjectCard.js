@@ -2,14 +2,12 @@
  * @file project Card component
  * @author Mingze Ma
  */
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
@@ -22,16 +20,17 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import _ from "lodash";
-import { SERVICE_BASE_URL } from "src/constants/constants";
+import {SERVICE_BASE_URL} from "src/constants/constants";
 import moment from "moment";
 import Button from "@mui/material/Button";
-import { TwitterShareButton } from 'react-twitter-embed';
+import {TwitterShareButton} from 'react-twitter-embed';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useNavigate } from "react-router-dom";
 
 const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
+  const {expand, ...other} = props;
   return <IconButton {...other} />;
-})(({ theme, expand }) => ({
+})(({theme, expand}) => ({
   transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
@@ -57,7 +56,7 @@ export default function ShowProjectCard(props) {
     setExpanded(!expanded);
   };
 
-  const { project } = props;
+  const {project} = props;
 
   function stringToColor(string) {
     let hash = 0;
@@ -80,18 +79,20 @@ export default function ShowProjectCard(props) {
   }
 
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{maxWidth: 345}}>
       <CardHeader
         avatar={
-          <Avatar src = {SERVICE_BASE_URL + _.get(project, 'charity_avatar')} aria-label="recipe">
+          <Avatar src={SERVICE_BASE_URL + _.get(project, 'charity_avatar')} aria-label="recipe">
           </Avatar>
         }
         action={
-          <Button endIcon={<MoreVertIcon />} href={`/donation/${project.pid}`}>
+          <Button endIcon={<MoreVertIcon/>} href={`/donation/${project.pid}`}>
           </Button>
         }
         title={
-          <span className="card-header">{_.get(project, 'title')}</span>
+          <Tooltip title={_.get(project, 'title')}>
+            <span className="card-header">{_.get(project, 'title')}</span>
+          </Tooltip>
         }
         subheader={moment(_.get(project, 'end_time') * 1000).format("MMM DD, YYYY")}
       />
@@ -134,7 +135,7 @@ export default function ShowProjectCard(props) {
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <ExpandMoreIcon />
+          <ExpandMoreIcon/>
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
