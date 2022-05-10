@@ -191,7 +191,7 @@ def init_database_with_fake_data(user_num=50, project_num=200):
         clear_database()
         guest_list = []
         charity_list = []
-        fake_user_info = [["uid", "username", "password", "encrypted_password", "expires_time"]]
+        fake_user_info = [["uid", "username", "password", "encrypted_password", "user_type"]]
         for _ in range(user_num):
             fake_user_uid, fake_user_mail, fake_user_password, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
             if fake_user_type == USER_TYPE["charity"]:
