@@ -424,7 +424,7 @@ def start_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200007] project information is incomplete, [200008] project start up failed, [200009] project has already started, [200016] project is aiready finished, [500001] create paypal product failed)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200007] project information is incomplete, [200008] project start up failed, [200009] project has already started, [200016] project is already finished, [500001] create paypal product failed)
 
     @apiParamExample {Json} Sample Request
     {
@@ -455,7 +455,7 @@ def suspend_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200016] project is aiready finished, [200017] project is not ongoing, [200018] project suspension failed)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200016] project is already finished, [200017] project is not ongoing, [200018] project suspension failed)
 
     @apiParamExample {Json} Sample Request
     {
@@ -486,7 +486,7 @@ def stop_project(request, user, project):
 
     @apiParam {String} pid Pid of the project.
 
-    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200010] project stop failed, [200011] project is not ongoing or on hold, [200016] project is aiready finished)
+    @apiSuccess (Success 200 return) {Int} status Status code ([0] success, 100001: user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project, [200010] project stop failed, [200011] project is not ongoing or on hold, [200016] project is already finished)
 
     @apiParamExample {Json} Sample Request
     {
