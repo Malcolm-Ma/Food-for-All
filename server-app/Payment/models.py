@@ -143,7 +143,7 @@ class Payment(object):
             'payment_preferences': {
                 'auto_bill_outstanding': True,
                 'setup_fee': {
-                    'value': str(price),
+                    'value': 0.0,
                     'currency_code': currency_type,
                 },
                 'setup_fee_failure_action': 'CANCEL',
