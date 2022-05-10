@@ -98,10 +98,8 @@ export default (props) => {
         return;
       }
       if (action === 1) {
-        message.error('Invalid verifying code, please try agian.');
-        return;
+        message.error('Invalid verifying code, please try again.');
       }
-      message.error(e.name);
     }
   }, [action, email, navigate, reset, start]);
 
@@ -151,7 +149,7 @@ export default (props) => {
                   onChange={handleEmailChange}
                 />
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={7}>
                 <TextField
                   fullWidth
                   id="code"
@@ -159,7 +157,7 @@ export default (props) => {
                   name="code"
                 />
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={5}>
                 <Button
                   disabled={sendCodeLoading}
                   fullWidth
