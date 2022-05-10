@@ -17,7 +17,7 @@ import Box from "@mui/material/Box";
 
 import { SERVICE_BASE_URL } from "src/constants/constants";
 import Grid from "@mui/material/Grid";
-import { CssBaseline, Paper } from "@mui/material";
+import { Container, CssBaseline, Paper } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PaymentForm from "src/modules/donation/PaymentForm";
 
@@ -87,16 +87,18 @@ export default (props) => {
                 pt: 12,
               }}
             >
-              <Grid item sm={6} sx={{ color: 'white', pr: 3 }}>
-                <Typography variant="h3" sx={{ color: 'white' }}>
-                  {_.get(projectDetail, 'title', '')}
-                </Typography>
-                <Typography variant="body1" sx={{ pt: 6 }}>
-                  {_.get(projectDetail, 'details', '')}
-                </Typography>
-                <Typography variant="h4" sx={{ pt: 8, color: 'white' }}>
-                  Please donate now, it only takes a minute.
-                </Typography>
+              <Grid item sm={6} sx={{ color: 'white' }}>
+                <Container component="div" maxWidth="sm" sx={{ p: { xs: 0 } }}>
+                  <Typography variant="h3" sx={{ color: 'white' }}>
+                    {_.get(projectDetail, 'title', '')}
+                  </Typography>
+                  <Typography variant="body1" sx={{ pt: 6 }}>
+                    {_.get(projectDetail, 'details', '')}
+                  </Typography>
+                  <Typography variant="h4" sx={{ pt: 8, color: 'white' }}>
+                    Please donate now, it only takes a minute.
+                  </Typography>
+                </Container>
               </Grid>
               <Grid item sm={6}>
                 <PaymentForm projectDetail={projectDetail} />

@@ -57,3 +57,5 @@ export const editUser = params => api.post(apiConfig.editUser, params);
 export const payByDonator = params => api.post(apiConfig.payByDonator, params);
 
 export const capturePayment = params => api.post(apiConfig.capturePayment, params);
+
+export const resetPassword = params => api.post(apiConfig.resetPassword, params);

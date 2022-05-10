@@ -18,10 +18,11 @@ def get_stat(request, user):
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {Dict} stat Statistics data.
-    @apiSuccess (Success 200 return) {Int} overall_sum Overall sum of donation.
-    @apiSuccess (Success 200 return) {Dict} monthly_sum Monthly sum of donation.
-    @apiSuccess (Success 200 return) {Dict} Monthly progress of a project.
-    @apiSuccess (Success 200 return) {Dict} Regional distribution of donation.
+    @apiSuccess (Success 200 return) {List(String)} date (Sub-parameter of stat) Time line of donation.
+    @apiSuccess (Success 200 return) {List(String)} title (Sub-parameter of stat) Project name of donation.
+    @apiSuccess (Success 200 return) {List(Dict)} pie (Sub-parameter of stat) Progress data of donation.
+    @apiSuccess (Success 200 return) {List(Dict)} progress (Sub-parameter of stat) Progress of donation.
+    @apiSuccess (Success 200 return) {List(Dict)} history (Sub-parameter of stat) History of donation.
 
     @apiParamExample {Json} Sample Request
     {
@@ -31,44 +32,11 @@ def get_stat(request, user):
     {
         "status": 0,
         "stat": {
-            "overall_sum": 2325.8058573595813,
-            "monthly_sum": {
-                "202110": 25.38635395622341,
-                "202111": 83.94399337200952,
-                "202112": 174.35017007224477,
-                "202201": 269.812925171546,
-                "202202": 560.2525941802537,
-                "202203": 663.5475702441728,
-                "202204": 259.78657985690444,
-                "202205": 145.51878109829747
-            },
-            "progress": {},
-            "regional_dist": {
-                "": 0.1595509712334177,
-                "Moldova, Republic of Moldova": 0.089812277796986,
-                "Latvia": 0.05986185261846537,
-                "Sri Lanka": 0.05946180316420208,
-                "Dominica": 0.04336329633300498,
-                "Spain": 0.03903952285678018,
-                "Kiribati": 0.03757099035058154,
-                "Madagascar": 0.03747727290665375,
-                "Tonga": 0.036527191556695385,
-                "Papua New Guinea": 0.035626688941039514,
-                "Maldives": 0.03552259256316131,
-                "Turkmenistan": 0.03519085713041302,
-                "Denmark": 0.03493706048536908,
-                "Antigua and Barbuda": 0.03418927440330687,
-                "South Korea": 0.03195128590088027,
-                "Hungary": 0.03193212530391174,
-                "Palau": 0.02900629702106567,
-                "Saint Helena, Ascension, and Tristan da Cunha": 0.028371282169266574,
-                "Switzerland": 0.02687954360632756,
-                "Montserrat": 0.024853387741580555,
-                "Virgin (British) Islands": 0.023592879304021815,
-                "Kazakhstan": 0.023318368481816006,
-                "St. Lucia": 0.021326717636390324,
-                "Jamaica": 0.020636460494662803
-            }
+            "date": ["2022/03/21", "2022/03/22", "2022/03/23", ...,
+            "title": ["Children\u2019s food insecurity increasing during COVID-19 pandemic_3ae42f26", "Life-saving food in emergencies_a492468d"],
+            "pie": [{"value": "79.24", "name": "Barbados"}, {"value": "56.80", "name": "China, Hong Kong S.A.R."}, ...,
+            "progress": [{"name": "Children\u2019s food insecurity increasing during COVID-19 pandemic_3ae42f26", "type": "line", "data": ["", "1.54", "5.38", "10.00", ...,
+            "history": [{"name": "Children\u2019s food insecurity increasing during COVID-19 pandemic_3ae42f26", "type": "bar", "stack": "total", "label": {"show": "true"}, "emphasis": {"focus": "series"}, "data": ["", "4.86", "12.15", "14.59", ...
         }
     }
     """

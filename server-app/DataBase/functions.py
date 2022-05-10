@@ -7,6 +7,7 @@ import copy
 import shutil
 import hashlib
 from django.contrib.auth.hashers import make_password
+from Login.functions import encode_password
 
 random.seed(int(time.time()))
 Faker.seed(int(time.time()))
@@ -190,14 +191,14 @@ def init_database_with_fake_data(user_num=50, project_num=200):
         clear_database()
         guest_list = []
         charity_list = []
-        fake_user_info = [["uid", "username", "password", "expires_time"]]
+        fake_user_info = [["uid", "username", "password", "encrypted_password", "user_type"]]
         for _ in range(user_num):
             fake_user_uid, fake_user_mail, fake_user_password, fake_user_type = create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"]))
             if fake_user_type == USER_TYPE["charity"]:
                 charity_list.append(fake_user_uid)
             else:
                 guest_list.append(fake_user_uid)
-            fake_user_info.append([fake_user_uid, fake_user_mail, fake_user_password, fake_user_type])
+            fake_user_info.append([fake_user_uid, fake_user_mail, fake_user_password, encode_password(fake_user_password), fake_user_type])
         if len(guest_list) != 0 and len(charity_list) != 0:
             break
     owner_list = random.choices(charity_list, k=project_num)
