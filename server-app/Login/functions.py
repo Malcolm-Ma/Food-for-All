@@ -39,6 +39,13 @@ def decode_cookie(request, decode_key=COOKIE_ENCODE_KEY):
     a = c[3::4][:length]
     return s, t, u, a
 
+def encode_password(password, encode_key=PASSWORD_ENCODE_KEY):
+    encrypted_password = ""
+    for i in password:
+        encrypted_password += chr(ord(i) ^ encode_key)
+    encrypted_password = b64.b64encode(encrypted_password.encode()).decode()
+    return encrypted_password
+
 def decode_password(encrypted_password, decode_key=PASSWORD_ENCODE_KEY):
     encrypted_password = b64.b64decode(encrypted_password.encode()).decode()
     password = ""

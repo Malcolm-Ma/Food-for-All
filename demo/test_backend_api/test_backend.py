@@ -85,10 +85,12 @@ STATUS_CODE = {"success": 0,
                "unable to get image file from request": 400002,
                "unable to get document file from request": 400003,
                "temporary ban due to too frequent login attempts": 400004,
+               "create paypal product failed": 500001,
+               "payment capture failed": 500002,
                }
 
 main_url = "http://127.0.0.1:8000/"
-api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/', 'share_by_email/',
+api_list = ['init_database/', 'region_list/', 'currency_list/', 'region2currency/', 'upload_img/', 'upload_doc/', 'share_by_email/', 'get_ip_info/'
             'login/', 'regis/', 'logout/', 'reset_password/', 'get_user/', 'edit_user/',
             'get_project/', 'edit_project/', 'get_projects_list/', 'get_prepare_projects_list/',
             'create_project/', 'delete_project/', 'start_project/', 'suspend_project/', 'stop_project/', ]
@@ -216,6 +218,7 @@ if __name__ == "__main__":
                         user["password"] = i["password"]
                         break
 
+                f.write(check_api('get_ip_info/', "", "GET", "", '{"status":"fail","message":"reserved range","query":"127.0.0.1"}' + "\n")
                 f.write(check_api('login/', STATUS_CODE["invalid username"], "POST", {"username": "test" + user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["invalid username"]) + "\n")
                 f.write(check_api('login/', STATUS_CODE["wrong password"], "POST", {"username": user["mail"], "password": "test" + user["password"]}, '{"status": %d}' % STATUS_CODE["wrong password"]) + "\n")
                 f.write(check_api('login/', STATUS_CODE["success"], "POST", {"username": user["mail"], "password": user["password"]}, '{"status": %d}' % STATUS_CODE["success"]) + "\n")
