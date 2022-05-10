@@ -88,8 +88,8 @@ export default (props) => {
               }}
             >
               <Grid item sm={6} sx={{ color: 'white' }}>
-                <Container component="div" maxWidth="sm" sx={{ p: { xs: 0 } }}>
-                  <Typography variant="h3" sx={{ color: 'white' }}>
+                <Container component="div" maxWidth="sm" sx={{ p: { xs: 0, sm: 2 } }}>
+                  <Typography variant="h4" sx={{ color: 'white' }}>
                     {_.get(projectDetail, 'title', '')}
                   </Typography>
                   <Typography variant="body1" sx={{ pt: 6 }}>

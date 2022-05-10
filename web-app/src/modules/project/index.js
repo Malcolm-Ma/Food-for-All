@@ -141,14 +141,14 @@ export default (props) => {
   return (
     <Container className="project">
       <Stack
-        direction="row"
+        direction={{xs: 'column', sm: 'row'}}
         justifyContent="space-between"
         sx={{ pb: 4 }}
       >
         <Typography variant="h4">Choose a Project</Typography>
         <Paper
           component="form"
-          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', mt: {xs: 2, sm: 0}, mb: {xs: 2, sm: 0} }}
           onSubmit={handleSearchProject}
         >
           <Icon aria-label="menu" sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', pl: 2, pr:1}}>

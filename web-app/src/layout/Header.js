@@ -54,7 +54,7 @@ const Header = (props) => {
                 <Button
                   color="inherit"
                   onClick={() => navigate('/register')}
-                  sx={{pr: 2}}
+                  sx={{ mr: 1 }}
                 >Sign Up</Button>
                 <Button
                   variant="outlined"
