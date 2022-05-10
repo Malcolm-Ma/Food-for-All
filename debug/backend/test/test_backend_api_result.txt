@@ -4,6 +4,7 @@
 [Success] - [upload_img/                   ] - [POST] - [400002]
 [Success] - [upload_doc/                   ] - [POST] - [0     ]
 [Success] - [upload_doc/                   ] - [POST] - [400003]
+[Success] - [init_database/                ] - [GET ] - [0     ]
 [Success] - [region_list/                  ] - [GET ] - [0     ]
 [Success] - [currency_list/                ] - [GET ] - [0     ]
 [Success] - [region2currency/              ] - [GET ] - [0     ]
