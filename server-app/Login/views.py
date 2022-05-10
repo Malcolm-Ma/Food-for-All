@@ -274,6 +274,7 @@ def reset_password(request, user):
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     if action == reset_password_action["send_code"]:
         code = gen_verify_code(mail, VERIFY_CODE_KEY_RESET_PASSWORD)
+        print("code: ", code)
         try:
             Mail.reset_password_verify(mail, code, False)
         except:
