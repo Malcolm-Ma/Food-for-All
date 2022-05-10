@@ -151,7 +151,7 @@ export default () => {
 
       <Form.Item
         name="price"
-        label="Price"
+        label="Price per Meal"
         rules={[{required: true, message: 'Please input the price'}]}
       >
         <InputNumber name="price" min={1} addonAfter={suffixSelector} style={{width: '100%'}} onChange={(value)=>{setPrice(value)}}/>
@@ -159,17 +159,17 @@ export default () => {
 
       <Form.Item
         name="donation"
-        label="Donation Amount"
+        label="Total Meals Due for Donation"
         rules={[{required: true, message: 'Please input donation amount!'}]}
       >
         <InputNumber name="donation" min={1} style={{width: '30%'}} onChange={(value)=>{setDonation(value)}}/>
       </Form.Item>
 
-      <Form.Item name="sum" label="Total money">
+      <Form.Item name="sum" label="Amount of Meals will be Donated">
         <span>{price * donation}</span>
       </Form.Item>
 
-      <Form.Item name="projectTime" label="Deadline" rules={[{required: true, message: 'Please select deadline!'}]}>
+      <Form.Item name="projectTime" label="Donating End Time" rules={[{required: true, message: 'Please select deadline!'}]}>
         <DatePicker disabledDate={disabledDate}/>
       </Form.Item>
 

@@ -166,7 +166,7 @@ export default () => {
     <>
       {
         (!_.isEmpty(data))
-          ? <Grid container rowSpacing={20}>
+          ? <Grid container rowSpacing={4}>
             <Grid item xs={6}>
               <ReactEcharts option={data[1]}/>
             </Grid>

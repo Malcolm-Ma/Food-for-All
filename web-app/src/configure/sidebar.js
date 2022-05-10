@@ -21,6 +21,20 @@ export default [
     ],
   },
   {
+    title: 'Income',
+    icon: <LineChartOutlined />,
+    child: [
+      {
+        title: 'Income Summary',
+        url: '/income/summary',
+      },
+      {
+        title: 'Download Report',
+        url: '/income/report',
+      },
+    ],
+  },
+  {
     title: 'Account',
     icon: <UserOutlined />,
     child: [
@@ -28,20 +42,6 @@ export default [
         title: 'Profile',
         url: '/charity/account/profile',
       },
-    ],
-  },
-  {
-    title: 'Income',
-    icon: <LineChartOutlined />,
-    child: [
-      {
-        title: 'Income Management',
-        url: '/income/manage',
-      },
-      {
-        title: 'Income Summary',
-        url: '/income/summary',
-      }
     ],
   },
 ];
