@@ -58,12 +58,14 @@ export default () => {
           'trigger': 'axis'
         },
         'legend': {
+          'top': '8%',
           'data': title
         },
         'grid': {
           'left': '3%',
           'right': '4%',
           'bottom': '3%',
+          'top': '40%',
           'containLabel': 'true'
         },
         'toolbox': {
@@ -125,11 +127,14 @@ export default () => {
             'type': 'shadow'
           }
         },
-        'legend': {},
+        'legend': {
+          'top': '5%',
+        },
         'grid': {
           'left': '3%',
           'right': '4%',
           'bottom': '3%',
+          'top': '16%',
           'containLabel': 'true'
         },
         'xAxis': {
