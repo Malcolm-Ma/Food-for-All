@@ -61,14 +61,17 @@ export default (props) => {
                 ...otherProps,
               };
             }
+            let key = 0;
             _.map(value, (num, time) => {
               historyDetail.push({
                 ...result,
+                key,
                 timestamp: _.toNumber(time) * 1000,
                 time: moment(_.toNumber(time) * 1000).format(),
                 donate_num: _.toNumber(num),
                 donate_amount: _.toNumber(num) * projectInfo.price,
               });
+              key = key + 1;
             });
           });
           await Promise.all(promiseAll).then(() => {
