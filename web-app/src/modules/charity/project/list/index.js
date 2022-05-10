@@ -2,7 +2,7 @@
  * @file Project list page
  * @author Mingze Ma
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import moment from "moment";
 import {
@@ -19,7 +19,6 @@ import {
   Menu,
   Dropdown,
 } from "antd";
-import actions from "src/actions";
 import _ from "lodash";
 import { getProjectInfo, getProjectList } from "src/actions/projectActions";
 import {
@@ -31,12 +30,14 @@ import {
   SmileOutlined,
 } from '@ant-design/icons';
 
+import actions from "src/actions";
 import { DEFAULT_CURRENCY } from "src/constants/constants";
 
 import EditDetail from "./EditDetail";
 import DrawerDetail from './ProjectDetail';
 
 import './index.less';
+import DonateHistory from "src/modules/charity/project/list/DonateHistory";
 
 // Column config of a table
 // Using either dataIndex or key to point out unique props
@@ -48,6 +49,7 @@ const columnsConfig = (payloads) => {
     showModal,
     regionMap,
     prepareMode,
+    handleDonationHistoryClick,
   } = payloads;
 
   return _.compact([
@@ -182,68 +184,80 @@ const columnsConfig = (payloads) => {
       }
     },
     {
-      title: 'Action',
+      title: 'Operations',
       key: 'action',
-      width: 210,
+      width: 230,
       align: 'center',
       fixed: 'right',
       render: (text, record) => {
-        switch (record.status) {
+        const prepareBtns = [
+          <Button type="link" onClick={() => showModal(record.pid, record.status, 'Start')}>Start</Button>,
+          <Button type="link" onClick={() => showModal(record.pid, record.status, 'Delete')}>Delete</Button>
 
-        }
-        if (record.status === 1) {
-          return (
-            <Space size={0}>
-              <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
-                Detail
+        ];
+        const onGoingBtns = [
+          <Button type="link" onClick={() => showModal(record.pid, record.status, 'Pause')}>Pause</Button>,
+          <Button type="link" onClick={() => showModal(record.pid, record.status, 'Stop')}>Stop</Button>
+        ];
+        const currentButtons = (() => {
+          if (record.status === 0) {
+            return prepareBtns;
+          }
+          if (record.status === 1) {
+            return onGoingBtns;
+          }
+          if (record.status === 3) {
+            return [
+              <Button type="link" onClick={() => showModal(record.pid, record.status, 'Continue')}>
+                Continue
               </Button>
-              <Button type="link" onClick={() => showModal(record.pid, record.status, 'Pause')}>
-                Pause
-              </Button>
-              <Button type="link" onClick={() => showModal(record.pid, record.status, 'Stop')}>
-                Stop
-              </Button>
-            </Space>
-          )
-        } else if (record.status === 2) {
-          return (
-            <Space size={0}>
-              <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
-                Detail
-              </Button>
-            </Space>
-          )
-        } else if (record.status === 0) {
-          {
-            return (
-              <Space size={0}>
-                <Button type="link" onClick={() => showModal(record.pid, record.status, 'Delete')}>
-                  Delete
-                </Button>
-                <Button type="link" onClick={() => showDrawer('edit', record.pid)}
-                        disabled={record.status !== 0}>
+            ];
+          }
+          return [];
+        })();
+        const dropDownMenu = (
+          <Menu
+            items={_.map(currentButtons, item => ({label: item}))}
+          />
+        );
+        return (
+          <Space size={0}>
+            <Button
+              type="link"
+              size="small"
+              onClick={(e) => handleDonationHistoryClick(e, record.pid)}
+              disabled={record.status === 0}
+            >
+              History
+            </Button>
+            {
+              record.status === 0
+                ? <Button
+                  type="link"
+                  size="small"
+                  onClick={() => showDrawer('edit', record.pid)}
+                  disabled={record.status !== 0}
+                >
                   Edit
                 </Button>
-                <Button type="link" onClick={() => showModal(record.pid, record.status, 'Start')}>
-                  Start
-                </Button>
-              </Space>
-            )
-          }
-        } else if (record.status === 3) {
-          {
-            return (
-              <Space size={0}>
-                <Button type="link" onClick={() => showDrawer('detail', record.pid)}>
+                : <Button
+                  type="link"
+                  size="small"
+                  onClick={() => showDrawer('detail', record.pid)}
+                >
                   Detail
                 </Button>
-                <Button type="link" onClick={() => showModal(record.pid, record.status, 'Continue')}>
-                  Continue
-                </Button>
-              </Space>
-            )
-          }
-        }
+            }
+            {record.status !== 2 && <Dropdown overlay={dropDownMenu}>
+              <a onClick={e => e.preventDefault()} style={{paddingLeft: '7px'}}>
+                <Space>
+                  Actions
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>}
+          </Space>
+        );
       },
     }
   ]);
@@ -274,6 +288,8 @@ export default () => {
   const [modalText, setModalText] = useState('Are you sure you want to terminate the project. '
     + 'Terminated projects cannot be continued.');
   const [titleText, setTitleText] = useState('');
+
+  const [historyDrawer, setHistoryDrawer] = useState('');
 
   const getProjectList = useCallback(async () => {
     try {
@@ -434,6 +450,10 @@ export default () => {
     setPrepareMode(checked);
   };
 
+  const handleDonationHistoryClick = useCallback((_e, pid) => {
+    setHistoryDrawer(pid);
+  }, []);
+
   const payloads = {
     projectInfo,
     drawVisible,
@@ -447,6 +467,7 @@ export default () => {
     showModal,
     handleOk,
     handleCancel,
+    handleDonationHistoryClick,
   };
 
   return (
@@ -487,6 +508,7 @@ export default () => {
       >
         <p>{modalText}</p>
       </Modal>
+      <DonateHistory visible={!_.isEmpty(historyDrawer)} pid={historyDrawer} onClose={() => setHistoryDrawer('')} />
     </div>
   );
 };
