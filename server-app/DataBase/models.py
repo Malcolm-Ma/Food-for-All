@@ -174,7 +174,7 @@ class DUser(models.Model):
                 project.update_from_fict({"status": PROJECT_STATUS["finish"]})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
-            raise ServerError("project is aiready finished")
+            raise ServerError("project is already finished")
         update_dict = {"status": PROJECT_STATUS["ongoing"]}
         if project.status == PROJECT_STATUS["prepare"]:
             r = Payment.create_product(project.title, project.intro, "https://example.com", "https://example.com")
@@ -198,7 +198,7 @@ class DUser(models.Model):
                 project.update_from_fict({"status": PROJECT_STATUS["finish"], "subscription_list": "[]"})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
-            raise ServerError("project is aiready finished")
+            raise ServerError("project is already finished")
         try:
             for subscription_id in eval(project.subscription_list):
                 Payment.suspend_subscription(subscription_id, "Project suspend")
@@ -218,7 +218,7 @@ class DUser(models.Model):
                 project.update_from_fict({"status": PROJECT_STATUS["finish"], "subscription_list": "[]"})
             except ServerError as se:
                 logger_standard.error("Project {pid} auto update status failed.".format(project.pid))
-            raise ServerError("project is aiready finished")
+            raise ServerError("project is already finished")
         try:
             for subscription_id in eval(project.subscription_list):
                 Payment.cancel_subscription(subscription_id, "Project stopped")
