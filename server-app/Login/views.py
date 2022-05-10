@@ -290,7 +290,7 @@ def reset_password(request, user):
             response_data["status"] = STATUS_CODE["captcha verification failed"]
             return HttpResponse(json.dumps(response_data), content_type="application/json")
         try:
-            user.update_from_fict({"password": make_password(data["password"])})
+            user.update_from_fict({"password": make_password(decode_password(data["password"]))})
         except ServerError as se:
             raise ServerError("password setting failed")
         try:
