@@ -134,4 +134,13 @@ export default [
     }),
     exact: true,
   },
+  {
+    path: '/income/donation',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'income' */ /* webpackMode: 'lazy' */ 'src/modules/charity/donationHistory/index.js'),
+      loading: Loading,
+    }),
+    charity: true,
+    exact: true,
+  },
 ];
