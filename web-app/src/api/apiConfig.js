@@ -31,4 +31,5 @@ export default {
   capturePayment:'/capture_payment/',
   getStat: '/get_stat/',
   resetPassword: '/reset_password/',
+  report: '/get_report/',
 };

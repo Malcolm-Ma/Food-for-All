@@ -11,7 +11,7 @@ import { reformatOptions, reformatToMap } from 'src/utils/utils'
 import api from "../api";
 import apiConfig from "../api/apiConfig";
 import { SET_REGION_LIST, SET_CURRENCY_LIST, SET_COUNTRY_CODE } from "../constants/actionTypes";
-import { DEFAULT_CURRENCY } from "src/constants/constants";
+import { DEFAULT_CURRENCY, SERVICE_BASE_URL } from "src/constants/constants";
 
 export const getRegionList = (params) => async (dispatch) => {
   try {
@@ -94,3 +94,9 @@ export const uploadImage = params => api.post(apiConfig.upLoadImg, params);
 
 export const getStat = params => api.post(apiConfig.getStat, params);
 
+export const getReport = async (params = { pid: '' }) => {
+  const res = await api.post(apiConfig.report, params);
+  const { url } = res;
+  window.open(`${SERVICE_BASE_URL}${url}`, '_blank');
+  return res;
+};

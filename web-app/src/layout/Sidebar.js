@@ -57,10 +57,14 @@ const Sidebar = (props) => {
               >
                 {
                   _.map(child, (childItem) => (
-                    <Menu.Item key={childItem.url}>
-                      <Link to={childItem.url} replace={true}>
-                        <span>{childItem.title}</span>
-                      </Link>
+                    <Menu.Item key={childItem.url || childItem.title}>
+                      {
+                        childItem.url
+                        ? <Link to={childItem.url} replace={true}>
+                            <span>{childItem.title}</span>
+                          </Link>
+                          : <span onClick={childItem.onCLick}>{childItem.title}</span>
+                      }
                     </Menu.Item>
                   ))
                 }

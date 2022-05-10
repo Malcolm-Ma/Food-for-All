@@ -4,6 +4,8 @@
  */
 
 import { UserOutlined, UnorderedListOutlined, LineChartOutlined } from "@ant-design/icons";
+import actions from "src/actions";
+import { message } from "antd";
 
 export default [
   {
@@ -30,7 +32,13 @@ export default [
       },
       {
         title: 'Download Report',
-        url: '/income/report',
+        onCLick: async () => {
+          try {
+            await actions.getReport();
+          } catch (e) {
+            console.error(e.name);
+          }
+        },
       },
     ],
   },
