@@ -204,6 +204,8 @@ class Statistics(object):
         regional_dist_dict = {}
         if 'pid' in d:
             for uid, sub_dict in d['donate_history'].items():
+                if uid == "Anonymous":
+                    continue
                 user_dict = Statistics.get_user_dict(uid)
                 region = rid2region(user_dict['region'])
                 user_num_sum = 0
@@ -221,6 +223,8 @@ class Statistics(object):
                     project_dict = Statistics.get_project_dict(pid)
                     projects_sum += project_dict['current_num'] * project_dict['price']
                     for uid, sub_sub_dict in sub_dict.items():
+                        if uid == "Anonymous":
+                            continue
                         user_dict = Statistics.get_user_dict(uid)
                         region = rid2region(user_dict['region'])
                         user_sum = 0
@@ -258,6 +262,8 @@ class Statistics(object):
         regional_dist_dict = {}
         if 'pid' in d:
             for uid, sub_dict in d['donate_history'].items():
+                if uid == "Anonymous":
+                    continue
                 user_dict = Statistics.get_user_dict(uid)
                 region = rid2region(user_dict['region'])
                 user_num_sum = 0
@@ -275,6 +281,8 @@ class Statistics(object):
                     project_dict = Statistics.get_project_dict(pid)
                     projects_sum += project_dict['current_num'] * project_dict['price']
                     for uid, sub_sub_dict in sub_dict.items():
+                        if uid == "Anonymous":
+                            continue
                         user_dict = Statistics.get_user_dict(uid)
                         region = rid2region(user_dict['region'])
                         user_sum = 0

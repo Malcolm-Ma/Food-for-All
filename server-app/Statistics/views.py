@@ -4,17 +4,15 @@ from Common.decorators import *
 
 @api_logger_decorator()
 @check_server_error_decorator()
-@check_request_method_decorator(method=["POST"])
+@check_request_method_decorator(method=["GET", "POST"])
 @get_user_decorator()
 def get_stat(request, user):
     """
-    @api {POST} /get_stat/ get statistics data
+    @api {GET} /get_stat/ get statistics data
     @apiVersion 1.0.0
     @apiName get_stat
     @apiGroup Statistics
     @apiDescription Get statistics data for frontend dashboard
-
-    @apiParam {String} pid Leave blank to get data of the current user or specify a pid of any affiliated project.
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [200002] project does not exist, [200003] user is not the owner of the project)
     @apiSuccess (Success 200 return) {Dict} stat Statistics data.
@@ -26,7 +24,6 @@ def get_stat(request, user):
 
     @apiParamExample {Json} Sample Request
     {
-      "pid": ""
     }
     @apiSuccessExample {Json} Response-Success
     {
@@ -40,17 +37,18 @@ def get_stat(request, user):
         }
     }
     """
-    data = json.loads(request.body)
-    pid = data['pid']
-    if pid:
-        project = DProject.get_project({'pid': pid})
-        if not project:
-            raise ServerError("project does not exist")
-        if user.uid != project.uid:
-            raise ServerError("user is not the owner of the project")
-        d = Statistics.get_project_dict(pid)
-    else:
-        d = Statistics.get_user_dict(user.uid)
+    #data = json.loads(request.body)
+    #pid = data['pid']
+    #if pid:
+    #    project = DProject.get_project({'pid': pid})
+    #    if not project:
+    #        raise ServerError("project does not exist")
+    #    if user.uid != project.uid:
+    #        raise ServerError("user is not the owner of the project")
+    #    d = Statistics.get_project_dict(pid)
+    #else:
+    #    d = Statistics.get_user_dict(user.uid)
+    d = Statistics.get_user_dict(user.uid)
     # progress = Statistics.get_progress(d) if pid else {}
     time_line = Statistics.get_time_line(d)
     regional_dist = Statistics.m_get_regional_dist(d)
