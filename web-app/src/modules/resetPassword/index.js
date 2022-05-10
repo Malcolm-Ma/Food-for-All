@@ -29,10 +29,11 @@ import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import actions from "src/actions";
+import { validateEmail } from "src/utils/utils";
 
 const theme = createTheme();
 
-const INITIAL_TIME = 3 * 1000; // initial time in milliseconds, defaults to 60000
+const INITIAL_TIME = 30 * 1000; // initial time in milliseconds, defaults to 60000
 const INTERVAL = 1000; // interval to change remaining time amount, defaults to 1000
 
 export default (props) => {
@@ -48,17 +49,23 @@ export default (props) => {
   const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const [passwordField, setPasswordField] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [validEmail, setValidEmail] = useState(true);
   // email
   const [email, setEmail] = useState('');
 
   const handleEmailChange = useCallback((e) => {
-    console.log('--value--\n', e.target.value);
     setEmail(e.target.value);
   }, []);
 
   const handleSubmit = useCallback(async (event, sendingCode = false) => {
     event.preventDefault();
     let formData;
+    if (!validateEmail(email)) {
+      setValidEmail(false);
+      return;
+    } else {
+      setValidEmail(true);
+    }
     if (!sendingCode) {
       formData = new FormData(event.currentTarget);
     }
@@ -140,6 +147,8 @@ export default (props) => {
                 <TextField
                   required
                   fullWidth
+                  error={!validEmail}
+                  helperText={!validEmail && 'Incorrect email format'}
                   id="email"
                   label="Email Address"
                   name="email"
