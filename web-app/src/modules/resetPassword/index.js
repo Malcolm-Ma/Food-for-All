@@ -32,7 +32,7 @@ import actions from "src/actions";
 
 const theme = createTheme();
 
-const INITIAL_TIME = 60 * 1000; // initial time in milliseconds, defaults to 60000
+const INITIAL_TIME = 3 * 1000; // initial time in milliseconds, defaults to 60000
 const INTERVAL = 1000; // interval to change remaining time amount, defaults to 1000
 
 export default (props) => {
@@ -61,35 +61,34 @@ export default (props) => {
     let formData;
     if (!sendingCode) {
       formData = new FormData(event.currentTarget);
-      console.log('--event.currentTarget--\n', formData.get('email'));
     }
     try {
-      // set loading first if action = 0
-      if (action === 0) {
+      if (sendingCode) {
         setSendCodeLoading(true);
         start();
-      }
-      const res = await actions.resetPassword({
-        action: !sendingCode ? action : 0,
-        username: email,
-        ...!sendingCode ? {
-          code: formData.get('code'),
-          password: formData.get('password'),
-        } : {},
-      });
-      console.log('--res--\n', res);
-      if (action === 0) {
+        await actions.resetPassword({
+          action: 0,
+          username: email,
+        });
         setSendCodeLoading(true);
         setDisabledSubmit(false);
+        setAction(1);
+        return;
       }
+      await actions.resetPassword({
+        action,
+        username: email,
+        code: formData.get('code'),
+        password: formData.get('password')
+      });
       if (action === 1) {
         setPasswordField(true);
+        setAction(2);
       }
       if (action === 2) {
         message.success('Reset password successfully!');
-        navigate('/login');
+        navigate('/');
       }
-      setAction(prevState => prevState + 1);
     } catch (e) {
       if (action === 0) {
         setSendCodeLoading(false);
@@ -108,7 +107,7 @@ export default (props) => {
       setSendCodeLoading(false);
       reset();
     }
-  }, [timeLeft]);
+  }, [reset, timeLeft]);
 
   return (
     <ThemeProvider theme={theme}>

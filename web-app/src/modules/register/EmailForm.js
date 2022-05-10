@@ -19,7 +19,7 @@ const ACCOUNT_TYPE = [
 ];
 
 export default (props) => {
-  const { btnLabel, onChange: customOnChange } = props;
+  const { btnLabel, onChange: customOnChange, validEmail } = props;
 
   const [accountType, setAccountType] = useState(ACCOUNT_TYPE[0].value);
 
@@ -60,6 +60,8 @@ export default (props) => {
         <TextField
           required
           fullWidth
+          error={!validEmail}
+          helperText={!validEmail && 'Incorrect email format'}
           id="username"
           label="Email Address"
           name="username"
