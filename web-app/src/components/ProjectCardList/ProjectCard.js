@@ -73,7 +73,6 @@ export default function ShowProjectCard(props) {
       const value = (hash >> (i * 8)) & 0xff;
       color += `00${value.toString(16)}`.slice(-2);
     }
-    /* eslint-enable no-bitwise */
 
     return color;
   }
@@ -82,7 +81,11 @@ export default function ShowProjectCard(props) {
     <Card sx={{maxWidth: 345}}>
       <CardHeader
         avatar={
-          <Avatar src={SERVICE_BASE_URL + _.get(project, 'charity_avatar')} aria-label="recipe">
+          <Avatar
+            src={SERVICE_BASE_URL + _.get(project, 'charity_avatar')}
+            aria-label="recipe"
+            onClick={() => navigate(`/account/charity_profile/${_.get(project, 'uid')}`)}
+          >
           </Avatar>
         }
         action={
