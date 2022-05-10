@@ -72,8 +72,7 @@ export default (props) => {
             });
           });
           await Promise.all(promiseAll).then(() => {
-            console.log('--historyDetail--\n', historyDetail);
-            setDataSource(_.sortBy(historyDetail, 'timestamp'));
+            setDataSource(_.sortBy(historyDetail, (o) => -o.timestamp));
           })
         } catch (e) {
           message.error(e.name);
