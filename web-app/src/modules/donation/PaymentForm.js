@@ -80,7 +80,7 @@ export default (props) => {
     try {
       const payDetail = await actions.payByDonator({
         "pid": _.get(projectDetail, 'pid'),
-        "num": donationCount,
+        "num": _.toNumber(donationCount),
         "currency_type": regionInfo.currencyType,
         "plan": plan,
         "return_url": returnUrl,
@@ -89,7 +89,7 @@ export default (props) => {
       window.localStorage.setItem('p_id', _.get(payDetail, 'payment_id'));
       window.location.href = _.get(payDetail, 'payment_url');
     } catch (e) {
-      message.error(e);
+      message.error(e.name);
     }
   }, [donationCount, donationType, projectDetail, regionInfo.currencyType]);
 
@@ -103,7 +103,7 @@ export default (props) => {
     <Container
       component="div"
       maxWidth="sm"
-      sx={{ mb: 4, p: { xs: 0 } }}
+      sx={{ mb: 4, p: { xs: 0, sm: 2 } }}
     >
       {
         alert && <Alert severity="warning" sx={{ mb: -2 }} onClose={() => setAlert(false)}>
