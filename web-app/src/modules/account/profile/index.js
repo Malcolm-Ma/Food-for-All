@@ -72,7 +72,8 @@ export default () => {
 
   function getFullCurrencyName(code) {
     for(let i in currencyCode){
-      if(i.indexOf(code)){
+      if(currencyCode[i].indexOf(code) !== -1){
+        console.log(code ,currencyCode[i])
         return currencyCode[i]
       }
     }
