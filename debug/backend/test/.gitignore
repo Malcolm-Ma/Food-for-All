@@ -1,5 +1,6 @@
 *
 !.gitignore
-!test_backend.py
+!test_backend_api.py
+!test_backend_api_result.txt
 !test.txt
 !test.jpg
