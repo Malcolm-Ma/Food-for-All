@@ -38,7 +38,7 @@ export default (props) => {
             currency_type: regionInfo.currencyType,
           });
           const donationHistory = _.get(projectInfo, 'donate_history', []);
-          const historyDetail = [];
+          let historyDetail = [];
           const promiseAll = _.map(donationHistory, async (value, uid) => {
             let result = {};
             if (_.isEqual(uid, 'Anonymous')) {
@@ -72,6 +72,7 @@ export default (props) => {
             });
           });
           await Promise.all(promiseAll).then(() => {
+            historyDetail = _.map(historyDetail, (item, key) => ({...item, key}))
             setDataSource(_.sortBy(historyDetail, (o) => -o.timestamp));
           })
         } catch (e) {

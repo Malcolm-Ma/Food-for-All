@@ -331,7 +331,6 @@ class Statistics(object):
     def get_user_dict(uid):
         duser = DUser()
         user = duser.get_user({'uid': uid})
-        print(uid + "\n")
         return user.to_dict()
 
     @staticmethod
