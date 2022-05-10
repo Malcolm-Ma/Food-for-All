@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import _ from 'lodash';
 
 import actions from "src/actions";
 import { validateEmail } from "src/utils/utils";
@@ -85,7 +86,7 @@ export default (props) => {
       await actions.resetPassword({
         action,
         username: email,
-        code: formData.get('code'),
+        code: _.toUpper(formData.get('code') || ''),
         password: formData.get('password')
       });
       if (action === 1) {

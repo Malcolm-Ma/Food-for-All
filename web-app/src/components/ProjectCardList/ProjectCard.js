@@ -104,7 +104,7 @@ export default function ShowProjectCard(props) {
         height="194"
         image={SERVICE_BASE_URL + _.get(project, 'background_image')}
         onClick={() => navigate(`/donation/${project.pid}`)}
-        onError={(e) => e.target.src = require('src/assets/broken-1.png')}
+        onError={(e) => e.target.src = require('src/assets/broken-1.jpg')}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary" noWrap={true}>

@@ -70,7 +70,8 @@ export default () => {
   const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    if (!validateEmail(_.get(data, 'username'))) {
+    console.log('--data--\n', data);
+    if (activeStep === 0 && !validateEmail(_.get(data, 'username'))) {
       setValidEmail(false);
       return;
     } else {
@@ -88,12 +89,13 @@ export default () => {
         const res = await actions.register({
           ...signUpInfo,
           action: activeStep,
-          code: _.get(data, 'code'),
+          code: _.toUpper(_.get(data, 'code')),
         });
         setActiveStep(2);
       } else if (activeStep === 2) {
-        const res = await actions.register({
+        await actions.register({
           ...signUpInfo,
+          code: _.toUpper(_.get(signUpInfo, 'code')),
           action: activeStep,
           password: encode(_.get(data, 'password')),
           region: _.get(data, 'region'),
@@ -102,10 +104,8 @@ export default () => {
           avatar: '',
           hide: 0,
         });
-        if (res.status === 0) {
-          message.success('Welcome to Apex - Food For ALl!');
-          navigate('/home');
-        }
+        message.success('Welcome to Apex - Food For ALl!');
+        navigate('/home');
       }
       setSignUpInfo(prevState => ({
         ...prevState,
