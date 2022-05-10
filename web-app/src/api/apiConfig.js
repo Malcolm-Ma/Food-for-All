@@ -29,5 +29,6 @@ export default {
   regionToCurrency: '/region2currency/',
   payByDonator:'/pay/',
   capturePayment:'/capture_payment/',
-  getStat: '/get_stat/'
+  getStat: '/get_stat/',
+  resetPassword: '/reset_password/',
 };

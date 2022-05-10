@@ -1,5 +1,4 @@
 import React from 'react';
-import 'antd/dist/antd.css';
 import { Result, Button, Typography } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
 

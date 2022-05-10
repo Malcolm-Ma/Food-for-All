@@ -29,7 +29,8 @@ export class Api {
 
         if (status !== 0) {
           if (status !== 100001) {
-            message.error('Error! ', this.codeStatus[status]);
+            console.log('--status--\n', status);
+            message.error('Error! ' + this.codeStatus[status]);
           }
           return Promise.reject({ status, name: this.codeStatus[status] });
         }

@@ -126,4 +126,12 @@ export default [
     charity: true,
     exact: true,
   },
+  {
+    path: '/reset-password',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'reset-password' */ /* webpackMode: 'lazy' */ 'src/modules/resetPassword'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
 ];
