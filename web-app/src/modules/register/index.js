@@ -31,6 +31,8 @@ import DetailForm from './DetailForm'
 
 import './index.less';
 import actions from "../../actions";
+import { encode } from "src/utils/encodePassword";
+import { validateEmail } from "src/utils/utils";
 
 const STEP_CONFIG = [
   {
@@ -57,7 +59,9 @@ export default () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [signUpInfo, setSignUpInfo] = useState({});
+
   const [loading, setLoading] = useState(false);
+  const [validEmail, setValidEmail] = useState(true);
 
   const ActiveComponent = useMemo(() => {
     return STEP_CONFIG[activeStep].Component;
@@ -65,18 +69,20 @@ export default () => {
 
   const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
-    setLoading(true);
     const data = Object.fromEntries(new FormData(event.currentTarget));
+    if (!validateEmail(_.get(data, 'username'))) {
+      setValidEmail(false);
+      return;
+    } else {
+      setValidEmail(true);
+    }
+    setLoading(true);
     try {
       if (activeStep === 0) {
         const res = await actions.register({
           username: _.get(data, 'username'),
           action: activeStep,
         });
-        if (res.status === 0) {
-          message.error('Email has been registered, please try again.');
-        }
-        // TODO Add status check
         setActiveStep(1);
       } else if (activeStep === 1) {
         const res = await actions.register({
@@ -84,21 +90,18 @@ export default () => {
           action: activeStep,
           code: _.get(data, 'code'),
         });
-        // TODO Add status check
         setActiveStep(2);
-        console.log('--res--\n', res);
       } else if (activeStep === 2) {
         const res = await actions.register({
           ...signUpInfo,
           action: activeStep,
-          password: _.get(data, 'password'),
+          password: encode(_.get(data, 'password')),
           region: _.get(data, 'region'),
           currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', DEFAULT_CURRENCY),
           name: _.get(data, 'name'),
           avatar: '',
           hide: 0,
         });
-        console.log('--res--\n', res);
         if (res.status === 0) {
           message.success('Welcome to Apex - Food For ALl!');
           navigate('/home');
@@ -121,15 +124,11 @@ export default () => {
     }))
   }, []);
 
-  useEffect(() => {
-    console.log('--signUpInfo--\n', signUpInfo);
-  }, [signUpInfo]);
-
   const activeComponentProps = useMemo(() => ({
-    ...(activeStep === 0 && { btnLabel: "type" }),
+    ...(activeStep === 0 && { btnLabel: "type", validEmail }),
     onChange: handleActiveComponentChange,
     username: _.get(signUpInfo, 'username', '')
-  }), [activeStep, handleActiveComponentChange, signUpInfo]);
+  }), [activeStep, handleActiveComponentChange, signUpInfo, validEmail]);
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="sm">
@@ -160,7 +159,7 @@ export default () => {
               </Step>
             ))}
           </Stepper>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
             {
               !loading
                 ? <ActiveComponent {...activeComponentProps} />
@@ -190,7 +189,7 @@ export default () => {
             </Box>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>

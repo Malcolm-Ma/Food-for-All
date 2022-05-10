@@ -96,7 +96,7 @@ export default function ShowProjectCard(props) {
         component="img"
         height="194"
         image={SERVICE_BASE_URL + _.get(project, 'background_image')}
-        alt={_.get(project, 'background_image')}
+        onError={(e) => e.target.src = require('src/assets/broken-1.png')}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary" noWrap={true}>
