@@ -387,7 +387,7 @@ export default () => {
           </Grid>
           }
 
-          <Grid item xs={12} display={editDisplay}>
+          {_.get(userInfo, 'type') !== 1 && <Grid item xs={12} display={editDisplay}>
             <LoadingButton
               variant="contained"
               loading={download}
@@ -396,6 +396,7 @@ export default () => {
               Download Report
             </LoadingButton>
           </Grid>
+          }
 
           {display !== 'none' && <Grid item xs={12}>
             <form onSubmit={handleSubmit}>
@@ -473,16 +474,16 @@ export default () => {
         </Grid>
       </Grid>
 
-      <Grid item xs={8} rowSpacing={2}>
+      {_.get(userInfo, 'type') !== 1 && <Grid item xs={8} rowSpacing={2}>
         {/*Donor*/}
         {!(_.isEmpty(history)) && _.get(userInfo, 'type') !== 1
           ? <Grid item xs={12}>
-            <Typography textAlign="left" >Donation History</Typography>
-            <TableContainer sx={{ maxHeight: 600 }} component={Paper}>
+            <Typography textAlign="left">Donation History</Typography>
+            <TableContainer sx={{maxHeight: 600}} component={Paper}>
               <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
                 <TableHead>
                   <TableRow>
-                    <TableCell />
+                    <TableCell/>
                     <TableCell>Project Title</TableCell>
                     <TableCell align="right">Total number</TableCell>
                     <TableCell align="right">Price</TableCell>
@@ -491,13 +492,13 @@ export default () => {
                 </TableHead>
                 <TableBody>
                   {history.map((row) => (
-                    <Row key={row.title} row={row} />
+                    <Row key={row.title} row={row}/>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-        </Grid>
-        : <CircularProgress />
+          </Grid>
+          : <CircularProgress/>
         }
 
         {/*Charity*/}
@@ -507,6 +508,7 @@ export default () => {
           {/*/>*/}
         </Grid>}
       </Grid>
+      }
     </Grid>
   );
 };
