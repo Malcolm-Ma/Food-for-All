@@ -157,7 +157,7 @@ export default (props) => {
           <InputBase
             sx={{ ml: 1, flex: 1 }}
             placeholder="Search Project"
-            inputProps={{ 'aria-label': 'search project' , 'maxlength': 30}}
+            inputProps={{ 'aria-label': 'search project' , 'maxLength': 30}}
             id="search-item"
             name="search"
             label="search-item"

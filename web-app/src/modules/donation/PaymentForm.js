@@ -8,10 +8,10 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import _ from 'lodash';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 import Box from "@mui/material/Box";
 import moment from "moment";
@@ -20,21 +20,26 @@ import { SECRET_KEY } from "src/constants/constants";
 import actions from "src/actions";
 import { message } from "antd";
 import Alert from "@mui/material/Alert";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const SAMPLE_DONATION = [4, 12, 24];
 
 export default (props) => {
-  const { projectDetail } = props;
+  const { projectDetail: originalProjectDetail } = props;
 
-  const { regionInfo } = useSelector(state => state.global);
+  const { regionInfo, currencyList } = useSelector(state => state.global);
   const { userInfo } = useSelector(state => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const [projectDetail, setProjectDetail] = useState(originalProjectDetail);
   const [donationType, setDonationType] = useState('monthly');
   const [donationCount, setDonationCount] = useState(SAMPLE_DONATION[0]);
   const [donationPrice, setDonationPrice] = useState(donationCount * projectDetail.price);
   const [customCount, setCustomCount] = useState('');
+  const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
+  const [currentCurrency, setCurrentCurrency] = useState({});
 
   const [alert, setAlert] = useState(false);
 
@@ -81,7 +86,7 @@ export default (props) => {
       const payDetail = await actions.payByDonator({
         "pid": _.get(projectDetail, 'pid'),
         "num": _.toNumber(donationCount),
-        "currency_type": regionInfo.currencyType,
+        "currency_type": currentCurrency.value,
         "plan": plan,
         "return_url": returnUrl,
         "cancel_url": returnUrl,
@@ -91,13 +96,49 @@ export default (props) => {
     } catch (e) {
       message.error(e.name);
     }
-  }, [donationCount, donationType, projectDetail, regionInfo.currencyType]);
+  }, [currentCurrency.value, donationCount, donationType, projectDetail]);
+
+  useEffect(() => {
+    if (!_.isEmpty(currentCurrency)) {
+      (async () => {
+        const { project_info: projectInfo } = await actions.getProjectInfo({
+          pid: originalProjectDetail.pid,
+          currency_type: currentCurrency.value,
+        });
+        setProjectDetail(projectInfo);
+        setDonationPrice(_.ceil(donationCount * projectInfo.price, 2));
+      })();
+    }
+  }, [currentCurrency, originalProjectDetail.pid]);
 
   useEffect(() => {
     if (!_.isEmpty(userInfo) && _.get(userInfo, 'type') === 1) {
       setAlert(true);
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    if (!_.isEmpty(currencyList)) {
+      const currentObj = _.find(
+        currencyList,
+        (item) => item.value === (_.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
+      );
+      setCurrentCurrency({ label: `${currentObj.value} (${currentObj.label})`, value: currentObj.value })
+      const thisList = _.map(currencyList, ({ label, value }) => {
+        return { label: `${value} (${label})`, value };
+        // return `${value} (${label})`;
+      });
+      setFormattedCurrencyList(thisList);
+    }
+  }, [currencyList, regionInfo, userInfo]);
+
+  useEffect(() => {
+    dispatch(actions.getCurrencyList()).catch(err => console.error(err));
+  }, [dispatch]);
+
+
+  console.log('--currencyList--\n', currencyList);
+  console.log('--currentCurrency--\n', currentCurrency);
 
   return (
     <Container
@@ -140,6 +181,20 @@ export default (props) => {
               </Typography>
             </Grid>
             <Grid item xs={12}>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                id="currency"
+                options={formattedCurrencyList}
+                value={currentCurrency}
+                onChange={(e, value) => setCurrentCurrency(value)}
+                renderInput={(params) => <TextField
+                  {...params}
+                  label="Select Currency"
+                />}
+              />
+            </Grid>
+            <Grid item xs={12}>
               <Typography
                 variant="h6"
                 align="center"
@@ -149,7 +204,7 @@ export default (props) => {
                   backgroundColor: '#72b1dc',
                   color: '#fff',
                 }}>
-                Price Per Meal: {regionInfo.currencyType} {_.get(projectDetail, 'price')}<br />
+                Price Per Meal: {currentCurrency.value} {_.get(projectDetail, 'price')}<br />
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -184,7 +239,7 @@ export default (props) => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h6" align="center" color="rgba(0, 0, 0, 0.6)">
-                Total Donation Price: <b>{regionInfo.currencyType} {donationPrice}</b>
+                Total Donation Price: <b>{currentCurrency.value} {donationPrice}</b>
               </Typography>
             </Grid>
           </Grid>

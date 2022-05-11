@@ -46,6 +46,7 @@ export default function ShowProjectCard(props) {
   const [openDialog, setOpenDialog] = React.useState(false);
 
   const { userInfo } = useSelector(state => state.user);
+  const { regionInfo } = useSelector(state => state.global);
 
   const handleClickOpen = () => {
     setOpenDialog(true);
@@ -93,7 +94,7 @@ export default function ShowProjectCard(props) {
         }
         action={
           <Button href={`/donation/${project.pid}`}>
-            {userInfo.currency_type} {_.get(project, 'price')}
+            {userInfo.currency_type || regionInfo.currencyType} {_.get(project, 'price')}
           </Button>
         }
         title={
