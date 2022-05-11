@@ -32,8 +32,8 @@ class Mail(object):
                Mail.get_line('© Food For All') + \
                '<br>'
 
-    @staticmethod
     # Send an email with verification code for a user to register.
+    @staticmethod
     def regis_verify(mail, code, fail_silently=True):
         html_message = Mail.get_header() + \
                        Mail.get_line('Thank you for signing up to Food For All!', 'title') + \
@@ -48,8 +48,8 @@ class Mail(object):
         send_mail('Food For All - Your verification code',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
-    @staticmethod
     # Send a welcome email when a user completes registration.
+    @staticmethod
     def welcome(mail, fail_silently=True):
         html_message = Mail.get_header() + \
                        Mail.get_line('Welcome to Food For All!', 'title') + \
