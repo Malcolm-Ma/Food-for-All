@@ -60,7 +60,7 @@ export default function ShowProjectCard(props) {
     setExpanded(!expanded);
   };
 
-  const {project} = props;
+  const {project, currencyType} = props;
 
   function stringToColor(string) {
     let hash = 0;
@@ -92,14 +92,9 @@ export default function ShowProjectCard(props) {
           >
           </Avatar>
         }
-        action={
-          <Button href={`/donation/${project.pid}`}>
-            {userInfo.currency_type || regionInfo.currencyType} {_.get(project, 'price')}
-          </Button>
-        }
         title={
           <Tooltip title={_.get(project, 'title')}>
-            <span className="card-header">{_.get(project, 'title')}</span>
+            <span className="card-header">{_.truncate(_.get(project, 'title'), { length: 25 })}</span>
           </Tooltip>
         }
         subheader={moment(_.get(project, 'end_time') * 1000).format("MMM DD, YYYY")}
@@ -113,7 +108,7 @@ export default function ShowProjectCard(props) {
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary" noWrap={true}>
-          {_.get(project, 'intro')}
+          Price per Meal: {currencyType} {_.get(project, 'price')}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>

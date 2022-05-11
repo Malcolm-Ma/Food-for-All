@@ -182,6 +182,7 @@ export default (props) => {
             </Grid>
             <Grid item xs={12}>
               <Autocomplete
+                disableClearable
                 disablePortal
                 fullWidth
                 id="currency"

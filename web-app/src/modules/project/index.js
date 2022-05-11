@@ -5,7 +5,7 @@
 
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 // material
-import {Container, Icon, Stack, Typography} from '@mui/material';
+import { Container, Grid, Icon, Stack, TextField, Typography } from '@mui/material';
 // components
 import { ProjectList } from 'src/components/ProjectCardList';
 //
@@ -32,6 +32,7 @@ import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import Autocomplete from "@mui/material/Autocomplete";
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
     <Menu
@@ -78,15 +79,21 @@ export default (props) => {
 
   const {} = props;
   const dispatch = useDispatch();
-  const [projectInfo, setProjectInfo] = useState({});
+  const [projectDetail, setProjectDetail] = useState({});
   const [prepareMode, setPrepareMode] = useState(false);
   const { userInfo } = useSelector(state => state.user);
+  const { regionInfo, currencyList } = useSelector(state => state.global);
+
 //Search
   const [searchItem, setSearchItem] = useState(' ');
 //Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [sortItem, setSortItem] = React.useState('charity');
+
+  const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
+  const [currentCurrency, setCurrentCurrency] = useState({});
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -104,7 +111,7 @@ export default (props) => {
   const getProjectList = useCallback(async () => {
     try {
       let res = await actions.getProjectList({
-        currency_type: userInfo.currency_type || DEFAULT_CURRENCY,
+        currency_type: currentCurrency.value,
         page_info: {
           page_size: 10000,
           page: 1
@@ -127,92 +134,133 @@ export default (props) => {
         pageInfo,
         currencyType,
       };
-      setProjectInfo(result);
+      setProjectDetail(result);
       console.log(projectInfo);
     } catch (e) {
       console.error(e);
     }
-  }, [searchItem, sortItem, userInfo.currency_type]);
+  }, [currentCurrency.value, searchItem, sortItem]);
 
   useEffect(() => {
-    getProjectList().catch(err => console.error(err));
-  }, [dispatch, getProjectList]);
+    if (!_.isEmpty(currentCurrency)) {
+      getProjectList().catch(err => console.error(err));
+    }
+  }, [currentCurrency, dispatch, getProjectList]);
+
+  useEffect(() => {
+    dispatch(actions.getCurrencyList()).catch(err => console.error(err));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!_.isEmpty(currencyList)) {
+      const currentObj = _.find(
+        currencyList,
+        (item) => item.value === (_.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
+      );
+      setCurrentCurrency({ label: `${currentObj.value} (${currentObj.label})`, value: currentObj.value })
+      const thisList = _.map(currencyList, ({ label, value }) => {
+        return { label: `${value} (${label})`, value };
+        // return `${value} (${label})`;
+      });
+      setFormattedCurrencyList(thisList);
+    }
+  }, [currencyList, regionInfo, userInfo]);
 
   return (
     <Container className="project">
-      <Stack
-        direction={{xs: 'column', sm: 'row'}}
+      <Typography variant="h4">Choose a Project</Typography>
+      <Grid
+        container
+        sx={{ pb: 4, pt: 4 }}
+        spacing={2}
         justifyContent="space-between"
-        sx={{ pb: 4 }}
+        alignItems="center"
       >
-        <Typography variant="h4">Choose a Project</Typography>
-        <Paper
-          component="form"
-          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', mt: {xs: 2, sm: 0}, mb: {xs: 2, sm: 0} }}
-          onSubmit={handleSearchProject}
-        >
-          <Icon aria-label="menu" sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', pl: 2, pr:1}}>
-            <MenuIcon />
-          </Icon>
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="Search Project"
-            inputProps={{ 'aria-label': 'search project' , 'maxLength': 30}}
-            id="search-item"
-            name="search"
-            label="search-item"
+        <Grid item xs={12} sm={4}>
+          <Paper
+            component="form"
+            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', mt: {xs: 2, sm: 0}, mb: {xs: 2, sm: 0} }}
+            onSubmit={handleSearchProject}
+          >
+            <Icon aria-label="menu" sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', pl: 2, pr:1}}>
+              <MenuIcon />
+            </Icon>
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Search Project"
+              inputProps={{ 'aria-label': 'search project' , 'maxLength': 30}}
+              id="search-item"
+              name="search"
+              label="search-item"
 
+            />
+            <IconButton sx={{ p: '10px' }} aria-label="search" type="submit" >
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Autocomplete
+            disableClearable
+            disablePortal
+            id="currency"
+            options={formattedCurrencyList}
+            value={currentCurrency}
+            onChange={(e, value) => setCurrentCurrency(value)}
+            renderInput={(params) => <TextField
+              {...params}
+              label="Select Currency"
+            />}
           />
-          <IconButton sx={{ p: '10px' }} aria-label="search" type="submit" >
-            <SearchIcon />
-          </IconButton>
-        </Paper>
-        <Button
-          id="demo-customized-button"
-          aria-controls={open ? 'demo-customized-menu' : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
-          variant="contained"
-          disableElevation
-          onClick={handleClick}
-          endIcon={<KeyboardArrowDownIcon />}
-        >
-          Sort by
-        </Button>
-        <StyledMenu
-          id="demo-customized-menu"
-          MenuListProps={{
-            'aria-labelledby': 'demo-customized-button',
-          }}
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          onSubmit = {handleClose}
-        >
-          <MenuItem label="charity" id='charity' onClick={handleClose} disableRipple>
-            <PeopleIcon />
-            Charity
-          </MenuItem>
-          <MenuItem label="price" id='price' onClick={handleClose} disableRipple>
-            <CheckCircleOutlineIcon />
-            Price
-          </MenuItem>
-          <MenuItem label="start_time" id='start_time' onClick={handleClose} disableRipple>
-            <AccessTimeIcon />
-            Start Time
-          </MenuItem>
-          <MenuItem label="end_time" id='end_time' onClick={handleClose} disableRipple>
-            <AccessAlarmIcon />
-            End Time
-          </MenuItem>
-          <MenuItem label="title" id='title' onClick={handleClose} disableRipple>
-            <TitleIcon />
-            Title
-          </MenuItem>
-        </StyledMenu>
-      </Stack>
+        </Grid>
+        <Grid item xs={12} sm={2}>
+          <Button
+            id="demo-customized-button"
+            aria-controls={open ? 'demo-customized-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            variant="contained"
+            disableElevation
+            onClick={handleClick}
+            endIcon={<KeyboardArrowDownIcon />}
+          >
+            Sort by
+          </Button>
+          <StyledMenu
+            id="demo-customized-menu"
+            MenuListProps={{
+              'aria-labelledby': 'demo-customized-button',
+            }}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            onSubmit = {handleClose}
+          >
+            <MenuItem label="charity" id='charity' onClick={handleClose} disableRipple>
+              <PeopleIcon />
+              Charity
+            </MenuItem>
+            <MenuItem label="price" id='price' onClick={handleClose} disableRipple>
+              <CheckCircleOutlineIcon />
+              Price
+            </MenuItem>
+            <MenuItem label="start_time" id='start_time' onClick={handleClose} disableRipple>
+              <AccessTimeIcon />
+              Start Time
+            </MenuItem>
+            <MenuItem label="end_time" id='end_time' onClick={handleClose} disableRipple>
+              <AccessAlarmIcon />
+              End Time
+            </MenuItem>
+            <MenuItem label="title" id='title' onClick={handleClose} disableRipple>
+              <TitleIcon />
+              Title
+            </MenuItem>
+          </StyledMenu>
+        </Grid>
+      </Grid>
       <Box>
-        <ProjectList projects={_.get(projectInfo, 'projectInfo', [])} />
+        <ProjectList currencyType={currentCurrency.value} projects={_.get(projectDetail, 'projectInfo', [])} />
       </Box>
     </Container>
   );
