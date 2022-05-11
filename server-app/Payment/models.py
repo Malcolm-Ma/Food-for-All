@@ -3,9 +3,13 @@ import requests
 import json
 import time
 
+# The code in this script is used to interact with the paypal sandbox interface in order to implement the payment function
+
 payment_authorization = {"token_type": "", "access_token": "", "expires_time": int(time.time()) - 1}
 
+# Payment class
 class Payment(object):
+    # Function to get authentication information from paypal sandbox
     @staticmethod
     def authorization(client_id=PAYMENT_CLIENT_ID, secret=PAYMENT_CLIENT_SECRET):
         global payment_authorization
@@ -19,6 +23,7 @@ class Payment(object):
             payment_authorization["expires_time"] = int(time.time()) + response_dict["expires_in"]
         return payment_authorization
 
+    # Function to request a product ID for a project in the paypal sandbox
     @staticmethod
     def create_product(product_name, product_description, home_url, image_url):
         authorization_dict = Payment.authorization()
@@ -38,6 +43,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Functions for creating an order of project in paypal sandbox
     @staticmethod
     def create_order(currency_type, price, return_url, cancel_url):
         authorization_dict = Payment.authorization()
@@ -78,6 +84,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Function for collecting and confirming whether an order has been paid or not in the paypal sandbox
     @staticmethod
     def capture_order(order_id):
         authorization_dict = Payment.authorization()
@@ -91,6 +98,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Functions for spending money in paypal sandbox
     @staticmethod
     def create_payout(currency_type, price, receiver):
         authorization_dict = Payment.authorization()
@@ -115,6 +123,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Function for creating a subscription plan ID for an project in the paypal sandbox
     @staticmethod
     def create_plan(product_id, plan_name, plan_description, currency_type, price):
         authorization_dict = Payment.authorization()
@@ -163,6 +172,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Function for activating subscription plan
     @staticmethod
     def activate_plan(plan_id):
         authorization_dict = Payment.authorization()
@@ -178,6 +188,7 @@ class Payment(object):
         else:
             return False
 
+    # Function for deactivating subscription plan
     @staticmethod
     def deactivate_plan(plan_id):
         authorization_dict = Payment.authorization()
@@ -193,6 +204,7 @@ class Payment(object):
         else:
             return False
 
+    # Function for creating subscription plan order in the paypal sandbox
     @staticmethod
     def create_subscription(plan_id, brand_name, return_url, cancel_url):
         authorization_dict = Payment.authorization()
@@ -219,6 +231,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Function for getting information of subscription plans
     @staticmethod
     def show_subscription(subscription_id):
         authorization_dict = Payment.authorization()
@@ -231,6 +244,7 @@ class Payment(object):
         response_dict = json.loads(response.content)
         return response_dict
 
+    # Function for canceling subscription plan order in the paypal sandbox
     @staticmethod
     def cancel_subscription(subscription_id, reason):
         authorization_dict = Payment.authorization()
@@ -247,6 +261,7 @@ class Payment(object):
         else:
             return False
 
+    # Function for suspendding subscription plan order in the paypal sandbox
     @staticmethod
     def suspend_subscription(subscription_id, reason):
         authorization_dict = Payment.authorization()

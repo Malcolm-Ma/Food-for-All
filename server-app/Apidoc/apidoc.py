@@ -7,6 +7,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 
 isShell = platform.system() == 'Windows'
 
+# Generate interface documentation files via external call
 p = subprocess.Popen(['npm', 'run', 'doc'], shell=isShell, cwd=CURRENT_DIR, stderr=subprocess.PIPE)
 p.wait()  # wait for response
 npm_res = p.returncode

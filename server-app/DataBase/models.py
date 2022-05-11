@@ -4,6 +4,8 @@ from django.db.models import F, Q
 import math
 from Common.utils import *
 
+# The code in this script defines the database related classes and methods
+
 USER_TYPE = {"admin": 0,
              "charity": 1,
              "guest": 2}
@@ -13,6 +15,7 @@ PROJECT_STATUS = {"prepare": 0,
                   "finish": 2,
                   "pause": 3}
 
+# Class that define user information
 class DUser(models.Model):
     uid = models.CharField(max_length=64, unique=True)
     mail = models.EmailField(unique=True)
@@ -29,6 +32,7 @@ class DUser(models.Model):
     share_mail_history = models.CharField(max_length=512)
     hide = models.IntegerField()
 
+    # Converting class information into easy to read information
     def to_dict(self, fields=tuple(), check_hide=False):
         if self.type == USER_TYPE["charity"]:
             check_hide = False
@@ -46,6 +50,7 @@ class DUser(models.Model):
                     user_dict[i] = "*"
         return user_dict
 
+    # Applying updates to the database
     def update_from_fict(self, update_dict):
         allow_fields = ("mail", "password", "name", "avatar", "type", "region", "currency_type", "last_login_time", "share_mail_history", "hide")
         update_fields = [i for i in update_dict if i in allow_fields]
@@ -86,6 +91,7 @@ class DUser(models.Model):
         except:
             raise ServerError("user update failed")
 
+    # Function for creating user
     @staticmethod
     def create(create_dict):
         must_fields = ["mail", "password", "type", "region", "currency_type", "name", "avatar", "hide"]
@@ -119,6 +125,7 @@ class DUser(models.Model):
         except:
             raise ServerError("user creation failed")
 
+    # Function for charity users to create a project
     def create_project(self):
         if self.type != USER_TYPE["charity"]:
             #return STATUS_CODE["operation is not available to individual user"], -1
@@ -150,6 +157,7 @@ class DUser(models.Model):
             #return STATUS_CODE["project creation failed"], -1
             raise ServerError("project creation failed")
 
+    # Function for charity users to delete a project in prepare mode
     def delete_project(self, project):
         if project.uid != self.uid:
             #return STATUS_CODE["user is not the owner of the project"]
@@ -162,6 +170,7 @@ class DUser(models.Model):
         project.delete()
         return True
 
+    # Function for charity users to start a project
     def start_project(self, project):
         if project.uid != self.uid:
             raise ServerError("user is not the owner of the project")
@@ -186,6 +195,7 @@ class DUser(models.Model):
         except ServerError as se:
             raise ServerError("project start up failed")
 
+    # Function for charity users to suspend a project in ongoing mode
     def suspend_project(self, project):
         if project.uid != self.uid:
             raise ServerError("user is not the owner of the project")
@@ -206,6 +216,7 @@ class DUser(models.Model):
         except ServerError as se:
             raise ServerError("project suspension failed")
 
+    # Function for charity users to stop a project
     def stop_project(self, project):
         if project.uid != self.uid:
             raise ServerError("user is not the owner of the project")
@@ -226,6 +237,7 @@ class DUser(models.Model):
         except ServerError as se:
             raise ServerError("project stop failed")
 
+    # Function for updating a user's list of projects in the database
     def add_project_to_list(self, pid):
         project = eval(self.project)
         project.append(pid)
@@ -233,6 +245,7 @@ class DUser(models.Model):
         self.save(update_fields=["project"])
         return True
 
+    # Function for deleting a user's list of projects in the database
     def delete_project_from_list(user, pid):
         project = eval(user.project)
         if pid in project:
@@ -241,6 +254,7 @@ class DUser(models.Model):
             user.save(update_fields=["project"])
         return True
 
+    # Generate a unique user ID
     @staticmethod
     def gen_uid(seq=""):
         id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
@@ -248,6 +262,7 @@ class DUser(models.Model):
             id = DUser.gen_uid(seq=seq)
         return id
 
+    # Get user details from the database
     @staticmethod
     def get_user(filter_dict):
         if len(filter_dict) != 1 or ("uid" not in filter_dict and "mail" not in filter_dict):
@@ -258,6 +273,7 @@ class DUser(models.Model):
         except:
             return ""
 
+    # Function for displaying information on the admin side
     def short_donate_history(self):
         max_len = 256
         if len(str(self.donate_history)) > max_len:
@@ -265,6 +281,7 @@ class DUser(models.Model):
         else:
             return str(self.donate_history)
 
+    # Function for displaying information on the admin side
     def short_project(self):
         max_len = 256
         if len(str(self.project)) > max_len:
@@ -272,6 +289,7 @@ class DUser(models.Model):
         else:
             return str(self.project)
 
+# Class that define project information
 class DProject(models.Model):
     pid = models.CharField(max_length=64, unique=True)
     uid = models.CharField(max_length=64)
@@ -292,6 +310,7 @@ class DProject(models.Model):
     price = models.FloatField()
     donate_history = models.TextField()
 
+    # Converting class information into easy to read information
     def to_dict(self, fields=tuple(), currency_type=""):
         self.auto_update_status()
         project_dict = {}
@@ -310,6 +329,7 @@ class DProject(models.Model):
                 raise ServerError("invalid currency type")
         return project_dict
 
+    # Function to verify project status and keep it up to date
     def auto_update_status(self):
         if (self.status == PROJECT_STATUS["ongoing"] or self.status == PROJECT_STATUS["pause"]) and (self.end_time <= int(time.time()) or self.current_num >= self.total_num):
             try:
@@ -321,6 +341,7 @@ class DProject(models.Model):
             except:
                 logger_standard.error("Project {pid} auto update status failed.".format(self.pid))
 
+    # Applying updates to the database
     def update_from_fict(self, update_dict):
         allow_fields = ("title", "intro", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history", "product_id")
         update_fields = [i for i in update_dict if i in allow_fields]
@@ -343,6 +364,7 @@ class DProject(models.Model):
         except:
             raise ServerError("project update failed")
 
+    # Generate a unique project ID
     @staticmethod
     def gen_pid(seq=""):
         id = md5((str(time.time()) + seq).encode("utf-8")).hexdigest()
@@ -350,6 +372,7 @@ class DProject(models.Model):
             id = DProject.gen_pid(seq=seq)
         return id
 
+    # Get project details from the database
     @staticmethod
     def get_project(filter_dict):
         if len(filter_dict) != 1 or "pid" not in filter_dict:
@@ -360,6 +383,7 @@ class DProject(models.Model):
         except:
             return ""
 
+    # Function for displaying information on the admin side
     def short_details(self):
         max_len = 256
         if len(str(self.details)) > max_len:
@@ -367,6 +391,7 @@ class DProject(models.Model):
         else:
             return str(self.details)
 
+    # Function for displaying information on the admin side
     def short_donate_history(self):
         max_len = 256
         if len(str(self.donate_history)) > max_len:
@@ -374,8 +399,10 @@ class DProject(models.Model):
         else:
             return str(self.donate_history)
 
+# Classe that define project-list information
 class DProjectQuery(object):
 
+    # Define the allowed sorting methods
     order_list = ["title", "-title", "charity", "-charity", "price", "-price",
                   "start_time", "-start_time", "end_time", "-end_time", "progress", "-progress"]
 
@@ -383,6 +410,7 @@ class DProjectQuery(object):
         self.model = DProject
         self.query = ""
 
+    # Converting class information into easy to read information
     def to_dict(self, fields=tuple(), currency_type=""):
         projects_dict = {}
         allow_fields = ("pid", "uid", "title", "intro", "region", "charity", "charity_avatar", "background_image", "status", "total_num", "current_num", "start_time", "end_time", "details", "price", "donate_history")
@@ -391,6 +419,7 @@ class DProjectQuery(object):
             projects_dict[str(i)] = self.query[i].to_dict(fields=fields, currency_type=currency_type)
         return projects_dict
 
+    # Read the full list of projects (for a specific user) from the database
     def get_all(self, uid=""):
         if uid:
             self.query = self.model.objects.filter(uid=uid)
@@ -398,6 +427,7 @@ class DProjectQuery(object):
             self.query = self.model.objects.all()
         return self.query
 
+    # Retrieve the list of currently active projects (for a specific user) from the database
     def get_ready(self, uid="", valid_only=1):
         exclude_conditions = {}
         filter_conditions = {}
@@ -410,10 +440,12 @@ class DProjectQuery(object):
         self.query = self.model.objects.filter(**filter_conditions).exclude(**exclude_conditions)
         return self.query
 
+    # Retrieve the list of projects in prepare mode (for a specific user) from the database
     def get_prepare(self, uid):
         self.query = self.model.objects.filter(**{"uid": uid, "status": PROJECT_STATUS["prepare"]})
         return self.query
 
+    # Sort the list of projects as required
     def order_by(self, order):
         if order not in self.order_list:
             raise ServerError("project order invalid")
@@ -426,6 +458,7 @@ class DProjectQuery(object):
         self.query = self.query.order_by(order)
         return self.query
 
+    # Filter the list of projects by search terms
     def search(self, key_word):
         if key_word == "" or not self.query:
             return self.query
@@ -435,6 +468,7 @@ class DProjectQuery(object):
         self.query = self.query.filter(q)
         return self.query
 
+    # Filter the list of projects by condition
     def filter(self, current_batch, batch_size, order, key_word, currency_type, fields=("pid", "uid", "title", "intro", "region",
                                              "charity", "charity_avatar", "background_image", "price",
                                              "current_num", "total_num", "start_time", "end_time", "status")):
@@ -446,6 +480,7 @@ class DProjectQuery(object):
         projects_dict = self.to_dict(fields=fields, currency_type=currency_type)
         return projects_dict, batch_num
 
+# This class has been temporarily deprecated and a better way to replace it has been found
 class Param(models.Model):
     key = models.CharField(max_length=256)
     value = models.TextField()

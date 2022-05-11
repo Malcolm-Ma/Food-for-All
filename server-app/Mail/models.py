@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from FoodForAll.settings import EMAIL_HOST_USER, VERIFY_CODE_EXPIRES
 
-
+# Mail class for sending emails to users on demand
 class Mail(object):
     @staticmethod
     def get_line(text, style=''):
@@ -27,6 +27,7 @@ class Mail(object):
                Mail.get_line('© Food For All') + \
                '<br>'
 
+    # Function for sending a verification code when a user registers
     @staticmethod
     def regis_verify(mail, code, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -42,6 +43,7 @@ class Mail(object):
         send_mail('Food For All - Your verification code',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
+    # Function for sending a notification email when a user registers successfully
     @staticmethod
     def welcome(mail, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -53,6 +55,7 @@ class Mail(object):
         send_mail('Welcome to Food For All!',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
+    #Function for sending a verification code when a user resets his/her password
     @staticmethod
     def reset_password_verify(mail, code, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -70,6 +73,7 @@ class Mail(object):
         send_mail('Food for All - Your verification code for password reset',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
+    # Function for sending a notification email when a user has successfully reset their password
     @staticmethod
     def reset_password_success(mail, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -80,6 +84,7 @@ class Mail(object):
         send_mail('Food For All - You have reset your password',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
+    # Function for sending invitation emails to invited users
     @staticmethod
     def share(share_info, fail_silently=True):
         share_info['user_name'] = '' if not share_info['user_name'] else ' ' + share_info['user_name']

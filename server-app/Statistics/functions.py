@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 
+# The code of this script contains a number of functions for generating statistical information
 
 class Statistics(object):
     @staticmethod
@@ -249,9 +250,12 @@ class Statistics(object):
                         regional_dist_dict[region] += project_ratio
                     else:
                         regional_dist_dict[region] = project_ratio
-        regional_dist = sorted(regional_dist_dict.items(), key=lambda x: x[1], reverse=True)
-        region_list, ratio_list = zip(*regional_dist)
-        regional_dist = [region_list, ratio_list]
+        if regional_dist_dict:
+            regional_dist = sorted(regional_dist_dict.items(), key=lambda x: x[1], reverse=True)
+            region_list, ratio_list = zip(*regional_dist)
+            regional_dist = [region_list, ratio_list]
+        else:
+            regional_dist = [['Anonymous donor'], [1]]
         return regional_dist
 
     @staticmethod

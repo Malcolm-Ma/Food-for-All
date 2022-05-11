@@ -9,19 +9,24 @@ import hashlib
 from django.contrib.auth.hashers import make_password
 from Login.functions import encode_password
 
+# The code of this script contains some functional functions that need to be used when generating the demo
+
 random.seed(int(time.time()))
 Faker.seed(int(time.time()))
 fk = Faker(locale = 'en')
 
+# Read resource files (project text content) for demo generation
 def read_init_project_info():
     with open(os.path.join(RESOURCE_DIR, "debug_init_project.csv"), "r", encoding="UTF-8") as f:
         project_list = list(csv.reader(f))
     return project_list
 
+# Dict of resource
 resource_file = {"avatar": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "avatar")) if i.endswith(".jpg")],
                  "background_image": [i for i in os.listdir(os.path.join(RESOURCE_DIR, "background_image")) if i.endswith(".jpg")],
                  "project_info": read_init_project_info()}
 
+# Function for emptying the database
 def clear_database():
     DUser.objects.all().delete()
     DProject.objects.all().delete()
@@ -30,6 +35,7 @@ def clear_database():
         if os.path.isfile(os.path.join(IMG_DIR, i)) and i.endswith(".jpg"):
             os.remove(os.path.join(IMG_DIR, i))
 
+# Function to get a random avatar image online
 def get_random_avatar(num=100, size=256, path=os.path.join(RESOURCE_DIR, "avatar")):
     styles = ['identicon', 'monsterid', 'wavatar']
     for i in range(num):
@@ -40,6 +46,7 @@ def get_random_avatar(num=100, size=256, path=os.path.join(RESOURCE_DIR, "avatar
         with open(os.path.join(path, str(i) + '.jpg'), 'wb') as f:
             f.write(res.content)
 
+# Function to get a random background image online
 def download_random_img(shape=(160, 160), path=IMG_DIR):
     if type(shape) == int:
         shape = (shape, shape)
@@ -54,6 +61,7 @@ def download_random_img(shape=(160, 160), path=IMG_DIR):
             f.write(r.content)
     return os.path.join(STATIC_URL, name)
 
+# Function to simulate file uploads
 def copy_random_img(img_type, path=IMG_DIR):
     name = "".join(fk.random_letters(8)) + ".jpg"
     while os.path.isfile(os.path.join(path, name)):
@@ -64,6 +72,7 @@ def copy_random_img(img_type, path=IMG_DIR):
         return ""
     return os.path.join(STATIC_URL, name)
 
+# Function for generating virtual users in the database
 def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
     password_ori = fk.password()
     fake_user = {"uid": "",
@@ -92,6 +101,7 @@ def create_fake_user(user_type_list=(USER_TYPE["charity"], USER_TYPE["guest"])):
     except:
         return create_fake_user(user_type_list=user_type_list)
 
+# Functions for generating virtual projects in the database
 def create_fake_project(uid, donate_history, project_info):
     donate_history = copy.deepcopy(donate_history)
     user = DUser.get_user({"uid": uid})
@@ -184,6 +194,7 @@ def create_fake_project(uid, donate_history, project_info):
         user.save(update_fields=["donate_history"])
     return donate_history
 
+# Functions for generating database data using fake data
 def init_database_with_fake_data(user_num=50, project_num=200):
     global resource_file
     resource_file["project_info"] = resource_file["project_info"] * (project_num // len(resource_file["project_info"]) + 1)

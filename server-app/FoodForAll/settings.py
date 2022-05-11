@@ -86,6 +86,7 @@ WSGI_APPLICATION = 'FoodForAll.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+# Database parameters, please follow this configuration to initialise the database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -148,6 +149,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Back-end settings for sending emails
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
@@ -182,6 +184,7 @@ CORS_ALLOW_HEADERS = [
 
 LOG_DIR = os.path.join(BASE_DIR, "LOG")
 
+# Logging system setup
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -224,15 +227,19 @@ LOGGING = {
     },
 }
 
+# Initial setup of the CAPTCHA system
 VERIFY_CODE_EXPIRES = 30 * 60
 VERIFY_CODE_KEY_REGIS = "regis_code"
 VERIFY_CODE_KEY_RESET_PASSWORD = "reset_password_code"
 
+# Settings related to the limit on the number of logins.
+# Avoid malicious attacks on the service period in the form of frequent false logins in a short period of time
 MAX_FAILED_LOGIN_ATTEMPTS_ALLOWED = 10
 MAX_FAILED_LOGIN_INTERVAL_ALLOWED = 5 * 60
 MAX_FAILED_LOGIN_ATTEMPTS_KEY = "login_attempt"
 LOGIN_FORBIDDEN_KEY = "login_forbidden"
 
+# Setup of the caching system
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -256,13 +263,16 @@ CACHES = {
     },
 }
 
+# Initial setup of the payment system
 PAYMENT_CLIENT_ID = 'AT96y4XONeD0OK88DlwW43rU3sSw9lH55Yfz3etD0RvFtTVfoUbwIpMebVjRxkmEeyFf5ycl7Xp7gU1l'
 PAYMENT_CLIENT_SECRET = 'EFC8hviHQf2sFY-hl_IRkg-4mPclc5dfPxlnN6Vz70F8SHf9-hCImLfaBjqTk4m5_pXb7IujTpqo0JF-'
 
+# Resource files path
 RESOURCE_DIR = os.path.join(BASE_DIR, "Resource")
 
 APPEND_SLASH=False
 
+# Dict of status values
 STATUS_CODE = {"success": 0,
                "user has not logged in": 100001,
                "user update failed": 100002,
