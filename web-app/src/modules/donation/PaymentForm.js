@@ -82,6 +82,7 @@ export default (props) => {
 
     //encode for payment
     const returnUrl = window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`;
+    const cancelURL = window.location.origin + `/donation/${_.get(projectDetail, 'pid')}/?tips=1`;
     try {
       const payDetail = await actions.payByDonator({
         "pid": _.get(projectDetail, 'pid'),
@@ -89,7 +90,7 @@ export default (props) => {
         "currency_type": currentCurrency.value,
         "plan": plan,
         "return_url": returnUrl,
-        "cancel_url": returnUrl,
+        "cancel_url": cancelURL,
       });
       window.localStorage.setItem('p_id', _.get(payDetail, 'payment_id'));
       window.location.href = _.get(payDetail, 'payment_url');
@@ -119,16 +120,15 @@ export default (props) => {
 
   useEffect(() => {
     if (!_.isEmpty(currencyList)) {
+      const thisList = _.map(currencyList, ({ label, value }) => {
+        return { label: `${value} (${label})`, value };
+      });
+      setFormattedCurrencyList(thisList);
       const currentObj = _.find(
         currencyList,
         (item) => item.value === (currency || _.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
       );
       setCurrentCurrency({ label: `${currentObj.value} (${currentObj.label})`, value: currentObj.value })
-      const thisList = _.map(currencyList, ({ label, value }) => {
-        return { label: `${value} (${label})`, value };
-        // return `${value} (${label})`;
-      });
-      setFormattedCurrencyList(thisList);
     }
   }, [currency, currencyList, regionInfo, userInfo]);
 
@@ -146,6 +146,11 @@ export default (props) => {
         alert && <Alert severity="warning" sx={{ mb: -2 }} onClose={() => setAlert(false)}>
           Sorry, charities can not donate to a project directly.
           Please logout or login as a donor if you wish to donate.
+        </Alert>
+      }
+      {
+        projectDetail.status === 0 && <Alert severity="info" sx={{ mb: -2, mt: 6 }}>
+          The project is preparing. To publish it, please start this project in the charity system.
         </Alert>
       }
       {
@@ -277,7 +282,7 @@ export default (props) => {
             </Grid>
             <Grid item xs={12}>
               <Button
-                disabled={(!_.isEmpty(userInfo) && _.get(userInfo, 'type') === 1) || projectDetail.status === 2}
+                disabled={(!_.isEmpty(userInfo) && _.get(userInfo, 'type') === 1) || projectDetail.status !== 1}
                 variant="outlined"
                 fullWidth
                 endIcon={

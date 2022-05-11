@@ -152,16 +152,16 @@ export default (props) => {
 
   useEffect(() => {
     if (!_.isEmpty(currencyList)) {
+      const thisList = _.map(currencyList, ({ label, value }) => {
+        return { label: `${value} (${label})`, value };
+      });
+      setFormattedCurrencyList(thisList);
+      // set current currency value obj
       const currentObj = _.find(
         currencyList,
         (item) => item.value === (_.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
       );
       setCurrentCurrency({ label: `${currentObj.value} (${currentObj.label})`, value: currentObj.value })
-      const thisList = _.map(currencyList, ({ label, value }) => {
-        return { label: `${value} (${label})`, value };
-        // return `${value} (${label})`;
-      });
-      setFormattedCurrencyList(thisList);
     }
   }, [currencyList, regionInfo, userInfo]);
 
