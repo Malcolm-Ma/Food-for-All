@@ -44,8 +44,10 @@ export default (props) => {
   const [alert, setAlert] = useState(false);
 
   const handleDonationPrice = useCallback((e, value) => {
-    setDonationCount(value);
-    setDonationPrice(_.ceil(value * projectDetail.price, 2));
+    if (value) {
+      setDonationCount(value);
+      setDonationPrice(_.ceil(value * projectDetail.price, 2));
+    }
   }, [projectDetail.price]);
 
   const handleCustomCountChange = useCallback((e) => {
@@ -57,6 +59,12 @@ export default (props) => {
       handleDonationPrice(null, value);
     }
   }, [handleDonationPrice]);
+
+  const handlePlanChoose = useCallback((e, value) => {
+    if (value) {
+      setDonationType(value);
+    }
+  }, []);
 
   const handlePayment = useCallback(async (event) => {
     event.preventDefault();
@@ -170,7 +178,7 @@ export default (props) => {
                 exclusive={true}
                 fullWidth={true}
                 value={donationType}
-                onChange={(e, value) => setDonationType(value)}
+                onChange={handlePlanChoose}
               >
                 <ToggleButton value="monthly">
                   GIVE MONTHLY

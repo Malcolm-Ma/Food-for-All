@@ -47,6 +47,8 @@ export const STATUS_CODE = {
   "unable to get image file from request": 400002,
   "unable to get document file from request": 400003,
   "temporary ban due to too frequent login attempts": 400004,
+  "create paypal product failed": 500001,
+  "payment capture failed": 500002,
 }
 
 export const SERVICE_BASE_URL = 'http://localhost:8000/'

@@ -6,33 +6,45 @@ import {useEffect, useState} from "react";
 import _ from "lodash";
 import {ToggleButtonGroup} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
-import {Spin} from "antd";
+import {Card, Spin, Statistic} from "antd";
+import {useSelector} from "react-redux";
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
 export default () => {
 
   const [data, setData] = useState();
   const [time, setTime] = useState("half month");
   const [res, setRes] = useState();
+  const [totalMoney, setTotalMoney] = useState(0);
+  const [thisMonth, setThisMonth] = useState(0);
+  const [lastMonth, setLastMonth] = useState(0);
+  const [arrow, setArrow] = useState(<ArrowUpOutlined/>);
+  const [color, setColor] = useState({ color: '#3f8600' });
+  const [percent, setPercent] = useState(0);
+
+  const {userInfo} = useSelector(state => state.user);
 
   const handleChange = (event, newTime) => {
-    setTime(newTime);
-    let days = 0;
-    switch (newTime) {
-      case 'half month':
-        days = 15;
-        break;
-      case 'month':
-        days = 30;
-        break;
-      case 'week':
-        days = 7;
-        break;
-      case 'all':
-        days = 0;
-        break;
+    if (newTime) {
+      setTime(newTime);
+      let days = 0;
+      switch (newTime) {
+        case 'half month':
+          days = 15;
+          break;
+        case 'month':
+          days = 30;
+          break;
+        case 'week':
+          days = 7;
+          break;
+        case 'all':
+          days = 0;
+          break;
+      }
+      initData(days);
     }
-    initData(days);
-  }
+  };
 
   function initData(days) {
     const originalData = _.cloneDeep(res);
@@ -155,6 +167,22 @@ export default () => {
       pid: ""
     });
     setRes(r);
+    setTotalMoney(r.stat['total_money']);
+    setThisMonth(r.stat['this_month_money']);
+    setLastMonth(r.stat['last_month_money']);
+    if (r.stat['last_month_money'] === 0){
+      setArrow(<ArrowUpOutlined />);
+      setColor({ color: '#3f8600' });
+      setPercent(0);
+    } else if (r.stat['this_month_money'] >= r.stat['last_month_money']){
+      setArrow(<ArrowUpOutlined />);
+      setColor({ color: '#3f8600' });
+      setPercent((r.stat['this_month_money']-r.stat['last_month_money'])/r.stat['last_month_money']);
+    } else{
+      setArrow(<ArrowDownOutlined />);
+      setColor({ color: '#cf1322' });
+      setPercent((r.stat['last_month_money']-r.stat['this_month_money'])/r.stat['last_month_money']);
+    }
   }, []);
 
   useEffect(() => {
@@ -163,34 +191,63 @@ export default () => {
     }
   }, [res]);
 
+  const currenc_type = "Sum of Donation ("+userInfo.currency_type+")";
+
   return (
     <>
-      <ToggleButtonGroup
-        color="primary"
-        value={time}
-        exclusive
-        onChange={handleChange}
-      >
-        <ToggleButton value="week">Last Week</ToggleButton>
-        <ToggleButton value="half month">Half Month</ToggleButton>
-        <ToggleButton value="month">Last Month</ToggleButton>
-      </ToggleButtonGroup>
       {
         (!_.isEmpty(data))
-          ? <Grid container rowSpacing={4}>
-            <Grid item xs={6}>
-              <ReactEcharts option={data[1]}/>
+          ? <>
+            <ToggleButtonGroup
+              color="primary"
+              value={time}
+              exclusive
+              onChange={handleChange}
+            >
+              <ToggleButton value="week">Last Week</ToggleButton>
+              <ToggleButton value="half month">Half Month</ToggleButton>
+              <ToggleButton value="month">Last Month</ToggleButton>
+            </ToggleButtonGroup>
+            <Grid container rowSpacing={4}>
+              <Grid item xs={6}>
+                <Card>
+                  <Statistic title={currenc_type} value={totalMoney} precision={2} />
+                </Card>
+                <Card>
+                  <Grid container>
+                    <Grid item xs={4}>
+                      <Statistic title="Last Month" value={lastMonth} precision={2} />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Statistic title="This Month" value={thisMonth} precision={2} />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Statistic
+                        title="Rate"
+                        value={percent * 100}
+                        precision={2}
+                        valueStyle={color}
+                        prefix={arrow}
+                        suffix="%"
+                      />
+                    </Grid>
+                  </Grid>
+                </Card>
+              </Grid>
+              <Grid item xs={6}>
+                <ReactEcharts option={data[1]}/>
+              </Grid>
+              <Grid item xs={12}>
+                <ReactEcharts option={data[0]}/>
+              </Grid>
+              <Grid item xs={12}>
+                <ReactEcharts
+                  option={data[2]}
+                  style={{height:600}}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <ReactEcharts option={data[0]}/>
-            </Grid>
-            <Grid item xs={12}>
-              <ReactEcharts
-                option={data[2]}
-                style={{height:600}}
-              />
-            </Grid>
-          </Grid>
+          </>
           : <div><Spin/></div>
       }
     </>
