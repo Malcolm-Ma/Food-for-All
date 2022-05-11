@@ -31,6 +31,7 @@ import _ from 'lodash';
 
 import actions from "src/actions";
 import { validateEmail } from "src/utils/utils";
+import { encode } from "src/utils/encodePassword";
 
 const theme = createTheme();
 
@@ -87,7 +88,7 @@ export default (props) => {
         action,
         username: email,
         code: _.toUpper(formData.get('code') || ''),
-        password: formData.get('password')
+        password: encode(formData.get('password')),
       });
       if (action === 1) {
         setPasswordField(true);

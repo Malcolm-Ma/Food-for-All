@@ -24,7 +24,7 @@ export default (props) => {
   const [accountType, setAccountType] = useState(ACCOUNT_TYPE[0].value);
 
   const handleButtonChange = (_e, data) => {
-    setAccountType(data);
+    data && setAccountType(data);
   }
 
   useEffect(() => {

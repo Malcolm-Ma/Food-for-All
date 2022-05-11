@@ -55,6 +55,7 @@ def get_stat(request, user):
     regional_dist = Statistics.get_regional_dist(d, dist=False)
     project_title = Statistics.get_project_title(d)
     progress = Statistics.get_monthly_progress(d)
+    money = Statistics.get_history(d)
 
     progress_data = []
     if len(regional_dist[0]) < 8:
@@ -76,7 +77,10 @@ def get_stat(request, user):
         'history': Statistics.get_history(d),
         'pie': progress_data,
         'progress': progress,
-        'title': project_title
+        'history': money[0],
+        'total_money': money[1],
+        'this_month_money': money[2],
+        'last_month_money': money[3]
     }
 
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}

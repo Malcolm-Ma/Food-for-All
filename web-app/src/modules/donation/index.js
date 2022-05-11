@@ -26,7 +26,7 @@ import moment from "moment";
 export default (props) => {
   const {} = props;
   const { pid, currency } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { userinfo } = useSelector(state => state.user);
   const { regionInfo } = useSelector(state => state.global);
@@ -46,21 +46,25 @@ export default (props) => {
             currency_type: currency || regionInfo.currencyType,
           });
           setProjectDetail(res.project_info);
-          console.log(projectDetail);
         } catch (e) {
           console.error(e);
         }
       })();
     }
-  }, [currency, pid, projectDetail, regionInfo, userinfo]);
+  }, [pid, regionInfo, userinfo]);
 
   // show tips by search params
   useEffect(() => {
-    console.log('--searchParams--\n', searchParams);
-    if (searchParams.get('tips') && searchParams.get('tips') === '1') {
-      message.warn('Payment Canceled');
+    if (searchParams.get('tips')) {
+      if (searchParams.get('tips') === '1') {
+        message.warn('Payment Canceled');
+      }
+      if (searchParams.get('tips') === '2') {
+        message.error('Payment Failed. Please check your details and try again!');
+      }
+      setSearchParams({});
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   const theme = createTheme();
   const bgImageUrl = useMemo(() => {
