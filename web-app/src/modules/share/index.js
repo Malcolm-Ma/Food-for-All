@@ -7,7 +7,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import _ from 'lodash';
-import {message} from 'antd';
+import { message, Spin } from 'antd';
 import {useNavigate} from "react-router-dom";
 
 // style import
@@ -145,25 +145,22 @@ export default (props) => {
                     "num": decodeParams.donation_count,
                     "payment_id": paymentId,
                     "plan": decodeParams.plan,
-                })
-            } catch (e) {
-                message.error(e);
-            }
-            setLoading(false);
-        })();
-        (async () => {
-            try {
-                const res = await actions.getProjectInfo({
-                    'pid': decodeParams.pid,
-                    'currency_type': regionInfo.currencyType,
                 });
-                setSharedProject(_.get(res, 'project_info'));
+                try {
+                    const res = await actions.getProjectInfo({
+                        'pid': decodeParams.pid,
+                        'currency_type': regionInfo.currencyType,
+                    });
+                    setLoading(false);
+                    setSharedProject(_.get(res, 'project_info'));
+                } catch (e) {
+                    message.error(e);
+                }
             } catch (e) {
-                message.error(e);
+                navigate(`/donation/${decodeParams.pid}/?tips=2`);
             }
-            setLoading(false);
         })();
-    }, [regionInfo.currencyType, token]);
+    }, [navigate, regionInfo.currencyType, token]);
 
     return (
         <div align="center">
@@ -255,7 +252,7 @@ export default (props) => {
                             </div>
 
                     }</>
-                    : <div>loading</div>
+                    : <div><Spin size="large"></Spin></div>
             }
         </div>
     );

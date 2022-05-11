@@ -82,6 +82,7 @@ export default (props) => {
 
     //encode for payment
     const returnUrl = window.location.origin + `/share?token=${encodeURIComponent(secretStr)}`;
+    console.log('--returnUrl--\n', returnUrl);
     const cancelURL = window.location.origin + `/donation/${_.get(projectDetail, 'pid')}/?tips=1`;
     try {
       const payDetail = await actions.payByDonator({
