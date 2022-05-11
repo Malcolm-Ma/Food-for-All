@@ -22,6 +22,7 @@ export default (props) => {
   const { uid } = useParams();
 
   const { regionInfo } = useSelector(state => state.global);
+  const { userInfo: systemUserInfo } = useSelector(state => state.user);
 
   const [userInfo, setUserInfo] = useState({});
   const [projectInfo, setProjectInfo] = useState({});
@@ -112,7 +113,10 @@ export default (props) => {
         <Box>
           <Box>
             <Container>
-              <ProjectList projects={_.get(projectInfo, 'projectInfo', [])}/>
+              <ProjectList
+                currencyType={systemUserInfo.currency_type || regionInfo.currencyType}
+                projects={_.get(projectInfo, 'projectInfo', [])}
+              />
             </Container>
           </Box>
         </Box>

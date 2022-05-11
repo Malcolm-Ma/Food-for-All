@@ -89,7 +89,7 @@ export default (props) => {
 //Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [sortItem, setSortItem] = React.useState('charity');
+  const [sortItem, setSortItem] = React.useState('-price');
 
   const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
   const [currentCurrency, setCurrentCurrency] = useState({ label: '', value: '' });
@@ -105,7 +105,6 @@ export default (props) => {
   const handleSearchProject = async (event) =>{
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log(data.get('search'));
     setSearchItem(data.get('search'));
   }
   const getProjectList = useCallback(async () => {

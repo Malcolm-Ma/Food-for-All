@@ -56,7 +56,11 @@ export default (props) => {
       }));
       // Success actions
       if (_.get(res, 'uid', null)) {
-        navigate('/', );
+        if (_.get(res, 'type') === 1) {
+          navigate('/charity/project/list', );
+        } else {
+          navigate('/', );
+        }
         message.success('Login successfully!');
       }
     } catch (e) {
