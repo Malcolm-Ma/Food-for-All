@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingButton from "@mui/lab/LoadingButton";
 import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Empty } from 'antd';
 
 
 export default () => {
@@ -63,7 +64,7 @@ export default () => {
   const [name, setName] = useState(userInfo.name);
   const [region, setRegion] = useState(userInfo.region);
   const [currency, setCurrency] = useState(userInfo.currency_type);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(null);
   const [lock, setLock] = useState(()=>{if (userInfo.hide===1){return false}else{return true}});
   const [avatar, setAvatar] = useState(_.get(userInfo, 'avatar'));
   const [loading, setLoading] = useState(false);
@@ -474,12 +475,12 @@ export default () => {
         </Grid>
       </Grid>
 
-      {_.get(userInfo, 'type') !== 1 && <Grid item xs={8} rowSpacing={2}>
+      {_.get(userInfo, 'type') !== 1 && <Grid item xs={8} rowSpacing={2} sx={{position: 'relative'}}>
         {/*Donor*/}
-        {!(_.isEmpty(history)) && _.get(userInfo, 'type') !== 1
+        {!(_.isNil(history)) && _.get(userInfo, 'type') !== 1
           ? <Grid item xs={12}>
             <Typography textAlign="left">Donation History</Typography>
-            <TableContainer sx={{maxHeight: 600}} component={Paper}>
+            <TableContainer sx={{maxHeight: 600, mt: 4}} component={Paper}>
               <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
                 <TableHead>
                   <TableRow>
@@ -490,11 +491,14 @@ export default () => {
                     <TableCell align="right">Total price</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {history.map((row) => (
-                    <Row key={row.title} row={row}/>
-                  ))}
-                </TableBody>
+                {_.isEmpty(history) ? <div style={{ position: 'absolute', left: '32%', top: '50%' }}>
+                    <Empty style={{width: '100%'}} />
+                  </div>
+                  : <TableBody>
+                    {history.map((row) => (
+                      <Row key={row.title} row={row}/>
+                    ))}
+                </TableBody>}
               </Table>
             </TableContainer>
           </Grid>
