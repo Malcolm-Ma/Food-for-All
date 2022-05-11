@@ -31,6 +31,10 @@ export default [
         url: '/income/summary',
       },
       {
+        title: 'Donation History',
+        url: '/income/donation',
+      },
+      {
         title: 'Download Report',
         onCLick: async () => {
           try {
