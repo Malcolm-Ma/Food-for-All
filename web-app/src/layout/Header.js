@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Avatar from 'src/layout/Avatar';
+import { Box } from "@mui/material";
 
 const theme = createTheme({
   status: {
@@ -43,11 +44,19 @@ const Header = (props) => {
           <Typography
             variant="h6"
             component="span"
-            sx={{ flexGrow: 1, cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', mr: 8, }}
             onClick={() => navigate('/')}
           >
             Apex - Food For All
           </Typography>
+          <Box sx={{ flexGrow: 1,  display: { xs: 'none', md: 'flex' } }}>
+            { toC && <Button
+              onClick={() => navigate('/project')}
+              sx={{ my: 2, color: 'rgba(0, 0, 0, 0.65)', display: 'block' }}
+            >
+              Project
+            </Button> }
+          </Box>
           {
             !userInfo.isLoggedIn
               ? <>

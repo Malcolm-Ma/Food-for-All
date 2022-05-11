@@ -26,6 +26,7 @@ import Button from "@mui/material/Button";
 import {TwitterShareButton} from 'react-twitter-embed';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { useNavigate } from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const ExpandMore = styled((props) => {
   const {expand, ...other} = props;
@@ -43,6 +44,8 @@ export default function ShowProjectCard(props) {
 
   const [expanded, setExpanded] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
+
+  const { userInfo } = useSelector(state => state.user);
 
   const handleClickOpen = () => {
     setOpenDialog(true);
@@ -89,7 +92,8 @@ export default function ShowProjectCard(props) {
           </Avatar>
         }
         action={
-          <Button endIcon={<MoreVertIcon/>} href={`/donation/${project.pid}`}>
+          <Button href={`/donation/${project.pid}`}>
+            {userInfo.currency_type} {_.get(project, 'price')}
           </Button>
         }
         title={
