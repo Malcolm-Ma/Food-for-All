@@ -1,9 +1,10 @@
 import _ from "lodash";
-import { message, Table } from "antd";
+import { message, Space, Table } from "antd";
 import { useEffect, useState } from "react";
 import actions from "src/actions";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import Alert from "@mui/material/Alert";
 
 const columnsConfig = [
   {
@@ -52,8 +53,6 @@ const columnsConfig = [
 ]
 
 export default () => {
-
-  const regionInfo = useSelector(state => state.global.regionInfo);
   const { userInfo } = useSelector(state => state.user);
 
   const [dataSource, setDataSource] = useState([]);
@@ -68,7 +67,7 @@ export default () => {
           const projectPromiseAll = _.map(userDonateHistory, async (history, pid) => {
             const { project_info: projectInfo } = await actions.getProjectInfo({
               pid,
-              currency_type: regionInfo.currencyType,
+              currency_type: userInfo.currency_type,
             });
             const donationHistory = _.get(projectInfo, 'donate_history', []);
             const fetchUserPromise = _.map(donationHistory, async (value, uid) => {
@@ -100,6 +99,7 @@ export default () => {
             });
             await Promise.all(fetchUserPromise);
           });
+          // using promise all to fetch data and set data
           await Promise.all(projectPromiseAll).then(() => {
             projectHistoryDetail = _.map(projectHistoryDetail, (item, key) => ({ ...item, key }))
             setDataSource(_.sortBy(projectHistoryDetail, (o) => -o.timestamp));
@@ -110,10 +110,9 @@ export default () => {
       };
       fetchData();
     }
-  }, [userInfo, regionInfo.currencyType]);
+  }, [userInfo]);
 
   useEffect(() => {
-    console.log('--dataSource--\n', dataSource);
     if (!_.isEmpty(dataSource)){
       setLoading(false);
     }
@@ -121,6 +120,9 @@ export default () => {
 
   return (
     <div>
+      <Alert severity="info" style={{marginBottom: '16px'}}>
+        Please note: Some fields have an asterisk value,
+        which indicates that this donor wishes to hide his or her personal information.</Alert>
       <Table
         columns={columnsConfig}
         rowKey={record => record.key}

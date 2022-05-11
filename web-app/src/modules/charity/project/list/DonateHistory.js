@@ -4,12 +4,13 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import {Drawer, Button, Space, message, Table} from 'antd';
+import { Drawer, Button, Space, message, Table } from 'antd';
 import { useSelector } from "react-redux";
 import _ from 'lodash';
 
 import actions from "src/actions";
 import moment from "moment";
+import Alert from "@mui/material/Alert";
 
 const columnsConfig = [
   {
@@ -37,14 +38,12 @@ const columnsConfig = [
     title: 'Price',
     dataIndex: 'donate_amount',
   },
-  ]
+]
 
 export default (props) => {
   const { visible: visibleProps = false, pid = '', onClose: customOnClose } = props;
 
-  const {userInfo} = useSelector(state => state.user);
-
-  const regionInfo = useSelector(state => state.global.regionInfo);
+  const { userInfo } = useSelector(state => state.user);
 
   const [visible, setVisible] = useState(visibleProps);
 
@@ -63,9 +62,9 @@ export default (props) => {
     if (!!pid) {
       (async () => {
         try {
-          const {project_info: projectInfo} = await actions.getProjectInfo({
+          const { project_info: projectInfo } = await actions.getProjectInfo({
             pid,
-            currency_type: regionInfo.currencyType,
+            currency_type: userInfo.currency_type,
           });
           const donationHistory = _.get(projectInfo, 'donate_history', []);
           let historyDetail = [];
@@ -105,7 +104,7 @@ export default (props) => {
             });
           });
           await Promise.all(promiseAll).then(() => {
-            historyDetail = _.map(historyDetail, (item, key) => ({...item, key}))
+            historyDetail = _.map(historyDetail, (item, key) => ({ ...item, key }))
             setDataSource(_.sortBy(historyDetail, (o) => -o.timestamp));
           })
         } catch (e) {
@@ -113,13 +112,9 @@ export default (props) => {
         }
       })();
     }
-  }, [pid, regionInfo.currencyType]);
+  }, [pid, userInfo.currency_type]);
 
-  useEffect(() => {
-    console.log('--dataSource--\n', dataSource);
-  }, [dataSource]);
-
-  const loading = useMemo(() => (_.isEmpty(pid)), [pid]);
+  const loading = useMemo(() => (_.isEmpty(dataSource)), [dataSource]);
   return (
     <Drawer
       title="Donate Hostory"
@@ -136,12 +131,17 @@ export default (props) => {
         </Space>
       }
     >
-      <Table
-        columns={columnsConfig}
-        rowKey={record => record.key}
-        dataSource={dataSource}
-        scroll={{ y: 600 }}
-      />
+      <Space direction="vertical" size="middle">
+        <Alert severity="info">Please note: Some fields have an asterisk value,
+          which indicates that this donor wishes to hide his or her personal information.</Alert>
+        <Table
+          columns={columnsConfig}
+          rowKey={record => record.key}
+          dataSource={dataSource}
+          scroll={{ y: 600 }}
+          loading={loading}
+        />
+      </Space>
     </Drawer>
   );
 };

@@ -497,7 +497,6 @@ export default () => {
       <Drawer
         title="Project Detail Information"
         className='project-detail-drawer'
-        // title="Edit Project"
         placement="right"
         onClose={onClose}
         visible={drawVisible}

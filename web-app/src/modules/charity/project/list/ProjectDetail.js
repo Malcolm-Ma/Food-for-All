@@ -57,6 +57,7 @@ export default (props) => {
             >
               <Image
                 src={SERVICE_BASE_URL + _.get(detailInfo, 'background_image')}
+                onError={(e) => e.target.src = require('src/assets/broken-1.jpg')}
               />
             </Form.Item>
           </Col>
