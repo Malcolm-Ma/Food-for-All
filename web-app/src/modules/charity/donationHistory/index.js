@@ -9,8 +9,22 @@ import { Spin } from 'antd';
 
 const columnsConfig = [
   {
-    title: 'Project Title',
+    title: 'Project Title (ID)',
     dataIndex: 'project_title',
+    fixed: 'left',
+    render: (text, record) => {
+      const pid = record.pid;
+      return (
+        <>
+          <a
+            href={`/donation/${pid}`}
+            target="_blank"
+            style={{fontSize: '16px'}}
+          >{text}</a>
+          <p style={{color: "rgba(0, 0, 0, 0.3)", fontSize: '12px'}}>{pid}</p>
+        </>
+      );
+    },
   },
   {
     title: 'Time',
@@ -19,6 +33,15 @@ const columnsConfig = [
   {
     title: 'Donor',
     dataIndex: 'name',
+  },
+  {
+    title: 'Donor Email',
+    dataIndex: 'mail',
+    render: (text) => {
+      return (
+        <p>{text || '-'}</p>
+      );
+    },
   },
   {
     title: 'Number of Meals',
@@ -105,6 +128,7 @@ export default () => {
         rowKey={record => record.key}
         dataSource={dataSource}
         loading={loading}
+        scroll={{ x: 1500 }}
       />
     </div>
 
