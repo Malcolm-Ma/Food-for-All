@@ -106,7 +106,7 @@ export default () => {
           hide: 0,
         });
         message.success('Welcome to Apex - Food For ALl!');
-        navigate('/home');
+        navigate('/login');
       }
       setSignUpInfo(prevState => ({
         ...prevState,

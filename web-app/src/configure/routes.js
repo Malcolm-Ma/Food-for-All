@@ -18,6 +18,14 @@ export default [
     exact: true,
   },
   {
+    path: '/home',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'home' */ /* webpackMode: 'lazy' */ 'src/modules/home'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
     path: '/login',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'login' */ /* webpackMode: 'lazy' */ 'src/modules/login'),

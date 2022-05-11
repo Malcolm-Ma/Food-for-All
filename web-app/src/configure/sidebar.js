@@ -5,7 +5,6 @@
 
 import { UserOutlined, UnorderedListOutlined, LineChartOutlined } from "@ant-design/icons";
 import actions from "src/actions";
-import { message } from "antd";
 
 export default [
   {
@@ -27,10 +26,6 @@ export default [
     icon: <LineChartOutlined />,
     child: [
       {
-        title: 'Income Summary',
-        url: '/income/summary',
-      },
-      {
         title: 'Donation History',
         url: '/income/donation',
       },
@@ -43,6 +38,10 @@ export default [
             console.error(e.name);
           }
         },
+      },
+      {
+        title: 'Income Summary',
+        url: '/income/summary',
       },
     ],
   },
