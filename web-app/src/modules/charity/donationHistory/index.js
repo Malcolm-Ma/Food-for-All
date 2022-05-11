@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import actions from "src/actions";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { Spin } from 'antd';
-
 
 const columnsConfig = [
   {

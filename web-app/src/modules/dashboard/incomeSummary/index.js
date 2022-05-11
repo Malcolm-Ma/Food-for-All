@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import _ from "lodash";
 import {ToggleButtonGroup} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
+import {Spin} from "antd";
 
 export default () => {
 
@@ -164,6 +165,16 @@ export default () => {
 
   return (
     <>
+      <ToggleButtonGroup
+        color="primary"
+        value={time}
+        exclusive
+        onChange={handleChange}
+      >
+        <ToggleButton value="week">Last Week</ToggleButton>
+        <ToggleButton value="half month">Half Month</ToggleButton>
+        <ToggleButton value="month">Last Month</ToggleButton>
+      </ToggleButtonGroup>
       {
         (!_.isEmpty(data))
           ? <Grid container rowSpacing={4}>
@@ -173,19 +184,6 @@ export default () => {
             <Grid item xs={6}>
               <ReactEcharts option={data[0]}/>
             </Grid>
-
-            <ToggleButtonGroup
-              color="primary"
-              value={time}
-              exclusive
-              onChange={handleChange}
-            >
-              <ToggleButton value="week">Last Week</ToggleButton>
-              <ToggleButton value="half month">Half Month</ToggleButton>
-              <ToggleButton value="month">Last Month</ToggleButton>
-              <ToggleButton value="all">All</ToggleButton>
-            </ToggleButtonGroup>
-
             <Grid item xs={12}>
               <ReactEcharts
                 option={data[2]}
@@ -193,7 +191,7 @@ export default () => {
               />
             </Grid>
           </Grid>
-          : <div>loading</div>
+          : <div><Spin/></div>
       }
     </>
   )
