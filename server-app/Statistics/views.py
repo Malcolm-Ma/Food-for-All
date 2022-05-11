@@ -48,11 +48,12 @@ def get_stat(request, user):
     #    d = Statistics.get_project_dict(pid)
     #else:
     #    d = Statistics.get_user_dict(user.uid)
-    d = Statistics.get_user_dict(user.uid)
     # progress = Statistics.get_progress(d) if pid else {}
-    time_line = Statistics.get_time_line(d)
-    regional_dist = Statistics.m_get_regional_dist(d)
-    project_name = Statistics.get_project_name(d)
+
+    d = Statistics.get_user_dict(user.uid)
+    timeline = Statistics.get_time_line(d)
+    regional_dist = Statistics.get_regional_dist(d, dist=False)
+    project_title = Statistics.get_project_title(d)
     progress = Statistics.get_monthly_progress(d)
 
     progress_data = []
@@ -60,7 +61,7 @@ def get_stat(request, user):
         for name, value in zip(regional_dist[0], regional_dist[1]):
             progress_data.append({'value': "%.2f" % value, 'name': name})
     else:
-        i = 0;
+        i = 0
         other_value = 0
         for name, value in zip(regional_dist[0], regional_dist[1]):
             if i < 8:
@@ -71,11 +72,11 @@ def get_stat(request, user):
         progress_data.append({'value': "%.2f" % other_value, 'name': 'Others'})
 
     stat = {
-        'date': time_line,
-        'title': project_name,
+        'date': timeline,
+        'history': Statistics.get_history(d),
         'pie': progress_data,
         'progress': progress,
-        'history': Statistics.get_history(d)
+        'title': project_title
     }
 
     response_data = {'status': STATUS_CODE['success'], 'stat': stat}
