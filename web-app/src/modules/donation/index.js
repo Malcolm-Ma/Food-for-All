@@ -5,7 +5,7 @@
 
 // module import
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import _ from 'lodash';
 
@@ -20,12 +20,13 @@ import Grid from "@mui/material/Grid";
 import { Container, CssBaseline, Paper } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PaymentForm from "src/modules/donation/PaymentForm";
-import { Statistic, Row, Col, Progress, Form } from 'antd';
+import { Statistic, Row, Col, Progress, Form, message } from 'antd';
 import moment from "moment";
 
 export default (props) => {
   const {} = props;
   const { pid, currency } = useParams();
+  const [searchParams] = useSearchParams();
 
   const { userinfo } = useSelector(state => state.user);
   const { regionInfo } = useSelector(state => state.global);
@@ -51,7 +52,15 @@ export default (props) => {
         }
       })();
     }
-  }, [pid, regionInfo, userinfo]);
+  }, [currency, pid, projectDetail, regionInfo, userinfo]);
+
+  // show tips by search params
+  useEffect(() => {
+    console.log('--searchParams--\n', searchParams);
+    if (searchParams.get('tips') && searchParams.get('tips') === '1') {
+      message.warn('Payment Canceled');
+    }
+  }, [searchParams]);
 
   const theme = createTheme();
   const bgImageUrl = useMemo(() => {
