@@ -21,6 +21,15 @@ const columnsConfig = [
     dataIndex: 'name',
   },
   {
+    title: 'Donor Email',
+    dataIndex: 'mail',
+    render: (text) => {
+      return (
+        <p>{text || '-'}</p>
+      );
+    },
+  },
+  {
     title: 'Number of Meals',
     dataIndex: 'donate_num',
   },
@@ -131,6 +140,7 @@ export default (props) => {
         columns={columnsConfig}
         rowKey={record => record.key}
         dataSource={dataSource}
+        scroll={{ y: 600 }}
       />
     </Drawer>
   );

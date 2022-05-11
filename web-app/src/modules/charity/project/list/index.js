@@ -54,11 +54,23 @@ const columnsConfig = (payloads) => {
 
   return _.compact([
     {
-      title: 'Title',
+      title: 'Project Title (ID)',
       dataIndex: 'title',
       width: 200,
       fixed: 'left',
-      render: text => <a>{text}</a>,
+      render: (text, record) => {
+        const pid = record.pid;
+        return (
+          <>
+            <a
+              href={`/donation/${pid}`}
+              target="_blank"
+              style={{fontSize: '16px'}}
+            >{text}</a>
+            <p style={{color: "rgba(0, 0, 0, 0.3)", fontSize: '12px'}}>{pid}</p>
+          </>
+        );
+      },
     },
     {
       title: 'Introduction',
