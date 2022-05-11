@@ -57,6 +57,7 @@ export default () => {
         }
         break;
     }
+    handleClose();
   }
 
   const handleLogOut = useCallback(async () => {
