@@ -4,28 +4,30 @@ import { useEffect, useState } from "react";
 import actions from "src/actions";
 import moment from "moment";
 import { useSelector } from "react-redux";
+import { Spin } from 'antd';
+
 
 const columnsConfig = [
   {
     title: 'Project Title',
-    dataIndex: 'title',
-    key: 'title',
+    dataIndex: 'project_title',
   },
   {
     title: 'Time',
     dataIndex: 'time',
-    key: 'time',
   },
   {
     title: 'Donor',
     dataIndex: 'name',
-    key: 'name',
   },
   {
     title: 'Number of Meals',
     dataIndex: 'donate_num',
-    key: 'donate_num',
-  }
+  },
+  {
+    title: 'Price',
+    dataIndex: 'donate_amount',
+  },
 ]
 
 export default () => {
@@ -34,6 +36,7 @@ export default () => {
   const { userInfo } = useSelector(state => state.user);
 
   const [dataSource, setDataSource] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!_.isEmpty(userInfo)) {
@@ -63,9 +66,9 @@ export default () => {
                 projectHistoryDetail.push({
                   ...result,
                   timestamp: _.toNumber(time) * 1000,
-                  time: moment(_.toNumber(time) * 1000).format(),
+                  time: moment(_.toNumber(time) * 1000).format('MMMM Do YYYY, h:mm:ss a'),
                   donate_num: _.toNumber(num),
-                  donate_amount: _.toNumber(num) * projectInfo.price,
+                  donate_amount: (_.toNumber(num) * projectInfo.price).toFixed(2) + ' ' + userInfo.currency_type,
                   project_title: projectInfo.title,
                   project_per_price: projectInfo.price,
                   pid: projectInfo.pid,
@@ -90,14 +93,21 @@ export default () => {
 
   useEffect(() => {
     console.log('--dataSource--\n', dataSource);
+    if (!_.isEmpty(dataSource)){
+      setLoading(false);
+    }
   }, [dataSource]);
 
   return (
-    <Table
-      columns={columnsConfig}
-      rowKey={record => record.pid}
-      // dataSource={}
-    />
+    <div>
+      <Table
+        columns={columnsConfig}
+        rowKey={record => record.key}
+        dataSource={dataSource}
+        loading={loading}
+      />
+    </div>
+
   )
 }
 
