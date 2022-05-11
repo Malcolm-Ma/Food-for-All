@@ -62,6 +62,7 @@ export default () => {
 
   const [loading, setLoading] = useState(false);
   const [validEmail, setValidEmail] = useState(true);
+  const [avatar, setAvatar] = useState('');
 
   const ActiveComponent = useMemo(() => {
     return STEP_CONFIG[activeStep].Component;
@@ -101,7 +102,7 @@ export default () => {
           region: _.get(data, 'region'),
           currency_type: _.get(_.split(_.get(data, 'currency'), ' ('), '0', DEFAULT_CURRENCY),
           name: _.get(data, 'name'),
-          avatar: '',
+          avatar,
           hide: 0,
         });
         message.success('Welcome to Apex - Food For ALl!');
@@ -115,7 +116,7 @@ export default () => {
       console.error(e);
     }
     setLoading(false);
-  }, [activeStep, navigate, signUpInfo]);
+  }, [activeStep, avatar, navigate, signUpInfo]);
 
   const handleActiveComponentChange = useCallback((e, data) => {
     setSignUpInfo(prevState => ({
@@ -126,8 +127,9 @@ export default () => {
 
   const activeComponentProps = useMemo(() => ({
     ...(activeStep === 0 && { btnLabel: "type", validEmail }),
+    ...(activeStep === 2 && { setAvatar }),
     onChange: handleActiveComponentChange,
-    username: _.get(signUpInfo, 'username', '')
+    username: _.get(signUpInfo, 'username', ''),
   }), [activeStep, handleActiveComponentChange, signUpInfo, validEmail]);
   return (
     <ThemeProvider theme={theme}>
