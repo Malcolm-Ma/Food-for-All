@@ -50,6 +50,7 @@ const columnsConfig = (payloads) => {
     regionMap,
     prepareMode,
     handleDonationHistoryClick,
+    downloadReport,
   } = payloads;
 
   return _.compact([
@@ -234,6 +235,14 @@ const columnsConfig = (payloads) => {
         );
         return (
           <Space size={0}>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => downloadReport(record.pid)}
+              disabled={record.status === 0}
+            >
+              Report
+            </Button>
             <Button
               type="link"
               size="small"
@@ -466,6 +475,12 @@ export default () => {
     setHistoryDrawer(pid);
   }, []);
 
+  const downloadReport = async (pid) => {
+    await actions.getReport({
+      pid: pid
+    })
+  }
+
   const payloads = {
     projectInfo,
     drawVisible,
@@ -480,6 +495,7 @@ export default () => {
     handleOk,
     handleCancel,
     handleDonationHistoryClick,
+    downloadReport,
   };
 
   return (

@@ -26,12 +26,12 @@ ProjectList.propTypes = {
   projects: PropTypes.array.isRequired
 };
 export default function ProjectList(props) {
-  const { projects } = props;
+  const { projects, currencyType } = props;
   return (
     <Grid container spacing={3}>
       {projects.map((project, index) => (
         <Grid key={index} item xs={12} sm={6} md={3} alignItems="flex-start" zeroMinWidth>
-          <ShowProjectCard project={project} />
+          <ShowProjectCard currencyType={currencyType} project={project} />
         </Grid>
       ))}
     </Grid>

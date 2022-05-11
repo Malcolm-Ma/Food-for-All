@@ -46,6 +46,7 @@ export default function ShowProjectCard(props) {
   const [openDialog, setOpenDialog] = React.useState(false);
 
   const { userInfo } = useSelector(state => state.user);
+  const { regionInfo } = useSelector(state => state.global);
 
   const handleClickOpen = () => {
     setOpenDialog(true);
@@ -59,7 +60,7 @@ export default function ShowProjectCard(props) {
     setExpanded(!expanded);
   };
 
-  const {project} = props;
+  const {project, currencyType} = props;
 
   function stringToColor(string) {
     let hash = 0;
@@ -91,14 +92,9 @@ export default function ShowProjectCard(props) {
           >
           </Avatar>
         }
-        action={
-          <Button href={`/donation/${project.pid}`}>
-            {userInfo.currency_type} {_.get(project, 'price')}
-          </Button>
-        }
         title={
           <Tooltip title={_.get(project, 'title')}>
-            <span className="card-header">{_.get(project, 'title')}</span>
+            <span className="card-header">{_.truncate(_.get(project, 'title'), { length: 25 })}</span>
           </Tooltip>
         }
         subheader={moment(_.get(project, 'end_time') * 1000).format("MMM DD, YYYY")}
@@ -107,12 +103,12 @@ export default function ShowProjectCard(props) {
         component="img"
         height="194"
         image={SERVICE_BASE_URL + _.get(project, 'background_image')}
-        onClick={() => navigate(`/donation/${project.pid}`)}
+        onClick={() => navigate(`/donation/${project.pid}/${currencyType}`)}
         onError={(e) => e.target.src = require('src/assets/broken-1.jpg')}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary" noWrap={true}>
-          {_.get(project, 'intro')}
+          Price per Meal: {currencyType} {_.get(project, 'price')}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -135,7 +131,7 @@ export default function ShowProjectCard(props) {
             <Button onClick={handleClose}>OK</Button>
           </DialogActions>
         </Dialog>
-        <Button size="small" href={`/donation/${project.pid}`}>Donate</Button>
+        <Button size="small" href={`/donation/${project.pid}/${currencyType}`}>Donate</Button>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}

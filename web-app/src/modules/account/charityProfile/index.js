@@ -35,7 +35,7 @@ export default (props) => {
     console.log(userRes);
     let res = {};
     res = await actions.getProjectList({
-      currency_type: _.get(regionInfo, 'currencyType', DEFAULT_CURRENCY),
+      currency_type: _.get(userInfo, 'currency_type', null) || _.get(regionInfo, 'currencyType', DEFAULT_CURRENCY),
       page_info: {
         page_size: 10000,
         page: 1
