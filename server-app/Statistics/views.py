@@ -61,7 +61,7 @@ def get_stat(request, user):
         for name, value in zip(regional_dist[0], regional_dist[1]):
             progress_data.append({'value': "%.2f" % value, 'name': name})
     else:
-        i = 0;
+        i = 0
         other_value = 0
         for name, value in zip(regional_dist[0], regional_dist[1]):
             if i < 8:
