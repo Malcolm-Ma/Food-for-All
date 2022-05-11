@@ -16,6 +16,9 @@ from Mail.models import Mail
 from Payment.models import Payment
 import requests
 
+# The code of this script contains definitions of some generic parameters that are dependencies of most of the project code
+
+# Define functions for reading lists of countries and regions, and lists of currency types
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")
 currency_list_file = os.path.join(RESOURCE_DIR, "currency_list.csv")
 region_currency_list_file = os.path.join(RESOURCE_DIR, "region_currency.csv")

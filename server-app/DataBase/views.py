@@ -1,6 +1,7 @@
 from .functions import *
 from Common.decorators import *
 
+# This interface can only be called in debug mode in a test environment and will generate new fake data automatically to create a demo for testing and debugging.
 @check_request_method_decorator(method=["GET"])
 def init_database(request):
     if not DEBUG:
@@ -8,10 +9,6 @@ def init_database(request):
     if request.method == "GET":
         user_num = 50
         project_num = 100
-    #elif request.method == "POST":
-    #    data = json.loads(request.body)
-    #    user_num = data["user_num"]
-    #    project_num = data["project_num"]
     else:
         return HttpResponseBadRequest()
     user_list = init_database_with_fake_data(user_num, project_num)

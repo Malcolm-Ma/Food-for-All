@@ -117,7 +117,6 @@ def get_user(request, user):
 @api_logger_decorator()
 @check_server_error_decorator()
 @check_request_method_decorator(method=["POST"])
-@check_request_parameters_decorator(params=["name", "region", "currency_type", "avatar"])
 @get_user_decorator()
 def edit_user(request, user):
     """
