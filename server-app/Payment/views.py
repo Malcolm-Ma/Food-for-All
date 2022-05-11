@@ -126,7 +126,8 @@ def capture_payment(request, user, project):
         project_donate_history[uid] = dict()
     project_donate_history[uid][donate_time] = num
     project.donate_history = str(project_donate_history)
-    project.save(update_fields=["donate_history"])
+    project.current_num += num
+    project.save(update_fields=["current_num", "donate_history"])
     if as_plan:
         if project.subscription_list == "":
             project_subscription_list = []
@@ -135,6 +136,7 @@ def capture_payment(request, user, project):
         project_subscription_list.append(payment_id)
         project.subscription_list = str(project_subscription_list)
         project.save(update_fields=["subscription_list"])
+    project.auto_update_status()
     project_owner = DUser.get_user({"uid": project.uid})
     project_owner_donate_history = eval(project_owner.donate_history)
     if project.pid not in project_owner_donate_history:

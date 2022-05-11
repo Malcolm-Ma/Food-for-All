@@ -156,7 +156,7 @@ class Statistics(object):
         filename = 'p_' + d['pid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
         overall_sum = 0
-        progress = 0
+        progress = [[], [0]]
         if d['donate_history']:
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
             progress = Statistics.get_progress(d)
@@ -489,7 +489,7 @@ class Statistics(object):
             for pid in d['project']:
                 project_dict = Statistics.get_project_dict(pid)
                 overall_sum = 0
-                progress = 0
+                progress = [[], [0]]
                 if pid in d['donate_history']:
                     overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
                     progress = Statistics.get_progress(project_dict)
