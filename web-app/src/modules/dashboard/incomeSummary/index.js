@@ -25,24 +25,26 @@ export default () => {
   const {userInfo} = useSelector(state => state.user);
 
   const handleChange = (event, newTime) => {
-    setTime(newTime);
-    let days = 0;
-    switch (newTime) {
-      case 'half month':
-        days = 15;
-        break;
-      case 'month':
-        days = 30;
-        break;
-      case 'week':
-        days = 7;
-        break;
-      case 'all':
-        days = 0;
-        break;
+    if (newTime) {
+      setTime(newTime);
+      let days = 0;
+      switch (newTime) {
+        case 'half month':
+          days = 15;
+          break;
+        case 'month':
+          days = 30;
+          break;
+        case 'week':
+          days = 7;
+          break;
+        case 'all':
+          days = 0;
+          break;
+      }
+      initData(days);
     }
-    initData(days);
-  }
+  };
 
   function initData(days) {
     const originalData = _.cloneDeep(res);
@@ -193,57 +195,59 @@ export default () => {
 
   return (
     <>
-      <ToggleButtonGroup
-        color="primary"
-        value={time}
-        exclusive
-        onChange={handleChange}
-      >
-        <ToggleButton value="week">Last Week</ToggleButton>
-        <ToggleButton value="half month">Half Month</ToggleButton>
-        <ToggleButton value="month">Last Month</ToggleButton>
-      </ToggleButtonGroup>
       {
         (!_.isEmpty(data))
-          ? <Grid container rowSpacing={4}>
-          <Grid item xs={6}>
-            <Card>
-              <Statistic title={currenc_type} value={totalMoney} precision={2} />
-            </Card>
-            <Card>
-              <Grid container>
-                <Grid item xs={4}>
-                  <Statistic title="Last Month" value={lastMonth} precision={2} />
-                </Grid>
-                <Grid item xs={4}>
-                  <Statistic title="This Month" value={thisMonth} precision={2} />
-                </Grid>
-                <Grid item xs={4}>
-                  <Statistic
-                    title="Rate"
-                    value={percent * 100}
-                    precision={2}
-                    valueStyle={color}
-                    prefix={arrow}
-                    suffix="%"
-                  />
-                </Grid>
+          ? <>
+            <ToggleButtonGroup
+              color="primary"
+              value={time}
+              exclusive
+              onChange={handleChange}
+            >
+              <ToggleButton value="week">Last Week</ToggleButton>
+              <ToggleButton value="half month">Half Month</ToggleButton>
+              <ToggleButton value="month">Last Month</ToggleButton>
+            </ToggleButtonGroup>
+            <Grid container rowSpacing={4}>
+              <Grid item xs={6}>
+                <Card>
+                  <Statistic title={currenc_type} value={totalMoney} precision={2} />
+                </Card>
+                <Card>
+                  <Grid container>
+                    <Grid item xs={4}>
+                      <Statistic title="Last Month" value={lastMonth} precision={2} />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Statistic title="This Month" value={thisMonth} precision={2} />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Statistic
+                        title="Rate"
+                        value={percent * 100}
+                        precision={2}
+                        valueStyle={color}
+                        prefix={arrow}
+                        suffix="%"
+                      />
+                    </Grid>
+                  </Grid>
+                </Card>
               </Grid>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <ReactEcharts option={data[1]}/>
-          </Grid>
-          <Grid item xs={12}>
-            <ReactEcharts option={data[0]}/>
-          </Grid>
-          <Grid item xs={12}>
-            <ReactEcharts
-              option={data[2]}
-              style={{height:600}}
-            />
-          </Grid>
-          </Grid>
+              <Grid item xs={6}>
+                <ReactEcharts option={data[1]}/>
+              </Grid>
+              <Grid item xs={12}>
+                <ReactEcharts option={data[0]}/>
+              </Grid>
+              <Grid item xs={12}>
+                <ReactEcharts
+                  option={data[2]}
+                  style={{height:600}}
+                />
+              </Grid>
+            </Grid>
+          </>
           : <div><Spin/></div>
       }
     </>

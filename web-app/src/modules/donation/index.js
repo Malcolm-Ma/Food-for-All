@@ -46,7 +46,6 @@ export default (props) => {
             currency_type: currency || regionInfo.currencyType,
           });
           setProjectDetail(res.project_info);
-          console.log(projectDetail);
         } catch (e) {
           console.error(e);
         }
