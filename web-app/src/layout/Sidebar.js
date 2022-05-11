@@ -73,6 +73,9 @@ const Sidebar = (props) => {
           })
         }
       </Menu>
+      <div className="sidebar-footer">
+        <span>Copyright © Apex 2022.</span>
+      </div>
     </Sider>
   );
 };
