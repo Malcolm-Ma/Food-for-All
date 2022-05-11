@@ -21,8 +21,7 @@ const columnsConfig = [
     title: 'Number of Meals',
     dataIndex: 'donate_num',
     key: 'donate_num',
-  }
-  ]
+  }]
 
 export default () => {
   return (

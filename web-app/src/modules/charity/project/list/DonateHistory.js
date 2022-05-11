@@ -4,15 +4,36 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Drawer, Button, Space, message } from 'antd';
+import {Drawer, Button, Space, message, Table} from 'antd';
 import { useSelector } from "react-redux";
 import _ from 'lodash';
 
 import actions from "src/actions";
 import moment from "moment";
 
+const columnsConfig = [
+  {
+    title: 'Time',
+    dataIndex: 'time',
+  },
+  {
+    title: 'Donor',
+    dataIndex: 'name',
+  },
+  {
+    title: 'Number of Meals',
+    dataIndex: 'donate_num',
+  },
+  {
+    title: 'Price',
+    dataIndex: 'donate_amount',
+  },
+  ]
+
 export default (props) => {
   const { visible: visibleProps = false, pid = '', onClose: customOnClose } = props;
+
+  const {userInfo} = useSelector(state => state.user);
 
   const regionInfo = useSelector(state => state.global.regionInfo);
 
@@ -67,9 +88,9 @@ export default (props) => {
                 ...result,
                 key,
                 timestamp: _.toNumber(time) * 1000,
-                time: moment(_.toNumber(time) * 1000).format(),
+                time: moment(_.toNumber(time) * 1000).format('MMMM Do YYYY, h:mm:ss a'),
                 donate_num: _.toNumber(num),
-                donate_amount: _.toNumber(num) * projectInfo.price,
+                donate_amount: (_.toNumber(num) * projectInfo.price).toFixed(2) + ' ' + userInfo.currency_type,
               });
               key = key + 1;
             });
@@ -106,6 +127,11 @@ export default (props) => {
         </Space>
       }
     >
+      <Table
+        columns={columnsConfig}
+        rowKey={record => record.key}
+        dataSource={dataSource}
+      />
     </Drawer>
   );
 };
