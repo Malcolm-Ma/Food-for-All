@@ -37,22 +37,10 @@ def get_stat(request, user):
         }
     }
     """
-    #data = json.loads(request.body)
-    #pid = data['pid']
-    #if pid:
-    #    project = DProject.get_project({'pid': pid})
-    #    if not project:
-    #        raise ServerError("project does not exist")
-    #    if user.uid != project.uid:
-    #        raise ServerError("user is not the owner of the project")
-    #    d = Statistics.get_project_dict(pid)
-    #else:
-    #    d = Statistics.get_user_dict(user.uid)
     d = Statistics.get_user_dict(user.uid)
-    # progress = Statistics.get_progress(d) if pid else {}
-    time_line = Statistics.get_time_line(d)
-    regional_dist = Statistics.m_get_regional_dist(d)
-    project_name = Statistics.get_project_name(d)
+    timeline = Statistics.get_time_line(d)
+    regional_dist = Statistics.get_regional_dist(d, dist=False)
+    project_title = Statistics.get_project_title(d)
     progress = Statistics.get_monthly_progress(d)
     money = Statistics.get_history(d)
 
@@ -72,8 +60,8 @@ def get_stat(request, user):
         progress_data.append({'value': "%.2f" % other_value, 'name': 'Others'})
 
     stat = {
-        'date': time_line,
-        'title': project_name,
+        'date': timeline,
+        'title': project_title,
         'pie': progress_data,
         'progress': progress,
         'history': money[0],
