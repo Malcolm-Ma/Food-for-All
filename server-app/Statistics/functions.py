@@ -343,6 +343,7 @@ class Statistics(object):
     @staticmethod
     def get_history(d):
         series = []
+        money_state = []
         for pid, sub_dict in d['donate_history'].items():
             sum_num = {}
             price = Statistics.get_project_dict(pid)['price']
@@ -363,8 +364,10 @@ class Statistics(object):
                 money = sum_num[str(start.strftime('%Y%m%d'))] if str(start.strftime('%Y%m%d')) in sum_num else 0
                 if money == 0:
                     history.append("")
+                    money_state.append(0)
                 else:
                     history.append("%.2f" % money)
+                    money_state.append(money)
                 start += delta
             data = {
                 'name': Statistics.get_project_dict(pid)['title'],
@@ -379,7 +382,7 @@ class Statistics(object):
                 'data': history
             }
             series.append(data)
-        return series
+        return series, sum(money_state), sum(money_state[-30:]), sum(money_state[-60:-30])
 
     @staticmethod
     def get_latest(d):
