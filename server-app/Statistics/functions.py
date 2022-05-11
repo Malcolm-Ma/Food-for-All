@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 
+# The code of this script contains a number of functions for generating statistical information
 
 class Statistics(object):
     @staticmethod

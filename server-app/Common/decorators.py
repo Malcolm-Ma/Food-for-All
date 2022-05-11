@@ -1,9 +1,10 @@
-import time
-
 from Login.functions import check_login
 from Common.common import *
 from DataBase.models import *
 
+# This document defines a number of generic interface function decorators
+
+# Decorator for log output
 def api_logger_decorator(logger=logger_standard):
     def decorator(func):
         @wraps(func)
@@ -19,6 +20,7 @@ def api_logger_decorator(logger=logger_standard):
         return wrapped_function
     return decorator
 
+# Decorator for validating request method
 def check_request_method_decorator(method=("POST",)):
     if type(method) == str:
         method = [method]
@@ -33,6 +35,7 @@ def check_request_method_decorator(method=("POST",)):
         return wrapped_function
     return decorator
 
+# Decorator for verifying whether request parameters are reasonable
 def check_request_parameters_decorator(params=()):
     def decorator(func):
         @wraps(func)
@@ -49,6 +52,7 @@ def check_request_parameters_decorator(params=()):
         return wrapped_function
     return decorator
 
+# Decorator to validate error status codes and convert to readable output
 def check_server_error_decorator():
     def decorator(func):
         @wraps(func)
@@ -61,6 +65,7 @@ def check_server_error_decorator():
         return wrapped_function
     return decorator
 
+# Decorator to get project information from the request content
 def get_project_decorator(force_exist=True):
     def decorator(func):
         @wraps(func)
@@ -70,9 +75,6 @@ def get_project_decorator(force_exist=True):
             pid = data["pid"]
             project = DProject.get_project({"pid": pid})
             if not project and force_exist:
-                #response_data = {"status": ""}
-                #response_data["status"] = STATUS_CODE["project does not exist"]
-                #return HttpResponse(json.dumps(response_data), content_type="application/json")
                 raise ServerError("project does not exist")
             kwargs["project"] = project
             response = func(*args, **kwargs)
@@ -80,6 +82,7 @@ def get_project_decorator(force_exist=True):
         return wrapped_function
     return decorator
 
+# Decorator to get user information from the request content
 def get_user_decorator(force_login=True):
     def decorator(func):
         @wraps(func)
@@ -87,9 +90,6 @@ def get_user_decorator(force_login=True):
             request = args[0]
             user = check_login(request)
             if not user and force_login:
-                #response_data = {"status": ""}
-                #response_data["status"] = STATUS_CODE["user has not logged in"]
-                #return HttpResponse(json.dumps(response_data), content_type="application/json")
                 raise ServerError("user has not logged in")
             kwargs["user"] = user
             response = func(*args, **kwargs)
@@ -97,6 +97,7 @@ def get_user_decorator(force_login=True):
         return wrapped_function
     return decorator
 
+# Decorator for recording login failure messages
 def record_login_fail_decorator():
     def decorator(func):
         @wraps(func)
@@ -119,6 +120,7 @@ def record_login_fail_decorator():
         return wrapped_function
     return decorator
 
+# Decorator for checking the number of false logins in a short period of time, enabling temporary banning of malicious access to ip addresses
 def check_login_forbidden_decorator():
     def decorator(func):
         @wraps(func)

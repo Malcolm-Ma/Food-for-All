@@ -1,5 +1,8 @@
 from DataBase.models import *
 
+# The code in this script defines a number of functional functions that the login system needs to use
+
+# Function for generating encrypted cookies
 def encode_cookie(request, uid, encode_key = COOKIE_ENCODE_KEY):
     random_str = string.ascii_letters
     s = uid
@@ -18,6 +21,7 @@ def encode_cookie(request, uid, encode_key = COOKIE_ENCODE_KEY):
         c += chr(ord(i) ^ encode_key)
     return b64.b64encode(c.encode()).decode()
 
+# Function for decrypting cookies
 def decode_cookie(request, decode_key=COOKIE_ENCODE_KEY):
     url = get_request_url(request)
     cookie = request.get_signed_cookie(COOKIE_KEY, default=None, salt=COOKIE_SALT + url)
@@ -39,6 +43,7 @@ def decode_cookie(request, decode_key=COOKIE_ENCODE_KEY):
     a = c[3::4][:length]
     return s, t, u, a
 
+# Function for encrypting passwords (for password transmission)
 def encode_password(password, encode_key=PASSWORD_ENCODE_KEY):
     encrypted_password = ""
     for i in password:
@@ -46,6 +51,7 @@ def encode_password(password, encode_key=PASSWORD_ENCODE_KEY):
     encrypted_password = b64.b64encode(encrypted_password.encode()).decode()
     return encrypted_password
 
+# Function for decrypting passwords (for password transmission)
 def decode_password(encrypted_password, decode_key=PASSWORD_ENCODE_KEY):
     encrypted_password = b64.b64decode(encrypted_password.encode()).decode()
     password = ""
@@ -53,6 +59,7 @@ def decode_password(encrypted_password, decode_key=PASSWORD_ENCODE_KEY):
         password += chr(ord(i) ^ decode_key)
     return password
 
+# Function for detecting user login status
 def check_login(request):
     s, t, u, a = decode_cookie(request, COOKIE_ENCODE_KEY)
     try:
@@ -66,18 +73,14 @@ def check_login(request):
         return DUser.get_user({"uid": s[:32]})
     return ""
 
+# Function for generating random CAPTCHA
 def gen_verify_code(id_str, usefor_str, expires=VERIFY_CODE_EXPIRES):#, if_check=False):
     cache = caches[usefor_str]
     code = "".join(random.choices(string.digits + string.ascii_uppercase, k=6))
     cache.set(id_str, code, timeout=expires)
     return code
-    #dynamic_num = int(time.time()) // expires
-    #code1 = md5((str(dynamic_num) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
-    #if not if_check:
-    #    return code1
-    #code2 = md5((str(dynamic_num - 1) + id_str + usefor_str).encode("utf-8")).hexdigest()[:6]
-    #return code1, code2
 
+# Function to validate CAPTCHA
 def check_verify_code(id_str, usefor_str, code, remove=False):#, expires=VERIFY_CODE_EXPIRES):
     cache = caches[usefor_str]
     real_code = cache.get(id_str)
@@ -86,6 +89,3 @@ def check_verify_code(id_str, usefor_str, code, remove=False):#, expires=VERIFY_
             cache.delete(id_str)
         return True
     return False
-    #if code in gen_verify_code(id_str, usefor_str, expires=expires, if_check=True):
-    #    return True
-    #return False

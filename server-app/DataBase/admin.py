@@ -3,6 +3,8 @@ from . models import DUser, DProject
 from django.db import models
 from django.forms import TextInput, Textarea
 
+# The code in this script defines the database items that are displayed in the back-end administration interface
+
 class UserAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 128})},
