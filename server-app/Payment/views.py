@@ -112,11 +112,11 @@ def capture_payment(request, user, project):
     else:
         uid = user.uid
         user_project = eval(user.project)
+        user_donate_history = eval(user.donate_history)
         if project.pid not in user_project:
             user_project.append(project.pid)
             user.project = str(user_project)
             user.save(update_fields=["project"])
-            user_donate_history = eval(user.donate_history)
             user_donate_history[project.pid] = dict()
         user_donate_history[project.pid][donate_time] = num
         user.donate_history = str(user_donate_history)

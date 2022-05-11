@@ -7,11 +7,13 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 
-# The code of this script contains a number of functions for generating statistical information
 
 class Statistics(object):
+    # This class contains a number of functions for computing statistical data and generating report.
+
     @staticmethod
     def fold_data(data, threshold=0.05):
+        # Fold the last fractions of pie into a whole.
         # Takes: [key_list, value_list]
         f_key = []
         f_value = []
@@ -30,6 +32,7 @@ class Statistics(object):
 
     @staticmethod
     def get_briefing_page(lines, page_number):
+        # Generate briefing page out of texts.
         y = 0.05 * len(lines) + 0.45
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
@@ -37,6 +40,19 @@ class Statistics(object):
             fig.text(0.1, y, line, fontsize=14, ha='left', va='center')
             y -= 0.1
         return fig
+
+    @staticmethod
+    def get_monthly_num_sum(project_dict):
+        # Return monthly sum of donated meals of a project.
+        monthly_num_sum_dict = {}
+        for uid, sub_dict in project_dict['donate_history'].items():
+            for timestamp, num in sub_dict.items():
+                ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
+                if ym in monthly_num_sum_dict.keys():
+                    monthly_num_sum_dict[ym] += num
+                else:
+                    monthly_num_sum_dict[ym] = num
+        return monthly_num_sum_dict
 
     @staticmethod
     def get_monthly_sum(d):
@@ -92,7 +108,8 @@ class Statistics(object):
         return overall_sum, monthly_sum
 
     @staticmethod
-    def get_monthly_sum_page(monthly_sum, page_number):
+    def get_monthly_sum_page(monthly_sum, page_number, currency_type):
+        # Generate monthly sum page out of monthly_sum.
         x_iter = range(len(monthly_sum[0]))
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
@@ -101,7 +118,7 @@ class Statistics(object):
             plt.text(x, y, round(y, 2), ha='center', va='bottom')
         plt.title('Monthly Donation')
         plt.xticks(x_iter, monthly_sum[0], rotation=30)
-        plt.ylabel('/GBP')
+        plt.ylabel('/' + currency_type)
         plt.bar(x_iter, monthly_sum[1])
         return fig
 
@@ -119,19 +136,8 @@ class Statistics(object):
         return progress
 
     @staticmethod
-    def get_sum_num(d):
-        sum_dict = {}
-        for uid, sub_dict in d['donate_history'].items():
-            for timestamp, num in sub_dict.items():
-                ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
-                if ym in sum_dict.keys():
-                    sum_dict[ym] += num
-                else:
-                    sum_dict[ym] = num
-        return sum_dict
-
-    @staticmethod
     def get_progress_page(progress, page_number):
+        # Generate progress page out of progress.
         x_iter = range(len(progress[0]))
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
@@ -146,8 +152,10 @@ class Statistics(object):
 
     @staticmethod
     def get_project_dict(pid):
-        project = DProject.get_project({"pid": pid})
-        return project.to_dict()
+        # Return project_dict of the project with given pid.
+        project = DProject.get_project({'pid': pid})
+        project_owner = DUser.get_user({'uid': project.uid})
+        return project.to_dict(currency_type=project_owner.currency_type)
 
     @staticmethod
     def get_project_report(pid):
@@ -162,6 +170,7 @@ class Statistics(object):
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
             progress = Statistics.get_progress(d)
             regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+        currency_type = Statistics.get_user_dict(d['uid'])['currency_type']
         page_number = 1
 
         fig = plt.figure()
@@ -176,21 +185,21 @@ class Statistics(object):
         lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
                  'Charity:    ' + d['charity'],
                  'Location:    ' + rid2region(d['region']),
-                 'Meal Price:    ' + str(round(d['price'], 2)) + ' GBP',
+                 'Meal Price:    ' + str(round(d['price'], 2)) + ' ' + currency_type,
                  'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                 + str(round(d['total_num'] * d['price'], 2)) + ' GBP '
-                 + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
+                 + str(round(d['total_num'] * d['price'], 2)) + ' ' + currency_type
+                 + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)',
                  'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
                  + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
                  'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
         pp.savefig(Statistics.get_briefing_page(lines, page_number))
         page_number += 1
         if d['donate_history']:
-            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
             page_number += 1
             pp.savefig(Statistics.get_progress_page(progress, page_number))
             page_number += 1
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum))
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum, currency_type))
             page_number += 1
 
         plt.close('all')
@@ -198,97 +207,43 @@ class Statistics(object):
         return filename
 
     @staticmethod
-    def get_regional_dist(d):
-        # Get regional distribution of donation.
-        # Takes: project_dict or user_dict
-        # Returns: [region_list, ratio_list]
-        regional_dist_dict = {}
-        if 'pid' in d:
-            for uid, sub_dict in d['donate_history'].items():
-                if uid == "Anonymous":
-                    continue
-                user_dict = Statistics.get_user_dict(uid)
-                region = rid2region(user_dict['region'])
-                user_num_sum = 0
-                for timestamp, num in sub_dict.items():
-                    user_num_sum += num
-                user_ratio = user_num_sum / d['current_num']
-                if region in regional_dist_dict.keys():
-                    regional_dist_dict[region] += user_ratio
-                else:
-                    regional_dist_dict[region] = user_ratio
-        else:
-            if d['type'] == 1:
-                projects_sum = 0
-                for pid, sub_dict in d['donate_history'].items():
-                    project_dict = Statistics.get_project_dict(pid)
-                    projects_sum += project_dict['current_num'] * project_dict['price']
-                    for uid, sub_sub_dict in sub_dict.items():
-                        if uid == "Anonymous":
-                            continue
-                        user_dict = Statistics.get_user_dict(uid)
-                        region = rid2region(user_dict['region'])
-                        user_sum = 0
-                        for timestamp, num in sub_sub_dict.items():
-                            user_sum += num * project_dict['price']
-                        if region in regional_dist_dict.keys():
-                            regional_dist_dict[region] += user_sum
-                        else:
-                            regional_dist_dict[region] = user_sum
-                for key in regional_dist_dict.keys():
-                    regional_dist_dict[key] = regional_dist_dict[key] / projects_sum
-            else:
-                overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-                for pid, sub_dict in d['donate_history'].items():
-                    project_dict = Statistics.get_project_dict(pid)
-                    region = rid2region(project_dict['region'])
-                    project_num_sum = 0
-                    for timestamp, num in sub_dict.items():
-                        project_num_sum += num
-                    project_ratio = project_num_sum * project_dict['price'] / overall_sum
-                    if region in regional_dist_dict.keys():
-                        regional_dist_dict[region] += project_ratio
-                    else:
-                        regional_dist_dict[region] = project_ratio
-        if regional_dist_dict:
-            regional_dist = sorted(regional_dist_dict.items(), key=lambda x: x[1], reverse=True)
-            region_list, ratio_list = zip(*regional_dist)
-            regional_dist = [region_list, ratio_list]
-        else:
-            regional_dist = [['Anonymous donor'], [1]]
-        return regional_dist
+    def get_project_title(user_dict):
+        # Return titles of a user's projects.
+        title = []
+        for pid, sub_dict in user_dict['donate_history'].items():
+            title.append(Statistics.get_project_dict(pid)['title'])
+        return title
 
     @staticmethod
-    def m_get_regional_dist(d):
+    def get_regional_dist(d, dist=True):
         # Get regional distribution of donation.
         # Takes: project_dict or user_dict
         # Returns: [region_list, ratio_list]
         regional_dist_dict = {}
         if 'pid' in d:
             for uid, sub_dict in d['donate_history'].items():
-                if uid == "Anonymous":
-                    continue
                 user_dict = Statistics.get_user_dict(uid)
-                region = rid2region(user_dict['region'])
+                region = 'Anonymous donor' if uid == "Anonymous" else rid2region(user_dict['region'])
                 user_num_sum = 0
                 for timestamp, num in sub_dict.items():
                     user_num_sum += num
-                user_ratio = user_num_sum
+                if dist:
+                    user_ratio = user_num_sum / d['current_num']
+                else:
+                    user_ratio = user_num_sum
                 if region in regional_dist_dict.keys():
                     regional_dist_dict[region] += user_ratio
                 else:
                     regional_dist_dict[region] = user_ratio
         else:
             if d['type'] == 1:
-                projects_sum = 0
+                charity_sum = 0
                 for pid, sub_dict in d['donate_history'].items():
                     project_dict = Statistics.get_project_dict(pid)
-                    projects_sum += project_dict['current_num'] * project_dict['price']
+                    charity_sum += project_dict['current_num'] * project_dict['price']
                     for uid, sub_sub_dict in sub_dict.items():
-                        if uid == "Anonymous":
-                            continue
                         user_dict = Statistics.get_user_dict(uid)
-                        region = rid2region(user_dict['region'])
+                        region = 'Anonymous donor' if uid == "Anonymous" else rid2region(user_dict['region'])
                         user_sum = 0
                         for timestamp, num in sub_sub_dict.items():
                             user_sum += num * project_dict['price']
@@ -297,7 +252,10 @@ class Statistics(object):
                         else:
                             regional_dist_dict[region] = user_sum
                 for key in regional_dist_dict.keys():
-                    regional_dist_dict[key] = regional_dist_dict[key]
+                    if dist:
+                        regional_dist_dict[key] = regional_dist_dict[key] / charity_sum
+                    else:
+                        regional_dist_dict[key] = regional_dist_dict[key]
             else:
                 overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
                 for pid, sub_dict in d['donate_history'].items():
@@ -306,7 +264,10 @@ class Statistics(object):
                     project_num_sum = 0
                     for timestamp, num in sub_dict.items():
                         project_num_sum += num
-                    project_ratio = project_num_sum * project_dict['price']
+                    if dist:
+                        project_ratio = project_num_sum * project_dict['price'] / overall_sum
+                    else:
+                        project_ratio = project_num_sum * project_dict['price']
                     if region in regional_dist_dict.keys():
                         regional_dist_dict[region] += project_ratio
                     else:
@@ -317,12 +278,13 @@ class Statistics(object):
         return regional_dist
 
     @staticmethod
-    def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum):
+    def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum, currency_type):
+        # Generate regional distribution page out of regional_dist.
         if n_donor == 1:
-            text = '1 donor has donated ' + str(overall_sum) + ' GBP to this project.'
+            text = '1 donor has donated ' + str(overall_sum) + ' ' + currency_type + ' to this project.'
         elif n_donor > 1:
-            text = str(n_donor) + ' donors have donated ' + str(round(overall_sum, 2)) + ' GBP to this project. (' \
-                   + str(round(overall_sum / n_donor, 2)) + ' GBP per person)'
+            text = str(n_donor) + ' donors have donated ' + str(round(overall_sum, 2)) + ' ' + currency_type\
+                   + ' to this project. (' + str(round(overall_sum / n_donor, 2)) + ' ' + currency_type + ' per person)'
         fig = plt.figure()
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         if n_donor:
@@ -333,16 +295,89 @@ class Statistics(object):
 
     @staticmethod
     def get_user_dict(uid):
+        # Return user_dict of the user with given uid.
         duser = DUser()
         user = duser.get_user({'uid': uid})
         return user.to_dict()
 
     @staticmethod
-    def get_project_name(d):
-        name = []
-        for pid, sub_dict in d['donate_history'].items():
-            name.append(Statistics.get_project_dict(pid)['title'])
-        return name
+    def get_user_report(uid):
+        # Save report to local directory.
+        # Returns: full filename
+        d = Statistics.get_user_dict(uid)
+        filename = 'u_' + d['uid'] + '.pdf'
+        pp = PdfPages('DOC/' + filename)
+        overall_sum = 0
+        if d['donate_history']:
+            overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
+            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+        currency_type = d['currency_type']
+        page_number = 1
+
+        fig = plt.figure()
+        fig.text(0.5, 0.55,
+                 'Food For All by Apex08',
+                 fontsize=20, ha='center', va='center')
+        fig.text(0.5, 0.4,
+                 '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
+                 fontsize=16, ha='center', va='center')
+        pp.savefig(fig)
+
+        lines = ['User:    ' + d['name'],
+                 'Email:    ' + d['mail'],
+                 'Location:    ' + rid2region(d['region']),
+                 'Currency:    ' + d['currency_type'],
+                 'Total Donation:    ' + str(round(overall_sum, 2)) + ' ' + currency_type,
+                 'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
+                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
+        pp.savefig(Statistics.get_briefing_page(lines, page_number))
+        page_number += 1
+        if d['donate_history']:
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
+            page_number += 1
+            n_donor = 0
+            if d['type'] == 1:
+                for pid in d['donate_history']:
+                    project_dict = Statistics.get_project_dict(pid)
+                    n_donor += len(project_dict['donate_history'])
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum, currency_type))
+            page_number += 1
+
+        # Project section
+        if d['type'] == 1:
+            for pid in d['project']:
+                project_dict = Statistics.get_project_dict(pid)
+                overall_sum = 0
+                progress = [[], [0]]
+                if pid in d['donate_history']:
+                    overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
+                    progress = Statistics.get_progress(project_dict)
+                    regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
+
+                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
+                                           project_dict['title'][:36] + '...'),
+                         'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' ' + currency_type,
+                         'Progress:    ' + str(round(overall_sum, 2)) + ' / '
+                         + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' ' + currency_type
+                         + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)',
+                         'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
+                         + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
+                pp.savefig(Statistics.get_briefing_page(lines, page_number))
+                page_number += 1
+                if pid in d['donate_history']:
+                    pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
+                    page_number += 1
+                    pp.savefig(Statistics.get_progress_page(progress, page_number))
+                    page_number += 1
+                    pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(project_dict['donate_history']), overall_sum, currency_type))
+                    page_number += 1
+        plt.close('all')
+        pp.close()
+        return filename
+
+# --------------------------
+# Add other functions below.
+# --------------------------
 
     @staticmethod
     def get_history(d):
@@ -448,77 +483,3 @@ class Statistics(object):
             }
             series.append(data)
         return series
-
-    @staticmethod
-    def get_user_report(uid):
-        # Save report to local directory.
-        # Returns: full filename
-        d = Statistics.get_user_dict(uid)
-        filename = 'u_' + d['uid'] + '.pdf'
-        pp = PdfPages('DOC/' + filename)
-        overall_sum = 0
-        if d['donate_history']:
-            overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
-        page_number = 1
-
-        fig = plt.figure()
-        fig.text(0.5, 0.55,
-                 'Food For All by Apex08',
-                 fontsize=20, ha='center', va='center')
-        fig.text(0.5, 0.4,
-                 '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
-                 fontsize=16, ha='center', va='center')
-        pp.savefig(fig)
-
-        lines = ['User:    ' + d['name'],
-                 'Email:    ' + d['mail'],
-                 'Location:    ' + rid2region(d['region']),
-                 'Currency:    ' + d['currency_type'],
-                 'Total Donation:    ' + str(round(overall_sum, 2)) + ' GBP',
-                 'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
-                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
-        pp.savefig(Statistics.get_briefing_page(lines, page_number))
-        page_number += 1
-        if d['donate_history']:
-            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
-            page_number += 1
-            n_donor = 0
-            if d['type'] == 1:
-                for pid in d['donate_history']:
-                    project_dict = Statistics.get_project_dict(pid)
-                    n_donor += len(project_dict['donate_history'])
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum))
-            page_number += 1
-
-        # Project section
-        if d['type'] == 1:
-            for pid in d['project']:
-                project_dict = Statistics.get_project_dict(pid)
-                overall_sum = 0
-                progress = [[], [0]]
-                if pid in d['donate_history']:
-                    overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
-                    progress = Statistics.get_progress(project_dict)
-                    regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
-
-                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
-                                           project_dict['title'][:36] + '...'),
-                         'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' GBP',
-                         'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                         + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' GBP '
-                         + '(' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                         'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
-                         + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
-                pp.savefig(Statistics.get_briefing_page(lines, page_number))
-                page_number += 1
-                if pid in d['donate_history']:
-                    pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number))
-                    page_number += 1
-                    pp.savefig(Statistics.get_progress_page(progress, page_number))
-                    page_number += 1
-                    pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(project_dict['donate_history']), overall_sum))
-                    page_number += 1
-        plt.close('all')
-        pp.close()
-        return filename

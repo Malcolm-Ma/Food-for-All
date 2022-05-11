@@ -1,10 +1,13 @@
 from django.core.mail import send_mail
 from FoodForAll.settings import EMAIL_HOST_USER, VERIFY_CODE_EXPIRES
 
-# Mail class for sending emails to users on demand
+
 class Mail(object):
+    # This class consists of functions for sending emails to users under different circumstances.
+
     @staticmethod
     def get_line(text, style=''):
+        # Rich text template for a single line.
         if style == 'code':
             return '<div style="text-align: center;"><b style="color: rgb(51, 51, 51);' \
                    + ' font-size: x-large;"><u>' + text + '</u></b></div>'
@@ -14,6 +17,7 @@ class Mail(object):
 
     @staticmethod
     def get_header():
+        # Rich text template for email header.
         return '<br>' + \
                Mail.get_line('- Food For All by Apex08 -', 'title') + \
                '<br>' + \
@@ -22,12 +26,13 @@ class Mail(object):
 
     @staticmethod
     def get_footer():
+        # Rich text template for email footer.
         return '<br>' + \
                '<hr>' + \
                Mail.get_line('© Food For All') + \
                '<br>'
 
-    # Function for sending a verification code when a user registers
+    # Send an email with verification code for a user to register.
     @staticmethod
     def regis_verify(mail, code, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -43,7 +48,7 @@ class Mail(object):
         send_mail('Food For All - Your verification code',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
-    # Function for sending a notification email when a user registers successfully
+    # Send a welcome email when a user completes registration.
     @staticmethod
     def welcome(mail, fail_silently=True):
         html_message = Mail.get_header() + \
@@ -55,9 +60,9 @@ class Mail(object):
         send_mail('Welcome to Food For All!',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
-    #Function for sending a verification code when a user resets his/her password
     @staticmethod
     def reset_password_verify(mail, code, fail_silently=True):
+        # Send an email with verification code for a user to reset password.
         html_message = Mail.get_header() + \
                        Mail.get_line('You\'re trying to reset your password.', 'title') + \
                        Mail.get_line('Your verification code is:', 'title') + \
@@ -73,9 +78,9 @@ class Mail(object):
         send_mail('Food for All - Your verification code for password reset',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
-    # Function for sending a notification email when a user has successfully reset their password
     @staticmethod
     def reset_password_success(mail, fail_silently=True):
+        # Send an email to inform a user when password is successfully reset.
         html_message = Mail.get_header() + \
                        Mail.get_line('You have reset your password!', 'title') + \
                        '<br>' + \
@@ -84,8 +89,8 @@ class Mail(object):
         send_mail('Food For All - You have reset your password',
                   '', EMAIL_HOST_USER, [mail], fail_silently=fail_silently, html_message=html_message)
 
-    # Function for sending invitation emails to invited users
     @staticmethod
+    # Send an email to invite user's friends to the page of the donated project.
     def share(share_info, fail_silently=True):
         share_info['user_name'] = '' if not share_info['user_name'] else ' ' + share_info['user_name']
         share_info['donate_num'] = '' if not share_info['donate_num'] else ' ' + str(share_info['donate_num']) + ' meal(s)'
