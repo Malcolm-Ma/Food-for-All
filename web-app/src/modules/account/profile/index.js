@@ -33,6 +33,9 @@ import moment from "moment";
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 import { useNavigate } from 'react-router-dom';
 import LoadingButton from "@mui/lab/LoadingButton";
+import DownloadIcon from '@mui/icons-material/Download';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 export default () => {
 
@@ -61,9 +64,10 @@ export default () => {
   const [region, setRegion] = useState(userInfo.region);
   const [currency, setCurrency] = useState(userInfo.currency_type);
   const [history, setHistory] = useState([]);
-  const [lock, setLock] = useState(false);
+  const [lock, setLock] = useState(()=>{if (userInfo.hide===1){return false}else{return true}});
   const [avatar, setAvatar] = useState(_.get(userInfo, 'avatar'));
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [download, setDownload] = useState(false);
   const orginAvatar = avatar;
 
   function getRegionName(value) {
@@ -183,10 +187,27 @@ export default () => {
     }
   }
 
-  const switchHide = () => {
-    if(lock) {
+  const switchHide = async () => {
+    setLoading(true);
+    if (lock) {
+      try {
+        await actions.editUser({
+          hide: 1
+        })
+        setLoading(false)
+      } catch (e) {
+        await message.error({content: 'Edit Error! ERROR INFO: ' + e.name, key});
+      }
       setLock(false);
     } else {
+      try {
+        await actions.editUser({
+          hide: 0
+        })
+        setLoading(false)
+      } catch (e) {
+        await message.error({content: 'Edit Error! ERROR INFO: ' + e.name, key});
+      }
       setLock(true);
     }
   }
@@ -207,7 +228,8 @@ export default () => {
       price,
       num,
       sum,
-      history: his
+      history: his,
+      pid
     }
   }
 
@@ -228,7 +250,11 @@ export default () => {
             </IconButton>
           </TableCell>
           <TableCell component="th" scope="row">
-            {row.title}
+            {<a
+              href={`/donation/${row.pid}`}
+              target="_blank"
+              style={{fontSize: '16px'}}
+              >{row.title}</a>}
           </TableCell>
           <TableCell align="right">{row.num}</TableCell>
           <TableCell align="right">{row.price + " " +userInfo.currency_type}</TableCell>
@@ -293,7 +319,6 @@ export default () => {
       return rows;
     }
     setHistory(await setRows());
-    setLoading(false);
   }, []);
 
   const changeAvatar = async (event) => {
@@ -309,6 +334,16 @@ export default () => {
       setSaveDisabled(false);
       setDisplay(null);
       setEditDisplay("none");
+    }
+  }
+
+  const downloadReport = async () => {
+    setDownload(true);
+    try {
+      await actions.getReport();
+      setDownload(false);
+    } catch (e) {
+      console.error(e.name);
     }
   }
 
@@ -340,10 +375,26 @@ export default () => {
           </Grid>
 
 
-          <Grid item xs={12} display={editDisplay}>
+          <Grid item xs={6} display={editDisplay}>
             <Button variant="contained" onClick={handleDisplay}>
               Edit profile
             </Button>
+          </Grid>
+
+          {_.get(userInfo, 'type') !== 1 && <Grid item xs={6} display={editDisplay}>
+            {lock && <LoadingButton loading={loading} onClick={switchHide}><LockOpenIcon/></LoadingButton>}
+            {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
+          </Grid>
+          }
+
+          <Grid item xs={12} display={editDisplay}>
+            <LoadingButton
+              variant="contained"
+              loading={download}
+              endIcon={<DownloadIcon/>}
+              onClick={downloadReport}>
+              Download Report
+            </LoadingButton>
           </Grid>
 
           {display !== 'none' && <Grid item xs={12}>
@@ -422,33 +473,32 @@ export default () => {
         </Grid>
       </Grid>
 
-      {_.get(userInfo, 'type') !== 1 && <Divider orientation="vertical" flexItem>
-          {lock && <LoadingButton onClick={switchHide}><LockOpenIcon/></LoadingButton>}
-          {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
-        </Divider>}
-
       <Grid item xs={8} rowSpacing={2}>
         {/*Donor*/}
-        {lock && _.get(userInfo, 'type') !== 1 && <Grid item xs={12}>
-          <TableContainer sx={{ maxHeight: 1000 }} component={Paper}>
-            <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
-              <TableHead>
-                <TableRow>
-                  <TableCell />
-                  <TableCell>Project Title</TableCell>
-                  <TableCell align="right">Total number</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                  <TableCell align="right">Total price</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {history.map((row) => (
-                  <Row key={row.title} row={row} />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>}
+        {!(_.isEmpty(history)) && _.get(userInfo, 'type') !== 1
+          ? <Grid item xs={12}>
+            <Typography textAlign="left" >Donation History</Typography>
+            <TableContainer sx={{ maxHeight: 600 }} component={Paper}>
+              <Table stickyHeader aria-label="sticky table" aria-label="collapsible table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell />
+                    <TableCell>Project Title</TableCell>
+                    <TableCell align="right">Total number</TableCell>
+                    <TableCell align="right">Price</TableCell>
+                    <TableCell align="right">Total price</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {history.map((row) => (
+                    <Row key={row.title} row={row} />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+        </Grid>
+        : <CircularProgress />
+        }
 
         {/*Charity*/}
         {lock && _.get(userInfo, 'type') === 1 && <Grid item xs={12}>
