@@ -17,6 +17,7 @@ from Payment.models import Payment
 import requests
 
 # The code of this script contains definitions of some generic parameters that are dependencies of most of the project code
+# This script is a dependency on most other scripts, so import other generic dependencies in this script to avoid duplicate imports and increase code readability
 
 # Define functions for reading lists of countries and regions, and lists of currency types
 region_list_file = os.path.join(RESOURCE_DIR, "region_list.csv")

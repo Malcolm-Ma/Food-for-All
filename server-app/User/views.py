@@ -126,10 +126,10 @@ def edit_user(request, user):
     @apiGroup User
     @apiDescription api for editing user information by user already login
 
-    @apiParam {String} name Name of user.
-    @apiParam {String} region Country or region of user.
-    @apiParam {String} currency_type Default currency type of user.
-    @apiParam {String} avatar Static avatar url of user. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter.
+    @apiParam {String} name (Optional) Name of user.
+    @apiParam {String} region (Optional) Country or region of user.
+    @apiParam {String} currency_type (Optional) Default currency type of user.
+    @apiParam {String} avatar (Optional) Static avatar url of user. This should be preceded by a call to the upload_img/ interface to upload an avatar image file, with the url of the file returned by the upload_img/ interface as this parameter.
     @apiParam {Int} hide (Optional) Whether the user is hiding personal information from other users. (0: no hide, 1: hide) (only request if user type is charity, since charity users should not hide personal information)
 
     @apiSuccess (Success 200 return) {Int} status Status code ([0] success, [100001] user has not logged in, [100002] user update failed, [300001] invalid currency type, [300006] wrong region name or code)
