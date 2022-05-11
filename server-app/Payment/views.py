@@ -95,7 +95,7 @@ def capture_payment(request, user, project):
     """
     response_data = {"status": STATUS_CODE["success"]}
     data = json.loads(request.body)
-    num = data["num"]
+    num = int(data["num"])
     payment_id = data["payment_id"]
     as_plan = data["plan"]
     if as_plan:
