@@ -4,7 +4,7 @@
  */
 
 // module import
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import _ from 'lodash';
@@ -54,6 +54,13 @@ export default (props) => {
   }, [pid, regionInfo, userinfo]);
 
   const theme = createTheme();
+  const bgImageUrl = useMemo(() => {
+    const srcImage = _.get(projectDetail, 'background_image');
+    if (!_.isEmpty(srcImage)) {
+      return `url(${SERVICE_BASE_URL}${_.get(projectDetail, 'background_image')})`;
+    }
+    return `url(${require('src/assets/broken-1.jpg')})`;
+  }, [projectDetail]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -61,7 +68,7 @@ export default (props) => {
         projectDetail ? <>
             <Box
               sx={{
-                backgroundImage: `url(${SERVICE_BASE_URL}${_.get(projectDetail, 'background_image')})`,
+                backgroundImage: bgImageUrl,
                 position: 'absolute',
                 left: 0,
                 right: 0,

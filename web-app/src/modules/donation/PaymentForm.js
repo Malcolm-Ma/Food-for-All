@@ -39,7 +39,7 @@ export default (props) => {
   const [donationPrice, setDonationPrice] = useState(donationCount * projectDetail.price);
   const [customCount, setCustomCount] = useState('');
   const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
-  const [currentCurrency, setCurrentCurrency] = useState({});
+  const [currentCurrency, setCurrentCurrency] = useState({ label: '', value: '' });
 
   const [alert, setAlert] = useState(false);
 
@@ -99,7 +99,7 @@ export default (props) => {
   }, [currentCurrency.value, donationCount, donationType, projectDetail]);
 
   useEffect(() => {
-    if (!_.isEmpty(currentCurrency)) {
+    if (!_.isEmpty(currentCurrency.value)) {
       (async () => {
         const { project_info: projectInfo } = await actions.getProjectInfo({
           pid: originalProjectDetail.pid,
@@ -136,10 +136,6 @@ export default (props) => {
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
   }, [dispatch]);
 
-
-  console.log('--currencyList--\n', currencyList);
-  console.log('--currentCurrency--\n', currentCurrency);
-
   return (
     <Container
       component="div"
@@ -150,6 +146,11 @@ export default (props) => {
         alert && <Alert severity="warning" sx={{ mb: -2 }} onClose={() => setAlert(false)}>
           Sorry, charities can not donate to a project directly.
           Please logout or login as a donor if you wish to donate.
+        </Alert>
+      }
+      {
+        projectDetail.status === 2 && <Alert severity="success" sx={{ mb: -2, mt: 6 }}>
+          This project has completed donating. You can no longer donate to it.
         </Alert>
       }
       <Paper
@@ -276,7 +277,7 @@ export default (props) => {
             </Grid>
             <Grid item xs={12}>
               <Button
-                disabled={!_.isEmpty(userInfo) && _.get(userInfo, 'type') === 1}
+                disabled={(!_.isEmpty(userInfo) && _.get(userInfo, 'type') === 1) || projectDetail.status === 2}
                 variant="outlined"
                 fullWidth
                 endIcon={

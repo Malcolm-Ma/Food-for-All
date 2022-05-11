@@ -92,7 +92,7 @@ export default (props) => {
   const [sortItem, setSortItem] = React.useState('charity');
 
   const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
-  const [currentCurrency, setCurrentCurrency] = useState({});
+  const [currentCurrency, setCurrentCurrency] = useState({ label: '', value: '' });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -142,7 +142,7 @@ export default (props) => {
   }, [currentCurrency.value, searchItem, sortItem]);
 
   useEffect(() => {
-    if (!_.isEmpty(currentCurrency)) {
+    if (!_.isEmpty(currentCurrency.value)) {
       getProjectList().catch(err => console.error(err));
     }
   }, [currentCurrency, dispatch, getProjectList]);
