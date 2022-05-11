@@ -103,7 +103,7 @@ export default function ShowProjectCard(props) {
         component="img"
         height="194"
         image={SERVICE_BASE_URL + _.get(project, 'background_image')}
-        onClick={() => navigate(`/donation/${project.pid}`)}
+        onClick={() => navigate(`/donation/${project.pid}/${currencyType}`)}
         onError={(e) => e.target.src = require('src/assets/broken-1.jpg')}
       />
       <CardContent>
@@ -131,7 +131,7 @@ export default function ShowProjectCard(props) {
             <Button onClick={handleClose}>OK</Button>
           </DialogActions>
         </Dialog>
-        <Button size="small" href={`/donation/${project.pid}`}>Donate</Button>
+        <Button size="small" href={`/donation/${project.pid}/${currencyType}`}>Donate</Button>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}

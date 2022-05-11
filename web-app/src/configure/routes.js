@@ -101,6 +101,14 @@ export default [
     exact: true,
   },
   {
+    path: '/donation/:pid/:currency',
+    component: loadable({
+      loader: () => import(/* webpackChunkName: 'donation' */ /* webpackMode: 'lazy' */ 'src/modules/donation/index.js'),
+      loading: Loading,
+    }),
+    exact: true,
+  },
+  {
     path: '/account/charity_profile/:uid',
     component: loadable({
       loader: () => import(/* webpackChunkName: 'account' */ /* webpackMode: 'lazy' */ 'src/modules/account/charityProfile/index.js'),

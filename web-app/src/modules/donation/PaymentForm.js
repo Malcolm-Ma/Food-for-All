@@ -25,7 +25,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 const SAMPLE_DONATION = [4, 12, 24];
 
 export default (props) => {
-  const { projectDetail: originalProjectDetail } = props;
+  const { projectDetail: originalProjectDetail, currency } = props;
 
   const { regionInfo, currencyList } = useSelector(state => state.global);
   const { userInfo } = useSelector(state => state.user);
@@ -121,7 +121,7 @@ export default (props) => {
     if (!_.isEmpty(currencyList)) {
       const currentObj = _.find(
         currencyList,
-        (item) => item.value === (_.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
+        (item) => item.value === (currency || _.get(userInfo, 'currency_type') || _.get(regionInfo, 'currencyType'))
       );
       setCurrentCurrency({ label: `${currentObj.value} (${currentObj.label})`, value: currentObj.value })
       const thisList = _.map(currencyList, ({ label, value }) => {
@@ -130,7 +130,7 @@ export default (props) => {
       });
       setFormattedCurrencyList(thisList);
     }
-  }, [currencyList, regionInfo, userInfo]);
+  }, [currency, currencyList, regionInfo, userInfo]);
 
   useEffect(() => {
     dispatch(actions.getCurrencyList()).catch(err => console.error(err));
