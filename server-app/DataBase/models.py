@@ -34,16 +34,20 @@ class DUser(models.Model):
 
     # Converting class information into easy to read information
     def to_dict(self, fields=tuple(), check_hide=False):
+        # Charity users are not allowed to hide information
         if self.type == USER_TYPE["charity"]:
             check_hide = False
         user_dict = {}
+        # Information fields that are allowed to be accessed by the front-end
         allow_fields = ("uid", "mail", "name", "avatar", "type", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history", "hide")#, "password"
         fields = allow_fields if not fields else [i for i in fields if i in allow_fields]
         for i in fields:
             user_dict[i] = self.__getattribute__(i)
+        # Type conversion of non-string type fields
         for i in ("project", "donate_history", "share_mail_history"):
             if i in fields:
                 user_dict[i] = eval(user_dict[i])
+        # Hidden information for individual users is set to "*"
         if check_hide and self.hide:
             for i in ("mail", "region", "currency_type", "project", "regis_time", "last_login_time", "donate_history", "share_mail_history"):
                 if i in fields:
@@ -52,6 +56,7 @@ class DUser(models.Model):
 
     # Applying updates to the database
     def update_from_fict(self, update_dict):
+        # Information fields that are allowed to be updated
         allow_fields = ("mail", "password", "name", "avatar", "type", "region", "currency_type", "last_login_time", "share_mail_history", "hide")
         update_fields = [i for i in update_dict if i in allow_fields]
         if "type" in update_fields and update_dict["type"] not in USER_TYPE.values():
