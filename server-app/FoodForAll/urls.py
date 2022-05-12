@@ -25,8 +25,13 @@ from Share import views as share_views
 from Payment import views as payment_views
 from Statistics import views as statistics_views
 
+from django.contrib.staticfiles.views import serve
+def return_static(request, path, insecure=True, **kwargs):
+    return serve(request, path, insecure, **kwargs)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^static/(?P<path>.*)$', return_static),
     path('region_list/', common_views.get_region_list),
     path('currency_list/', common_views.get_currency_list),
     path('region2currency/', common_views.get_region2currency),
