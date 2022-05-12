@@ -26,6 +26,10 @@ export default [
     icon: <LineChartOutlined />,
     child: [
       {
+        title: 'Dashboard',
+        url: '/income/summary',
+      },
+      {
         title: 'Donation History',
         url: '/income/donation',
       },
@@ -38,10 +42,6 @@ export default [
             console.error(e.name);
           }
         },
-      },
-      {
-        title: 'Income Summary',
-        url: '/income/summary',
       },
     ],
   },

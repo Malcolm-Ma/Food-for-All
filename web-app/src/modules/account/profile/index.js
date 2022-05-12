@@ -36,6 +36,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Empty } from 'antd';
+import Tooltip from "@mui/material/Tooltip";
+import EditIcon from '@mui/icons-material/Edit';
 
 
 export default () => {
@@ -376,15 +378,22 @@ export default () => {
           </Grid>
 
 
-          <Grid item xs={6} display={editDisplay}>
-            <Button variant="contained" onClick={handleDisplay}>
+          <Grid item xs={12} display={editDisplay}>
+            <Button variant="contained" onClick={handleDisplay} endIcon={<EditIcon/>}>
               Edit profile
             </Button>
           </Grid>
 
-          {_.get(userInfo, 'type') !== 1 && <Grid item xs={6} display={editDisplay}>
-            {lock && <LoadingButton loading={loading} onClick={switchHide}><LockOpenIcon/></LoadingButton>}
-            {!lock && <LoadingButton loading={loading} onClick={switchHide}><LockIcon/></LoadingButton>}
+          {_.get(userInfo, 'type') !== 1 && <Grid item xs={12} display={editDisplay}>
+            <Tooltip title="Choose whether hide the contact information when donating" arrow placement="bottom-end">
+              <LoadingButton
+                variant="contained"
+                loading={loading}
+                onClick={switchHide}
+                endIcon={lock ? <LockOpenIcon/> : <LockIcon/>}
+              >
+                {lock ? 'Show Contact' : 'Hide Contact'}</LoadingButton>
+            </Tooltip>
           </Grid>
           }
 
