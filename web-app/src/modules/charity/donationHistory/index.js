@@ -107,16 +107,11 @@ export default () => {
         } catch (e) {
           message.error(e.name);
         }
+        setLoading(false);
       };
       fetchData();
     }
   }, [userInfo]);
-
-  useEffect(() => {
-    if (!_.isEmpty(dataSource)){
-      setLoading(false);
-    }
-  }, [dataSource]);
 
   return (
     <div>

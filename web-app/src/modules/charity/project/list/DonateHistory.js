@@ -47,7 +47,7 @@ export default (props) => {
 
   const [visible, setVisible] = useState(visibleProps);
 
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(null);
 
   const onClose = () => {
     customOnClose();
@@ -114,7 +114,7 @@ export default (props) => {
     }
   }, [pid, userInfo.currency_type]);
 
-  const loading = useMemo(() => (_.isEmpty(dataSource)), [dataSource]);
+  const loading = useMemo(() => (_.isNil(dataSource)), [dataSource]);
   return (
     <Drawer
       title="Donate Hostory"
@@ -124,7 +124,6 @@ export default (props) => {
       visible={visible}
       extra={
         <Space>
-          {/*<Button onClick={onClose}>Cancel</Button>*/}
           <Button type="primary" onClick={onClose}>
             OK
           </Button>

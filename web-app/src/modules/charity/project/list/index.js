@@ -199,7 +199,7 @@ const columnsConfig = (payloads) => {
     {
       title: 'Operations',
       key: 'action',
-      width: 230,
+      width: 290,
       align: 'center',
       fixed: 'right',
       render: (text, record) => {
