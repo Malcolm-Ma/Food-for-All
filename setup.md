@@ -83,7 +83,7 @@ Then run
 npm start
 ```
 
-**At this point, the server is successfully started and the main project page can be accessed by opening http://localhost:3000/ **
+**At this point, the server is successfully started and the main project page can be accessed by opening http://localhost:3000/**
 
 ## Backend Api Doc
 
