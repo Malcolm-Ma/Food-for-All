@@ -6,9 +6,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useSelector } from "react-redux";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box, Icon, SvgIcon } from "@mui/material";
 
 import Avatar from 'src/layout/Avatar';
-import { Box } from "@mui/material";
+import logo from 'src/assets/logo.svg';
 
 const theme = createTheme({
   status: {
@@ -41,6 +42,9 @@ const Header = (props) => {
     <ThemeProvider theme={theme}>
       <AppBar className="frame-nav" position="sticky" color={toC ? 'secondary' : 'primary'}>
         <Toolbar>
+          <Icon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
+            <img src={logo} alt="logo" />
+          </Icon>
           <Typography
             variant="h6"
             component="span"

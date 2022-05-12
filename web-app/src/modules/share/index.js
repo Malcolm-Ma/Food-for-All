@@ -17,7 +17,7 @@ import Typography from '@mui/material/Typography';
 import Button from "@mui/material/Button";
 import * as React from "react";
 import success from 'src/assets/success.jpg'
-import {Checkbox, FormControlLabel, FormGroup, TextField} from "@mui/material";
+import { Checkbox, Container, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import {Result} from 'antd';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -110,7 +110,7 @@ export default (props) => {
         }
         setTimeout(() => {
             setOpen(false);
-            navigate('/project');
+            navigate('/home');
         }, 200);
 
     }
@@ -163,7 +163,7 @@ export default (props) => {
     }, [navigate, regionInfo.currencyType, token]);
 
     return (
-        <div align="center">
+        <Container maxWidth="md" align="center">
             {
                 !loading
                     ? <>{
@@ -254,6 +254,6 @@ export default (props) => {
                     }</>
                     : <div><Spin size="large"></Spin></div>
             }
-        </div>
+        </Container>
     );
 }

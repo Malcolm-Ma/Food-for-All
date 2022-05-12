@@ -5,7 +5,7 @@
 
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 // material
-import { Container, Grid, Icon, Stack, TextField, Typography } from '@mui/material';
+import { ButtonGroup, Container, Grid, Icon, Stack, TextField, Typography } from '@mui/material';
 // components
 import { ProjectList } from 'src/components/ProjectCardList';
 //
@@ -33,6 +33,9 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Autocomplete from "@mui/material/Autocomplete";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
     <Menu
@@ -89,10 +92,12 @@ export default (props) => {
 //Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [sortItem, setSortItem] = React.useState('-price');
+  const [sortItem, setSortItem] = React.useState('progress');
 
   const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
   const [currentCurrency, setCurrentCurrency] = useState({ label: '', value: '' });
+
+  const [asc, setAsc] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -100,7 +105,9 @@ export default (props) => {
   const handleClose = async (event) => {
     setAnchorEl(null);
     event.preventDefault();
-    setSortItem(event.currentTarget.id);
+    if (!!event.currentTarget.id) {
+      setSortItem(event.currentTarget.id);
+    }
   };
   const handleSearchProject = async (event) =>{
     event.preventDefault();
@@ -116,7 +123,7 @@ export default (props) => {
           page: 1
         },
         search: searchItem,
-        order: sortItem,
+        order: `${asc ? '' : '-'}${sortItem}`,
         uid: '',
         valid_only: 1,
       });
@@ -138,7 +145,7 @@ export default (props) => {
     } catch (e) {
       console.error(e);
     }
-  }, [currentCurrency.value, searchItem, sortItem]);
+  }, [asc, currentCurrency.value, searchItem, sortItem]);
 
   useEffect(() => {
     if (!_.isEmpty(currentCurrency.value)) {
@@ -212,19 +219,33 @@ export default (props) => {
             />}
           />
         </Grid>
-        <Grid item xs={12} sm={2}>
-          <Button
-            id="demo-customized-button"
-            aria-controls={open ? 'demo-customized-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-            variant="contained"
-            disableElevation
-            onClick={handleClick}
-            endIcon={<KeyboardArrowDownIcon />}
-          >
-            Sort by
-          </Button>
+        <Grid item xs={12} sm={3}>
+          <ButtonGroup variant="contained">
+            <Button
+              id="demo-customized-button"
+              aria-controls={open ? 'demo-customized-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              variant="contained"
+              disableElevation
+              onClick={() => setAsc(prevState => !prevState)}
+              startIcon={asc ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+            >
+              { asc ? 'ASC' : 'DESC' }
+            </Button>
+            <Button
+              id="demo-customized-button"
+              aria-controls={open ? 'demo-customized-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              variant="contained"
+              disableElevation
+              onClick={handleClick}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              Sort by
+            </Button>
+          </ButtonGroup>
           <StyledMenu
             id="demo-customized-menu"
             MenuListProps={{
@@ -235,10 +256,6 @@ export default (props) => {
             onClose={handleClose}
             onSubmit = {handleClose}
           >
-            <MenuItem label="charity" id='charity' onClick={handleClose} disableRipple>
-              <PeopleIcon />
-              Charity
-            </MenuItem>
             <MenuItem label="price" id='price' onClick={handleClose} disableRipple>
               <CheckCircleOutlineIcon />
               Price
@@ -254,6 +271,10 @@ export default (props) => {
             <MenuItem label="title" id='title' onClick={handleClose} disableRipple>
               <TitleIcon />
               Title
+            </MenuItem>
+            <MenuItem label="pregress" id='progress' onClick={handleClose} disableRipple>
+              <PeopleIcon />
+              Progress
             </MenuItem>
           </StyledMenu>
         </Grid>
