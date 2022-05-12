@@ -110,7 +110,7 @@ export default (props) => {
         }
         setTimeout(() => {
             setOpen(false);
-            navigate('/project');
+            navigate('/home');
         }, 200);
 
     }

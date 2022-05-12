@@ -7,13 +7,17 @@ import Button from '@mui/material/Button';
 import Typography from './Typography';
 import HeroLayout from './HeroLayout';
 
-const BACKGROUND_IMAGE = 'https://www.wfp.org/sites/default/files/images/MicrosoftTeams-image%20%284%29_1.png';
+import homeImage1 from 'src/assets/home1.jpeg';
+import homeImage2 from 'src/assets/home2.png';
+import moment from "moment";
 
 export default () => {
+  const imageUrl = moment().millisecond() % 2 === 1 ? homeImage1 : homeImage2;
+
   return (
     <HeroLayout
       sxBackground={{
-        backgroundImage: `url(${BACKGROUND_IMAGE})`,
+        backgroundImage: `url(${imageUrl})`,
         backgroundColor: '#7fc7d9', // Average color of the background image.
         backgroundPosition: 'center',
       }}
@@ -21,7 +25,7 @@ export default () => {
       {/* Increase the network loading priority of the background image. */}
       <img
         style={{ display: 'none' }}
-        src={BACKGROUND_IMAGE}
+        src={imageUrl}
         alt="increase priority"
       />
       <Typography color="inherit" align="center" variant="h2" marked="center">
