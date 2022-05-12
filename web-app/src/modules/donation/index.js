@@ -12,7 +12,7 @@ import _ from 'lodash';
 // style import
 import './index.less';
 import actions from "src/actions";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Box from "@mui/material/Box";
 
 import { SERVICE_BASE_URL } from "src/constants/constants";
@@ -28,8 +28,10 @@ export default (props) => {
   const { pid, currency } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const dispatch = useDispatch();
+
   const { userinfo } = useSelector(state => state.user);
-  const { regionInfo } = useSelector(state => state.global);
+  const { regionInfo, regionMap } = useSelector(state => state.global);
 
   const [projectDetail, setProjectDetail] = useState();
 
@@ -65,6 +67,10 @@ export default (props) => {
       setSearchParams({});
     }
   }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    dispatch(actions.getRegionList()).catch(err => console.error(err));
+  }, [dispatch]);
 
   const theme = createTheme();
   const bgImageUrl = useMemo(() => {
@@ -120,30 +126,41 @@ export default (props) => {
                     {_.get(projectDetail, 'title', '')}
                   </Typography>
                   <Box sx={{ pt: 6 }}>
-                    <Row gutter={16}>
+                    <Row gutter={20}>
                       <Col span={12}>
-                        <Statistic className="project-statistic" valueStyle={{ color: 'white' }}
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }}
+                                   title="Charity"
+                                   value={_.get(projectDetail, 'charity', '')} />
+                      </Col>
+                      <Col span={12}>
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }}
+                                   title="Country/Region"
+                                   value={regionMap[_.get(projectDetail, 'region', '')] || 'Unknown'} />
+                      </Col>
+                    </Row>
+                    <Row gutter={20}>
+                      <Col span={12}>
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }}
                                    title="Number of Meals Donated"
                                    value={_.get(projectDetail, "current_num")} />
                       </Col>
                       <Col span={12}>
-                        <Statistic className="project-statistic" valueStyle={{ color: 'white' }}
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }}
                                    title="Total Meals Due for Donation"
                                    value={_.get(projectDetail, "total_num")} />
                       </Col>
                     </Row>
-                    <Row gutter={16}>
+                    <Row gutter={20}>
                       <Col span={12}>
-                        <Statistic className="project-statistic" valueStyle={{ color: 'white' }} title="Start Time"
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }} title="Start Time"
                                    value={moment(_.get(projectDetail, 'start_time') * 1000).format("MMM DD, YYYY")} />
                       </Col>
                       <Col span={12}>
-                        <Statistic className="project-statistic" titleStyle={{ color: 'white' }}
-                                   valueStyle={{ color: 'white' }} title="End Time"
+                        <Statistic className="project-statistic" valueStyle={{ color: 'white', opacity: 0.8 }} title="End Time"
                                    value={moment(_.get(projectDetail, 'end_time') * 1000).format("MMM DD, YYYY")} />
                       </Col>
                     </Row>
-                    <Row gutter={16}>
+                    <Row gutter={20}>
                       <Col span={20}>
                         <Form.Item
                           className="project-progress"
