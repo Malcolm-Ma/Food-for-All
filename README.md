@@ -1,9 +1,9 @@
 # Food For All
 **by *Apex (Team 8)***
 
-## Important!
-**Please run ```git config core.hooksPath .githooks``` when you firstly clone the repo.**
+## Set up Guide
 
+See in [Set Up Guide](./setup.md)
 ## Team division
 
 ### Front End
@@ -32,9 +32,9 @@ React.js
 
 React Hook
 
-Redux
+React Redux
 
-Less
+etc.
 
 ### Dependencies & Library
 
@@ -44,7 +44,7 @@ Less
 
 [Material UI](https://mui.com/getting-started/installation/)
 
-#### Util
+#### Utils
 
 lodash
 
@@ -52,8 +52,8 @@ lodash
 
 ### Technique Routes
 
-Coding: Python
+Coding Language: Python 3.x
 
-Structure: Django
+Framework: Django
 
 Database: Mysql
