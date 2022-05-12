@@ -86,7 +86,7 @@ At this point, the server is successfully started and the main project page can 
 
 ## Development and debugging environment setup
 
-During testing and debugging, please change the `DEBUG` in `./server-app/FoodForAll.py` to `True`. Because the operation during debugging needs to be done in DEBUG environment.
+During testing and debugging, please change the `DEBUG` in `./server-app/FoodForAll/settings.py` to `True`. Because the operation during debugging needs to be done in DEBUG environment.
 
 ## Demo: Database after the first start of the backend service
 
