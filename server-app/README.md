@@ -12,16 +12,22 @@ apidoc
 
 ## Install Conda Environment
 ### In Command Line with Anaconda
-    cd server-app
-    conda env create -f environment_{systemtype}.yml
+```shell
+cd server-app
+conda env create -f environment_{systemtype}.yml
+```
 
 ## Set MYSQL
 ### In MYSQL
-    create user 'apex'@'%' identified by 'apex08';
-    grant all privileges on \*.\* to 'apex'@'%';
-    flush privileges;
+
+```mysql
+create user 'apex'@'%' identified by 'apex08';
+grant all privileges on *.* to 'apex'@'%';
+flush privileges;
+```
 
 ### Then set your mysql ini with:
+
     [client]
     default-character-set=utf8mb4
     [mysql]
@@ -33,16 +39,23 @@ apidoc
 
 # Startup Environment
 ## In Command Line with Anaconda
-    cd {your mysql bin path}
-    net start mysql
-    conda activate tsp
+
+```shell
+cd {your mysql bin path}
+net start mysql
+conda activate tsp
+```
 
 # Server Start
 ## Under the environment of the tsp
-    cd {project path}/server-app
-    python manage.py runserver --noreload 8000
+
+```shell
+cd {project path}/server-app
+python manage.py runserver --noreload 8000
+```
 
 # API Document
+
 Visit http://127.0.0.1:8000/static/apidoc/index.html after startup the server.
 
 # Learn More
