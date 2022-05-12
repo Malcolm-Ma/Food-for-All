@@ -11,14 +11,19 @@ class Statistics(object):
     # This class contains a number of functions for computing statistical data and generating report.
 
     @staticmethod
-    def fold_data(data, threshold=0.05):
+    def fold_pie(data, window=0.5):
         # Fold the last fractions of pie into a whole.
         # Takes: [key_list, value_list]
+        value_sum = 0
+        sum_of_others = 0
         f_key = []
         f_value = []
-        sum_of_others = 0
+        for n in range(len(data[0])):
+            value_sum += data[1][n]
+            if value_sum > window:
+                break
         for i in range(len(data[0])):
-            if data[1][i] >= threshold:
+            if i <= n:
                 f_key.append(data[0][i])
                 f_value.append(data[1][i])
             else:
@@ -178,7 +183,7 @@ class Statistics(object):
         if d['donate_history']:
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
             progress = Statistics.get_progress(d)
-            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+            regional_dist = Statistics.fold_pie(Statistics.get_regional_dist(d))
         project_age = time.time() - (d['end_time'] if progress[1][-1] >= 1 else d['start_time'])
         if progress[1][-1] != 0:
             finish_time = project_age / progress[1][-1] + d['start_time']
@@ -343,7 +348,7 @@ class Statistics(object):
         donation_sum, num_sum = Statistics.get_num_sum(d)
         if d['donate_history']:
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
-            regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
+            regional_dist = Statistics.fold_pie(Statistics.get_regional_dist(d))
         page_number = 1
 
         fig = plt.figure()
@@ -390,7 +395,7 @@ class Statistics(object):
                        + str(len(regional_dist[0])) + ' countries (regions) have\n\ndonated to your projects.'
             else:
                 text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', you have donated to ' \
-                       'projects from\n\n' + str(len(regional_dist[0])) + ' countries (regions).'
+                       'projects from ' + str(len(regional_dist[0])) + '\n\ncountries (regions).'
             pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, text))
             page_number += 1
 
@@ -406,7 +411,7 @@ class Statistics(object):
                 if project_dict['donate_history']:
                     overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
                     progress = Statistics.get_progress(project_dict)
-                    regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
+                    regional_dist = Statistics.fold_pie(Statistics.get_regional_dist(project_dict))
                 project_age = time.time() - (project_dict['end_time'] if progress[1][-1] >= 1 else
                                              project_dict['start_time'])
                 if progress[1][-1] != 0:
