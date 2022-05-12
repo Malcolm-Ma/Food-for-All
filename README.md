@@ -8,18 +8,21 @@
 
 ### Front End
 
-- Mingze Ma
-- Tianhao Shi
-- Hangting Dong
+- Mingze Ma (@ acp21mm)
+- Tianhao Shi (@ acp21ts)
+- Hangting Dong (@ acs21hd)
 
 ### Back end
 
-- Tianyu Liang
-- Youzheng Jia
-- Zhengwei Zhan
+- Tianyu Liang (@ acs21tl)
+- Youzheng Jia (@ acq21yj)
+- Zhengwei Zhan (@ acq21zz)
 
 ### Docs
-TBC ...
+
+[Front End Readme](https://git.shefcompsci.org.uk/com6103-2021-22/team08/project/-/blob/main/web-app/README.md)
+
+[Back end Readme](https://git.shefcompsci.org.uk/com6103-2021-22/team08/project/-/blob/main/server-app/README.md)
 
 ## Front End
 
