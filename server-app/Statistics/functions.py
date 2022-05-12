@@ -11,7 +11,7 @@ class Statistics(object):
     # This class contains a number of functions for computing statistical data and generating report.
 
     @staticmethod
-    def fold_pie(data, window=0.5):
+    def fold_pie(data, window=2/3):
         # Fold the last fractions of pie into a whole.
         # Takes: [key_list, value_list]
         value_sum = 0
@@ -321,12 +321,13 @@ class Statistics(object):
     @staticmethod
     def get_regional_dist_page(regional_dist, page_number, text):
         # Generate regional distribution page out of regional_dist.
+        colors = ['#FBE7C6', '#B4F8C8', '#A0E7E5', '#FFAEBC']
         fig = plt.figure()
         plt.subplots_adjust(bottom=0.2)
         fig.text(0.1, 0.125, text, fontsize=12, ha='left', va='center')
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         plt.title('Regional Distribution of Donation')
-        plt.pie(regional_dist[1], labels=regional_dist[0], autopct='%.2f%%')
+        plt.pie(regional_dist[1], labels=regional_dist[0], colors=colors, autopct='%.2f%%')
         return fig
 
     @staticmethod
