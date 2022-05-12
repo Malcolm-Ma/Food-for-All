@@ -92,7 +92,7 @@ export default (props) => {
 //Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [sortItem, setSortItem] = React.useState('price');
+  const [sortItem, setSortItem] = React.useState('progress');
 
   const [formattedCurrencyList, setFormattedCurrencyList] = useState([]);
   const [currentCurrency, setCurrentCurrency] = useState({ label: '', value: '' });
