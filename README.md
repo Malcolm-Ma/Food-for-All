@@ -8,15 +8,15 @@
 
 ### Front End
 
-- Mingze Ma
-- Tianhao Shi
-- Hangting Dong
+- Mingze Ma (@ acp21mm)
+- Tianhao Shi (@ acp21ts)
+- Hangting Dong (@ acs21hd)
 
 ### Back end
 
-- Tianyu Liang
-- Youzheng Jia
-- Zhengwei Zhan
+- Tianyu Liang (@ acs21tl)
+- Youzheng Jia (@ acq21yj)
+- Zhengwei Zhan (@ acq21zz)
 
 ### Docs
 
