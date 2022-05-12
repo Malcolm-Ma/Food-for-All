@@ -72,6 +72,7 @@ Execute the command as follow:
 conda activate tsp
 python manage.py runserver --noreload 0.0.0.0:8000
 ```
+
 ### Start front-end service
 
 Go to the web-app by `cd ./web-app`.
@@ -82,7 +83,11 @@ Then run
 npm start
 ```
 
-At this point, the server is successfully started and the main project page can be accessed by opening http://localhost:3000/
+**At this point, the server is successfully started and the main project page can be accessed by opening http://localhost:3000/ **
+
+## Backend Api Doc
+
+After starting the backend server, you can access the API documentation via http://localhost:8000/static/apidoc/index.html 
 
 ## Development and debugging environment setup
 
