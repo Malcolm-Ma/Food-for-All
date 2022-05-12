@@ -1,6 +1,5 @@
-from Common.common import rid2region
-from DataBase.models import DProject
-from DataBase.models import DUser
+from Common.common import currency2cid, EXCHANGE_RATE, rid2region
+from DataBase.models import DProject, DUser, PROJECT_STATUS
 import datetime as dt
 from datetime import datetime
 from matplotlib import pyplot as plt
@@ -31,30 +30,6 @@ class Statistics(object):
         return f_data
 
     @staticmethod
-    def get_briefing_page(lines, page_number):
-        # Generate briefing page out of texts.
-        y = 0.05 * len(lines) + 0.45
-        fig = plt.figure()
-        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
-        for line in lines:
-            fig.text(0.1, y, line, fontsize=14, ha='left', va='center')
-            y -= 0.1
-        return fig
-
-    @staticmethod
-    def get_monthly_num_sum(project_dict):
-        # Return monthly sum of donated meals of a project.
-        monthly_num_sum_dict = {}
-        for uid, sub_dict in project_dict['donate_history'].items():
-            for timestamp, num in sub_dict.items():
-                ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m%d')
-                if ym in monthly_num_sum_dict.keys():
-                    monthly_num_sum_dict[ym] += num
-                else:
-                    monthly_num_sum_dict[ym] = num
-        return monthly_num_sum_dict
-
-    @staticmethod
     def get_monthly_sum(d):
         # Get overall and monthly sum of donation.
         # For project: from start_time to this month.
@@ -73,25 +48,29 @@ class Statistics(object):
                     else:
                         monthly_sum_dict[ym] = num * d['price']
         else:
+            user_currency = d['currency_type']
             for pid, sub_dict in d['donate_history'].items():
-                price = Statistics.get_project_dict(pid)['price']
+                project_dict = Statistics.get_project_dict(pid)
+                owner_dict = Statistics.get_user_dict(project_dict['uid'])
+                project_currency = owner_dict['currency_type']
+                exchange_rate = EXCHANGE_RATE[currency2cid(user_currency)] / EXCHANGE_RATE[currency2cid(project_currency)]
                 if d['type'] == 1:
                     for uid, sub_sub_dict in sub_dict.items():
                         for timestamp, num in sub_sub_dict.items():
-                            overall_sum += num * price
+                            overall_sum += num * project_dict['price']
                             ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                             if ym in monthly_sum_dict.keys():
-                                monthly_sum_dict[ym] += num * price
+                                monthly_sum_dict[ym] += num * project_dict['price'] * exchange_rate
                             else:
-                                monthly_sum_dict[ym] = num * price
+                                monthly_sum_dict[ym] = num * project_dict['price'] * exchange_rate
                 else:
                     for timestamp, num in sub_dict.items():
-                        overall_sum += num * price
+                        overall_sum += num * project_dict['price']
                         ym = datetime.fromtimestamp(int(timestamp)).strftime('%Y%m')
                         if ym in monthly_sum_dict.keys():
-                            monthly_sum_dict[ym] += num * price
+                            monthly_sum_dict[ym] += num * project_dict['price'] * exchange_rate
                         else:
-                            monthly_sum_dict[ym] = num * price
+                            monthly_sum_dict[ym] = num * project_dict['price'] * exchange_rate
         monthly_sum = sorted(monthly_sum_dict.items(), key=lambda x: x[0])
         if 'pid' in d:
             start_ym = datetime.fromtimestamp(d['start_time']).strftime('%Y%m')
@@ -108,19 +87,45 @@ class Statistics(object):
         return overall_sum, monthly_sum
 
     @staticmethod
-    def get_monthly_sum_page(monthly_sum, page_number, currency_type):
+    def get_monthly_sum_page(monthly_sum, page_number, text, currency_type):
         # Generate monthly sum page out of monthly_sum.
         x_iter = range(len(monthly_sum[0]))
         fig = plt.figure()
-        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         plt.grid(axis='y')
+        plt.subplots_adjust(bottom=0.4)
         for x, y in zip(x_iter, monthly_sum[1]):
             plt.text(x, y, round(y, 2), ha='center', va='bottom')
+        fig.text(0.1, 0.15, text, fontsize=12, ha='left', va='center')
+        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         plt.title('Monthly Donation')
-        plt.xticks(x_iter, monthly_sum[0], rotation=30)
+        plt.xticks(x_iter, monthly_sum[0], rotation=45)
         plt.ylabel('/' + currency_type)
         plt.bar(x_iter, monthly_sum[1])
         return fig
+
+    @staticmethod
+    def get_num_sum(d):
+        # Return sum of donation (times) and donated meals.
+        donation_sum = 0
+        num_sum = 0
+        if 'pid' in d:
+            for uid, sub_dict in d['donate_history'].items():
+                for timestamp, num in sub_dict.items():
+                    donation_sum += 1
+                    num_sum += num
+        else:
+            if d['type'] == 1:
+                for pid, sub_dict in d['donate_history'].items():
+                    for uid, sub_sub_dict in sub_dict.items():
+                        for timestamp, num in sub_sub_dict.items():
+                            donation_sum += 1
+                            num_sum += num
+            else:
+                for pid, sub_dict in d['donate_history'].items():
+                    for timestamp, num in sub_dict.items():
+                        donation_sum += 1
+                        num_sum += num
+        return donation_sum, num_sum
 
     @staticmethod
     def get_progress(project_dict):
@@ -136,16 +141,18 @@ class Statistics(object):
         return progress
 
     @staticmethod
-    def get_progress_page(progress, page_number):
+    def get_progress_page(progress, page_number, text):
         # Generate progress page out of progress.
         x_iter = range(len(progress[0]))
         fig = plt.figure()
-        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         plt.grid(True)
+        plt.subplots_adjust(bottom=0.4)
         for x, y in zip(x_iter, progress[1]):
             plt.text(x, y, round(y, 2), ha='left', va='top')
+        fig.text(0.1, 0.15, text, fontsize=12, ha='left', va='center')
+        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
         plt.title('Project Progress')
-        plt.xticks(x_iter, progress[0], rotation=30)
+        plt.xticks(x_iter, progress[0], rotation=45)
         plt.ylim(-0.1, 1.1)
         plt.plot(x_iter, progress[1])
         return fig
@@ -164,13 +171,18 @@ class Statistics(object):
         d = Statistics.get_project_dict(pid)
         filename = 'p_' + d['pid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
+        currency_type = Statistics.get_user_dict(d['uid'])['currency_type']
         overall_sum = 0
         progress = [[], [0]]
+        donation_sum, num_sum = Statistics.get_num_sum(d)
         if d['donate_history']:
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
             progress = Statistics.get_progress(d)
             regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
-        currency_type = Statistics.get_user_dict(d['uid'])['currency_type']
+        project_age = time.time() - (d['end_time'] if progress[1][-1] >= 1 else d['start_time'])
+        if progress[1][-1] != 0:
+            finish_time = project_age / progress[1][-1] + d['start_time']
+            finish_day = datetime.fromtimestamp(finish_time).strftime('%Y/%m/%d')
         page_number = 1
 
         fig = plt.figure()
@@ -182,24 +194,42 @@ class Statistics(object):
                  fontsize=16, ha='center', va='center')
         pp.savefig(fig)
 
-        lines = ['Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...'),
-                 'Charity:    ' + d['charity'],
-                 'Location:    ' + rid2region(d['region']),
-                 'Meal Price:    ' + str(round(d['price'], 2)) + ' ' + currency_type,
-                 'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                 + str(round(d['total_num'] * d['price'], 2)) + ' ' + currency_type
-                 + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                 'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - '
-                 + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d'),
-                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
-        pp.savefig(Statistics.get_briefing_page(lines, page_number))
+        text = 'Project:    ' + (d['title'] if len(d['title']) <= 36 else d['title'][:36] + '...') + '\n\n' + \
+               'Charity:    ' + d['charity'] + '\n\n' + \
+               'Location:    ' + rid2region(d['region']) + '\n\n' + \
+               'Meal Price:    ' + str(round(d['price'], 2)) + ' ' + currency_type + '\n\n' + \
+               'Progress:    ' + str(round(overall_sum, 2)) + ' / ' + str(round(d['total_num'] * d['price'], 2)) + ' '\
+               + currency_type + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)\n\n' + \
+               'Period:    ' + datetime.fromtimestamp(d['start_time']).strftime('%Y/%m/%d') + ' - ' \
+               + datetime.fromtimestamp(d['end_time']).strftime('%Y/%m/%d') + '\n\n' + \
+               'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')
+        fig = plt.figure()
+        fig.text(0.1, 0.5, text, fontsize=14, ha='left', va='center')
+        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
+        pp.savefig(fig)
         page_number += 1
         if d['donate_history']:
-            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
+            text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', ' \
+                   + str(len(d['donate_history'])) + ' donors have donated ' + str(round(overall_sum, 2)) + ' ' \
+                   + currency_type + '\n\n(' + str(num_sum) + ' meals) to this project, which is ' \
+                   + str(round(overall_sum / len(d['donate_history']), 2)) + ' ' + currency_type + ' (' \
+                   + str(round(num_sum / len(d['donate_history']), 2)) + ' meals)\n\nper person.'
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, text, currency_type))
             page_number += 1
-            pp.savefig(Statistics.get_progress_page(progress, page_number))
+            text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') \
+                   + ', this project has completed ' + str(round(progress[1][-1] * 100, 2)) + '% in ' \
+                   + str(round(project_age / 86400)) + '\n\ndays, '
+            if progress[1][-1] == 0:
+                text += 'don\'t give up just yet! You are about to make the\n\nworld a little better!'
+            elif progress[1][-1] == 1:
+                text += 'congratulations!\n\nYou have made the world a little\n\nbetter!'
+            else:
+                text += 'estimated finish day is ' + finish_day + '. Keep up the good\n\nwork!'
+            pp.savefig(Statistics.get_progress_page(progress, page_number, text))
             page_number += 1
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(d['donate_history']), overall_sum, currency_type))
+            text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', donors from ' \
+                   + str(len(regional_dist[0])) + ' countries (regions) have\n\ndonated to this project.'
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, text))
             page_number += 1
 
         plt.close('all')
@@ -284,17 +314,12 @@ class Statistics(object):
         return regional_dist
 
     @staticmethod
-    def get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum, currency_type):
+    def get_regional_dist_page(regional_dist, page_number, text):
         # Generate regional distribution page out of regional_dist.
-        if n_donor == 1:
-            text = '1 donor has donated ' + str(overall_sum) + ' ' + currency_type + ' to this project.'
-        elif n_donor > 1:
-            text = str(n_donor) + ' donors have donated ' + str(round(overall_sum, 2)) + ' ' + currency_type\
-                   + ' to this project. (' + str(round(overall_sum / n_donor, 2)) + ' ' + currency_type + ' per person)'
         fig = plt.figure()
+        plt.subplots_adjust(bottom=0.2)
+        fig.text(0.1, 0.125, text, fontsize=12, ha='left', va='center')
         fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
-        if n_donor:
-            fig.text(0.5, 0.1, text, fontsize=10, ha='center', va='center')
         plt.title('Regional Distribution of Donation')
         plt.pie(regional_dist[1], labels=regional_dist[0], autopct='%.2f%%')
         return fig
@@ -313,11 +338,12 @@ class Statistics(object):
         d = Statistics.get_user_dict(uid)
         filename = 'u_' + d['uid'] + '.pdf'
         pp = PdfPages('DOC/' + filename)
+        currency_type = d['currency_type']
         overall_sum = 0
+        donation_sum, num_sum = Statistics.get_num_sum(d)
         if d['donate_history']:
             overall_sum, monthly_sum = Statistics.get_monthly_sum(d)
             regional_dist = Statistics.fold_data(Statistics.get_regional_dist(d))
-        currency_type = d['currency_type']
         page_number = 1
 
         fig = plt.figure()
@@ -325,57 +351,105 @@ class Statistics(object):
                  'Food For All by Apex08',
                  fontsize=20, ha='center', va='center')
         fig.text(0.5, 0.4,
-                 '- ' + ('Charity' if d['type'] == 1 else 'Guest') + ' Report -',
+                 '- ' + ('Charity' if d['type'] == 1 else 'Donor') + ' Report -',
                  fontsize=16, ha='center', va='center')
         pp.savefig(fig)
 
-        lines = ['User:    ' + d['name'],
-                 'Email:    ' + d['mail'],
-                 'Location:    ' + rid2region(d['region']),
-                 'Currency:    ' + d['currency_type'],
-                 'Total Donation:    ' + str(round(overall_sum, 2)) + ' ' + currency_type,
-                 'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d'),
-                 'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')]
-        pp.savefig(Statistics.get_briefing_page(lines, page_number))
+        text = 'User:    ' + d['name'] + '\n\n' + \
+               'Email:    ' + d['mail'] + '\n\n' + \
+               'Location:    ' + rid2region(d['region']) + '\n\n' + \
+               'Currency:    ' + currency_type + '\n\n' + \
+               'Total Donation:    ' + str(round(overall_sum, 2)) + ' ' + currency_type + '\n\n' + \
+               'Registration Date:    ' + datetime.fromtimestamp(d['regis_time']).strftime('%Y/%m/%d') + '\n\n' + \
+               'Report Date:    ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d')
+        fig = plt.figure()
+        fig.text(0.1, 0.5, text, fontsize=14, ha='left', va='center')
+        fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
+        pp.savefig(fig)
         page_number += 1
         if d['donate_history']:
-            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
-            page_number += 1
-            n_donor = 0
             if d['type'] == 1:
+                n_donor = 0
                 for pid in d['donate_history']:
                     project_dict = Statistics.get_project_dict(pid)
                     n_donor += len(project_dict['donate_history'])
-            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, n_donor, overall_sum, currency_type))
+                text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', ' + str(n_donor) \
+                       + ' donors have donated ' + str(round(overall_sum, 2)) + ' ' + currency_type + '\n\n(' \
+                       + str(num_sum) + ' meals) to your projects, which is ' + str(round(overall_sum / n_donor, 2)) \
+                       + ' ' + currency_type + ' (' + str(round(num_sum / n_donor, 2)) + ' meals)\n\nper person.'
+            else:
+                text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', you have donated ' \
+                       + str(round(overall_sum, 2)) + ' ' + currency_type + '\n\n(' + str(num_sum) + ' meals) to ' \
+                       + str(len(d['donate_history'])) + ' projects, which is ' \
+                       + str(round(overall_sum / len(d['donate_history']), 2)) + ' ' + currency_type + ' (' \
+                       + str(round(num_sum / len(d['donate_history']), 2)) + ' meals)\n\nper project.'
+            pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, text, currency_type))
+            page_number += 1
+            if d['type'] == 1:
+                text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', donors from ' \
+                       + str(len(regional_dist[0])) + ' countries (regions) have\n\ndonated to your projects.'
+            else:
+                text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', you have donated to ' \
+                       'projects from\n\n' + str(len(regional_dist[0])) + ' countries (regions).'
+            pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, text))
             page_number += 1
 
         # Project section
         if d['type'] == 1:
             for pid in d['project']:
                 project_dict = Statistics.get_project_dict(pid)
+                if project_dict['status'] == PROJECT_STATUS['prepare']:
+                    continue
                 overall_sum = 0
                 progress = [[], [0]]
-                if pid in d['donate_history']:
+                donation_sum, num_sum = Statistics.get_num_sum(project_dict)
+                if project_dict['donate_history']:
                     overall_sum, monthly_sum = Statistics.get_monthly_sum(project_dict)
                     progress = Statistics.get_progress(project_dict)
                     regional_dist = Statistics.fold_data(Statistics.get_regional_dist(project_dict))
+                project_age = time.time() - (project_dict['end_time'] if progress[1][-1] >= 1 else
+                                             project_dict['start_time'])
+                if progress[1][-1] != 0:
+                    finish_time = project_age / progress[1][-1] + project_dict['start_time']
+                    finish_day = datetime.fromtimestamp(finish_time).strftime('%Y/%m/%d')
 
-                lines = ['Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
-                                           project_dict['title'][:36] + '...'),
-                         'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' ' + currency_type,
-                         'Progress:    ' + str(round(overall_sum, 2)) + ' / '
-                         + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' ' + currency_type
-                         + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)',
-                         'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - '
-                         + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d')]
-                pp.savefig(Statistics.get_briefing_page(lines, page_number))
+                text = 'Project:    ' + (project_dict['title'] if len(project_dict['title']) <= 36 else
+                                         project_dict['title'][:36] + '...') + '\n\n' + \
+                       'Meal Price:    ' + str(round(project_dict['price'], 2)) + ' ' + currency_type + '\n\n' + \
+                       'Progress:    ' + str(round(overall_sum, 2)) + ' / ' \
+                       + str(round(project_dict['total_num'] * project_dict['price'], 2)) + ' ' + currency_type \
+                       + ' (' + str(round(progress[1][-1] * 100, 2)) + '%)\n\n' + \
+                       'Period:    ' + datetime.fromtimestamp(project_dict['start_time']).strftime('%Y/%m/%d') + ' - ' \
+                       + datetime.fromtimestamp(project_dict['end_time']).strftime('%Y/%m/%d') + '\n\n'
+                fig = plt.figure()
+                fig.text(0.1, 0.5, text, fontsize=14, ha='left', va='center')
+                fig.text(0.95, 0.05, page_number, fontsize=10, ha='center', va='center')
+                pp.savefig(fig)
                 page_number += 1
-                if pid in d['donate_history']:
-                    pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, currency_type))
+                if d['donate_history']:
+                    text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', ' \
+                           + str(len(project_dict['donate_history'])) + ' donors have donated ' \
+                           + str(round(overall_sum, 2)) + ' ' + currency_type + '\n\n(' + str(num_sum) \
+                           + ' meals) to this project, which is ' \
+                           + str(round(overall_sum / len(project_dict['donate_history']), 2)) + ' ' + currency_type \
+                           + ' (' + str(round(num_sum / len(project_dict['donate_history']), 2)) \
+                           + ' meals)\n\nper person.'
+                    pp.savefig(Statistics.get_monthly_sum_page(monthly_sum, page_number, text, currency_type))
                     page_number += 1
-                    pp.savefig(Statistics.get_progress_page(progress, page_number))
+                    text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') \
+                           + ', this project has completed ' + str(round(progress[1][-1] * 100, 2)) + '% in ' \
+                           + str(round(project_age / 86400)) + '\n\ndays, '
+                    if progress[1][-1] == 0:
+                        text += 'don\'t give up just yet! You are about to make the\n\nworld a little better!'
+                    elif progress[1][-1] == 1:
+                        text += 'congratulations!\n\nYou have made the world a little\n\nbetter!'
+                    else:
+                        text += 'estimated finish day is ' + finish_day + '. Keep up the good\n\nwork!'
+                    pp.savefig(Statistics.get_progress_page(progress, page_number, text))
                     page_number += 1
-                    pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, len(project_dict['donate_history']), overall_sum, currency_type))
+                    text = 'Up to ' + datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d') + ', donors from ' \
+                           + str(len(regional_dist[0])) + ' countries (regions) have\n\ndonated to this project.'
+                    pp.savefig(Statistics.get_regional_dist_page(regional_dist, page_number, text))
                     page_number += 1
         plt.close('all')
         pp.close()
