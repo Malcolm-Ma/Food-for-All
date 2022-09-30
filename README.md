@@ -20,9 +20,9 @@ See in [Set Up Guide](./setup.md)
 
 ### Docs
 
-[Front End Readme](https://git.shefcompsci.org.uk/com6103-2021-22/team08/project/-/blob/main/web-app/README.md)
+[Front End Readme](web-app/README.md)
 
-[Back end Readme](https://git.shefcompsci.org.uk/com6103-2021-22/team08/project/-/blob/main/server-app/README.md)
+[Back end Readme](server-app/README.md)
 
 ## Front End
 
