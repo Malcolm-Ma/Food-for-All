@@ -4,29 +4,12 @@
 ## Set up Guide
 
 See in [Set Up Guide](./setup.md)
-## Team division
+
+## Technique Stacks
 
 ### Front End
 
-- Mingze Ma (@ acp21mm)
-- Tianhao Shi (@ acp21ts)
-- Hangting Dong (@ acs21hd)
-
-### Back end
-
-- Tianyu Liang (@ acs21tl)
-- Youzheng Jia (@ acq21yj)
-- Zhengwei Zhan (@ acq21zz)
-
-### Docs
-
-[Front End Readme](web-app/README.md)
-
-[Back end Readme](server-app/README.md)
-
-## Front End
-
-### Technique Stack (Framework)
+#### Technique Stack (Framework)
 
 React.js
 
@@ -36,24 +19,46 @@ React Redux
 
 etc.
 
-### Dependencies & Library
+#### Dependencies & Library
 
-#### Component Library
+##### Component Library
 
 [Ant Design](https://ant.design/components/overview-cn/) by Alibaba
 
 [Material UI](https://mui.com/getting-started/installation/)
 
-#### Utils
+##### Utils
 
 lodash
 
-## Back End
+### Back End
 
-### Technique Routes
+#### Technique Routes
 
 Coding Language: Python 3.x
 
 Framework: Django
 
 Database: Mysql
+
+### Docs
+
+[Front End Readme](web-app/README.md)
+
+[Back end Readme](server-app/README.md)
+
+
+## Team division
+
+### Front End
+
+- **Mingze Ma** (Mostly contributor of front end)
+- Tianhao Shi
+- Hangting Dong
+
+### Back end
+
+- Tianyu Liang
+- Youzheng Jia
+- Zhengwei Zhan
+
