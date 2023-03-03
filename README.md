@@ -51,7 +51,7 @@ Database: Mysql
 
 ### Front End
 
-- **Mingze Ma** (Mostly contributor (70%) of front end)
+- **Mingze Ma** (Mostly contributor of front end)
 - Tianhao Shi
 - Hangting Dong
 
