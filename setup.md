@@ -3,31 +3,30 @@
 ## Environment configuration
 
 ### Clone the project code from GitLab to local at the command line
-```
-git clone https://git.shefcompsci.org.uk/com6103-2021-22/team08/project.git
-```
 
-### Download and install node.js
-You can follow the officiak
-
-### Download and install Anaconda
+```shell
+git clone https://github.com/Malcolm-Ma/Food-for-All.git
+```
 
 ### Configure DJango environment and dependencies
 
 Go to the server-app by `cd ./server-app`.
 
 Execute the command:
+
+```shell
+python -m venv .venv
+source .venv/bin/activate
+pip3 install -r requirements.txt
 ```
-conda env create -f environment_{systemtype}.yml
-```
-{systemtype} is replaced with the current operating system name, e.g. `windows`, `mac`
 
 ### Install and setup MySQL
 
 ### Add database for the project in MySQL
 
 Login Mysql as administrator and execute the following commands in order:
-```mysql
+
+```sql
 CREATE DATABASE foodforall;
 create user 'apex'@'%' identified by 'apex08';
 grant all privileges on *.* to 'apex'@'%';
@@ -41,18 +40,17 @@ Go to the server-app by `cd ./server-app`.
 execute the following commands in sequence:
 
 ```shell
-conda activate tsp
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 **Note: The back-end services must be configured on the same machine as the front-end services.**
 
-### Set up front end dependencies 
+### Set up front end dependencies
 
 Go to the web-app by `cd ./web-app`.
 
-Then run: 
+Then run:
 
 ```shell
 npm install
@@ -60,7 +58,7 @@ npm install
 
 ## Starting the services
 
-### Start back-end service 
+### Start back-end service
 
 **(the service will be slow to start for the first time)**
 
@@ -83,7 +81,7 @@ Then run
 npm start
 ```
 
-**At this point, the server is successfully started and the main project page can be accessed by opening http://localhost:3000/**
+**At this point, the server is successfully started and the main project page can be accessed by opening [http://localhost:3000/**](http://localhost:3000/) in the browser.**
 
 ## Backend Api Doc
 

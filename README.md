@@ -34,9 +34,7 @@ lodash
 
 #### Technique Routes
 
-Coding Language: Python 3.x
-
-Framework: Django
+Framework: Django with Python 3.x
 
 Database: Mysql
 
@@ -46,6 +44,37 @@ Database: Mysql
 
 [Back End Readme](server-app/README.md)
 
+## Demo
+
+### Project
+
+- Home Page
+![Home Page](./demo/home.png)
+- Project List
+![Project List](./demo/projects.png)
+- Project Nonation
+![Project Detail](./demo/donate.png)
+
+### Admin
+
+- Charity Dashboard
+![Charity Dashboard](./demo/admin_dashboard.png)
+![Charity Dashboard](./demo/dashboard_1.png)
+- Charity Project List
+![Charity Project List](./demo/admin_index.png)
+- Project Detail
+![Project Detail](./demo/project_detail.png)
+- Create Project
+![Create Project](./demo/admin_create_project.png)
+- Donation History
+![Donation History](./demo/donation_history.png)
+
+### User
+
+- Login Page
+![Login Page](./demo/login.png)
+- Register Page
+![Register Page](./demo/register.png)
 
 ## Team division
 
